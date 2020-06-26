@@ -1,6 +1,6 @@
-# PHP-Starter
+# Brighte-API-SDK-PHP
 
-Basic requirements for a PHP project
+SDK for interacting with Brighte APIs in PHP
 
 ### Authors
 Chris Young <chris.young@brighte.com.au>
