@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace BrighteCapital\SlimCore\Tests\Api;
 
@@ -92,7 +92,7 @@ class IdentityApiTest extends \PHPUnit\Framework\TestCase
             'firstName' => 'Joe',
             'lastName' => 'Customer',
         ];
-        $providedUser = new User;
+        $providedUser = new User();
         $providedUser->firstName = 'Joe';
         $providedUser->lastName = 'Customer';
         $providedUser->email = 'joe@test.com';
@@ -118,8 +118,7 @@ class IdentityApiTest extends \PHPUnit\Framework\TestCase
         );
         $this->brighteApi->expects(self::once())->method('post')
             ->with('/identity/users')->willReturn($response);
-        $user = $this->identityApi->createUser(new User);
+        $user = $this->identityApi->createUser(new User());
         self::assertNull($user);
     }
-
 }

@@ -3,8 +3,8 @@
     "description": "SDK for interacting with Brighte APIs",
     "type": "library",
     "require-dev": {
-        "brighte/brighte-ms-standards": "dev-support/php7.1",
-        "phpunit/phpunit": "^7.5"
+        "phpunit/phpunit": "^7.5",
+        "squizlabs/php_codesniffer": "3.5"
     },
     "license": "MIT",
     "authors": [

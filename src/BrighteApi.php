@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace BrighteCapital\Api;
 
@@ -52,8 +52,7 @@ class BrighteApi
         ClientInterface $http,
         LoggerInterface $log,
         array $config
-    )
-    {
+    ) {
         $uri = new Uri($config['uri']);
         $this->scheme = $uri->getScheme();
         $this->host = $uri->getHost();
@@ -127,8 +126,7 @@ class BrighteApi
         string $query = '',
         array $headers = [],
         bool $auth = true
-    ): ResponseInterface
-    {
+    ): ResponseInterface {
         return $this->doRequest('POST', $path, $query, $body, $headers, $auth);
     }
     
@@ -148,8 +146,7 @@ class BrighteApi
         ?string $body,
         array $headers,
         bool $auth = true
-    ): ResponseInterface
-    {
+    ): ResponseInterface {
         $this->log->debug(
             'BrighteApi->' . __FUNCTION__,
             $path === '/identity/authenticate' ? compact('path') : func_get_args()
@@ -177,5 +174,4 @@ class BrighteApi
             $body
         ));
     }
-
 }

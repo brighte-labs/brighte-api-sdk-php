@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace BrighteCapital\SlimCore\Tests\Api;
 
@@ -90,5 +90,4 @@ class PaymentApiTest extends \PHPUnit\Framework\TestCase
         $method = $this->paymentApi->getMethod('method-id', 1);
         self::assertNull($method);
     }
-
 }

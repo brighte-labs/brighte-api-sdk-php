@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace BrighteCapital\Api;
 
@@ -30,7 +30,7 @@ class VendorApi extends \BrighteCapital\Api\AbstractApi
         $vendors = [];
 
         foreach ($results as $result) {
-            $vendor = new Vendor;
+            $vendor = new Vendor();
             $vendor->id = $result->id ?? null;
             $vendor->tradingName = $result->tradingName ?? null;
             $vendor->salesforceAccountId = $result->salesforceAccountId ?? null;
@@ -79,7 +79,7 @@ class VendorApi extends \BrighteCapital\Api\AbstractApi
         $categories = [];
 
         foreach ($results as $result) {
-            $category = new Category;
+            $category = new Category();
             $category->id = $result->id;
             $category->name = $result->name;
             $category->slug = $result->slug;
@@ -88,5 +88,4 @@ class VendorApi extends \BrighteCapital\Api\AbstractApi
 
         return $categories;
     }
-
 }

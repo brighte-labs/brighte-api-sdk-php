@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace BrighteCapital\Api;
 
@@ -25,7 +25,7 @@ class PaymentApi extends \BrighteCapital\Api\AbstractApi
         
         $result = json_decode((string) $response->getBody());
 
-        $method = new PaymentMethod;
+        $method = new PaymentMethod();
         $method->id = $result->id ?? null;
         $method->userId = $result->userId ?? null;
         $method->type = $result->type ?? null;
@@ -43,5 +43,4 @@ class PaymentApi extends \BrighteCapital\Api\AbstractApi
 
         return $method;
     }
-
 }

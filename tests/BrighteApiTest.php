@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace BrighteCapital\SlimCore\Tests\Api;
 
@@ -123,5 +123,4 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
             $this->api->post('/chipmonks', 'body', 'size=0.5', ['extra-header' => 'extra-header'])
         );
     }
-
 }

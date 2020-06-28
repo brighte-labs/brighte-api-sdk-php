@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace BrighteCapital\Api\Models;
 
@@ -15,5 +15,4 @@ class Category
 
     /** @var string Slug */
     public $slug;
-
 }

@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace BrighteCapital\Api;
 
@@ -24,7 +24,7 @@ class IdentityApi extends \BrighteCapital\Api\AbstractApi
         
         $result = json_decode((string) $response->getBody());
 
-        $user = new User;
+        $user = new User();
         $user->id = $result->id ?? null;
         $user->role = $result->role ?? null;
         $user->firstName = $result->firstName ?? null;
@@ -60,5 +60,4 @@ class IdentityApi extends \BrighteCapital\Api\AbstractApi
 
         return $user;
     }
-
 }

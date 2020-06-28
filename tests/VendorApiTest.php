@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace BrighteCapital\SlimCore\Tests\Api;
 
@@ -137,5 +137,4 @@ class VendorApiTest extends \PHPUnit\Framework\TestCase
         $categories = $this->vendorApi->getVendorCategories(1);
         self::assertCount(0, $categories);
     }
-
 }

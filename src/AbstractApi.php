@@ -1,12 +1,13 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace BrighteCapital\Api;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use stdClass;
+
 use function json_decode;
 
 abstract class AbstractApi
@@ -26,7 +27,7 @@ abstract class AbstractApi
 
     protected function logResponse(string $function, ResponseInterface $response): void
     {
-        $body = json_decode((string) $response->getBody()) ?? new stdClass;
+        $body = json_decode((string) $response->getBody()) ?? new stdClass();
         $message = sprintf(
             '%s->%s: %d: %s',
             self::class,
@@ -36,5 +37,4 @@ abstract class AbstractApi
         );
         $this->logger->warning($message);
     }
-
 }

@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace BrighteCapital\Api\Models;
 
@@ -48,5 +48,4 @@ class PaymentMethod
 
     /** @var string $source App that created this method */
     public $source;
-
 }
