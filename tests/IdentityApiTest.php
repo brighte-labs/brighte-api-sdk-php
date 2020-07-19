@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace BrighteCapital\SlimCore\Tests\Api;
+namespace BrighteCapital\Tests\Api;
 
 use BrighteCapital\Api\BrighteApi;
 use BrighteCapital\Api\IdentityApi;
@@ -41,6 +41,7 @@ class IdentityApiTest extends \PHPUnit\Framework\TestCase
     {
         $providedUser = [
             'id' => 1,
+            'remoteId' => '11',
             'firstName' => 'Joe',
             'lastName' => 'Customer',
             'email' => 'joe@test.com',
@@ -54,6 +55,7 @@ class IdentityApiTest extends \PHPUnit\Framework\TestCase
         $user = $this->identityApi->getUser(1);
         self::assertInstanceOf(User::class, $user);
         self::assertEquals(1, $user->id);
+        self::assertEquals('11', $user->remoteId);
         self::assertEquals('Joe', $user->firstName);
         self::assertEquals('Customer', $user->lastName);
         self::assertEquals('joe@test.com', $user->email);

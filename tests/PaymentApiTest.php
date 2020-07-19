@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace BrighteCapital\SlimCore\Tests\Api;
+namespace BrighteCapital\Tests\Api;
 
 use BrighteCapital\Api\BrighteApi;
 use BrighteCapital\Api\Models\PaymentMethod;

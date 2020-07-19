@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BrighteCapital\Api;
 
 use BrighteCapital\Api\Models\Category;
+use BrighteCapital\Api\Models\PromoCode;
 use BrighteCapital\Api\Models\Vendor;
 use Fig\Http\Message\StatusCodeInterface;
 
@@ -32,6 +33,7 @@ class VendorApi extends \BrighteCapital\Api\AbstractApi
         foreach ($results as $result) {
             $vendor = new Vendor();
             $vendor->id = $result->id ?? null;
+            $vendor->remoteId = $result->remoteId ?? null;
             $vendor->tradingName = $result->tradingName ?? null;
             $vendor->salesforceAccountId = $result->salesforceAccountId ?? null;
             $vendor->accountsEmail = $result->accountsEmail ?? null;
@@ -83,9 +85,40 @@ class VendorApi extends \BrighteCapital\Api\AbstractApi
             $category->id = $result->id;
             $category->name = $result->name;
             $category->slug = $result->slug;
-            $categories[] = $category;
+            $categories[$category->id] = $category;
         }
 
         return $categories;
+    }
+
+    /**
+     * @param int $vendorId
+     * @param bool $active
+     * @return \BrighteCapital\Api\Models\PromoCode[]
+     */
+    public function getVendorPromos(int $vendorId, bool $active = false): array
+    {
+        $response = $this->brighteApi->get(sprintf('%s/%d/promos?active=%s', self::PATH, $vendorId, $active));
+
+        if ($response->getStatusCode() !== StatusCodeInterface::STATUS_OK) {
+            $this->logResponse(__FUNCTION__, $response);
+
+            return [];
+        }
+
+        $results = json_decode((string) $response->getBody());
+        $promoCodes = [];
+
+        foreach ($results as $result) {
+            $promoCode = new PromoCode();
+            $promoCode->id = $result->id;
+            $promoCode->code = $result->code;
+            $promoCode->type = $result->type;
+            $promoCode->start = $result->start;
+            $promoCode->end = $result->end;
+            $promoCodes[$result->id] = $promoCode;
+        }
+
+        return $promoCodes;
     }
 }

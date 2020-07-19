@@ -10,6 +10,9 @@ class User
     /** @var int */
     public $id;
 
+    /** @var string Remote ID */
+    public $remoteId;
+
     /** @var string */
     public $role;
 

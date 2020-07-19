@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-namespace BrighteCapital\SlimCore\Tests\Api;
+namespace BrighteCapital\Tests\Api;
 
 use BrighteCapital\Api\BrighteApi;
 use BrighteCapital\Api\Models\Category;
+use BrighteCapital\Api\Models\PromoCode;
 use BrighteCapital\Api\Models\Vendor;
 use BrighteCapital\Api\VendorApi;
 use GuzzleHttp\Psr7\Response;
@@ -42,6 +43,7 @@ class VendorApiTest extends \PHPUnit\Framework\TestCase
     {
         $providedVendor = [
             'id' => 1,
+            'remoteId' => '11',
             'tradingName' => 'Solar Installers Inc.',
             'salesforceAccountId' => 'salesforce-account-id',
             'accountsEmail' => 'accounts@solar.inc',
@@ -53,6 +55,7 @@ class VendorApiTest extends \PHPUnit\Framework\TestCase
         self::assertCount(1, $vendors);
         self::assertInstanceOf(Vendor::class, $vendors[1]);
         self::assertEquals(1, $vendors[1]->id);
+        self::assertEquals('11', $vendors[1]->remoteId);
         self::assertEquals('Solar Installers Inc.', $vendors[1]->tradingName);
         self::assertEquals('salesforce-account-id', $vendors[1]->salesforceAccountId);
         self::assertEquals('accounts@solar.inc', $vendors[1]->accountsEmail);
@@ -116,10 +119,10 @@ class VendorApiTest extends \PHPUnit\Framework\TestCase
         $this->brighteApi->expects(self::once())->method('get')->with('/vendors/1/categories')->willReturn($response);
         $categories = $this->vendorApi->getVendorCategories(1);
         self::assertCount(1, $categories);
-        self::assertInstanceOf(Category::class, $categories[0]);
-        self::assertEquals(1, $categories[0]->id);
-        self::assertEquals('Solar Systems', $categories[0]->name);
-        self::assertEquals('solar-systems', $categories[0]->slug);
+        self::assertInstanceOf(Category::class, $categories[1]);
+        self::assertEquals(1, $categories[1]->id);
+        self::assertEquals('Solar Systems', $categories[1]->name);
+        self::assertEquals('solar-systems', $categories[1]->slug);
     }
 
     /**
@@ -136,5 +139,48 @@ class VendorApiTest extends \PHPUnit\Framework\TestCase
         $this->brighteApi->method('get')->willReturn($response);
         $categories = $this->vendorApi->getVendorCategories(1);
         self::assertCount(0, $categories);
+    }
+
+    /**
+     * @covers ::__construct
+     * @covers ::getVendorPromos
+     */
+    public function testGetVendorPromos(): void
+    {
+        $providedVendorPromo = [
+            'id' => 20,
+            'code' => 'Xmas20',
+            'type' => 'DeferredPayment',
+            'start' => '2019-11-03 14:00:00',
+            'end' => '2020-12-26 13:59:00',
+        ];
+        $response = new Response(200, [], json_encode([$providedVendorPromo]));
+        $this->brighteApi->expects(
+            self::once()
+        )->method('get')->with('/vendors/1/promos?active=1')->willReturn($response);
+        $vendorPromos = $this->vendorApi->getVendorPromos(1, true);
+        self::assertCount(1, $vendorPromos);
+        self::assertInstanceOf(PromoCode::class, $vendorPromos[20]);
+        self::assertEquals(20, $vendorPromos[20]->id);
+        self::assertEquals('Xmas20', $vendorPromos[20]->code);
+        self::assertEquals('DeferredPayment', $vendorPromos[20]->type);
+        self::assertEquals('2019-11-03 14:00:00', $vendorPromos[20]->start);
+        self::assertEquals('2020-12-26 13:59:00', $vendorPromos[20]->end);
+    }
+
+    /**
+     * @covers ::__construct
+     * @covers ::getVendorPromos
+     * @covers ::logResponse
+     */
+    public function testGetVendorPromosFail(): void
+    {
+        $response = new Response(404, [], json_encode(['message' => 'Not found']));
+        $this->logger->expects(self::once())->method('warning')->with(
+            'BrighteCapital\Api\AbstractApi->getVendorPromos: 404: Not found'
+        );
+        $this->brighteApi->method('get')->willReturn($response);
+        $promos = $this->vendorApi->getVendorPromos(1, true);
+        self::assertCount(0, $promos);
     }
 }

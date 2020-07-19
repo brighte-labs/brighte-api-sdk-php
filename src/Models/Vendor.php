@@ -10,6 +10,9 @@ class Vendor
     /** @var int Entity ID */
     public $id;
 
+    /** @var string Remote ID */
+    public $remoteId;
+
     /** @var string Trading Name */
     public $tradingName;
 

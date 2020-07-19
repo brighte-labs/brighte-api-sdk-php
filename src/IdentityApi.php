@@ -26,6 +26,7 @@ class IdentityApi extends \BrighteCapital\Api\AbstractApi
 
         $user = new User();
         $user->id = $result->id ?? null;
+        $user->remoteId = $result->remoteId ?? null;
         $user->role = $result->role ?? null;
         $user->firstName = $result->firstName ?? null;
         $user->lastName = $result->lastName ?? null;
