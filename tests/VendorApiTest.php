@@ -110,7 +110,7 @@ class VendorApiTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::__construct
-     * @covers ::getVendorCategories
+     * @covers ::getCategories
      */
     public function testGetCategories(): void
     {
@@ -127,7 +127,7 @@ class VendorApiTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::__construct
-     * @covers ::getVendorCategories
+     * @covers ::getCategories
      * @covers ::logResponse
      */
     public function testGetCategoriesFail(): void
