@@ -69,7 +69,7 @@ class VendorApi extends \BrighteCapital\Api\AbstractApi
      */
     public function getCategories(): array
     {
-        $response = $this->brighteApi->get(sprintf('/categories'));
+        $response = $this->brighteApi->get('/categories');
         
         if ($response->getStatusCode() !== StatusCodeInterface::STATUS_OK) {
             $this->logResponse(__FUNCTION__, $response);
