@@ -11,11 +11,11 @@ class Notification
     public $id;
 
     /** @var string */
-    public $recipient;
+    public $to;
 
     /** @var string */
     public $templateKey;
 
     /** @var array */
-    public $data = [];
+    public $payload = [];
 }

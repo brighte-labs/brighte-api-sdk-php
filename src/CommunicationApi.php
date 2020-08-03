@@ -15,14 +15,14 @@ class CommunicationApi extends \BrighteCapital\Api\AbstractApi
     public function createNotification(Notification $notification): ?Notification
     {
         $body = json_encode([
-            'to' => $notification->recipient,
+            'to' => $notification->to,
             'templateKey' => $notification->templateKey,
-            'payload' => $notification->data ?: null,
+            'payload' => $notification->payload ?: null,
         ]);
 
         $response = $this->brighteApi->post(sprintf('%s/notifications', self::PATH), $body);
 
-        if ($response->getStatusCode() !== StatusCodeInterface::STATUS_OK) {
+        if ($response->getStatusCode() !== StatusCodeInterface::STATUS_CREATED) {
             $this->logResponse(__FUNCTION__, $response);
 
             return null;

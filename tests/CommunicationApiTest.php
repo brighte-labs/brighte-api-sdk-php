@@ -47,10 +47,10 @@ class CommunicationApiTest extends \PHPUnit\Framework\TestCase
             ],
         ];
         $notification = new Notification();
-        $notification->recipient = '0412312412';
+        $notification->to = '0412312412';
         $notification->templateKey = 'sms_authcode_tc_bp';
-        $notification->data = ['id' => 123];
-        $response = new Response(200, [], json_encode(['id' => '56e659ac-d541-11ea-87d0-0242ac130003']));
+        $notification->payload = ['id' => 123];
+        $response = new Response(201, [], json_encode(['id' => '56e659ac-d541-11ea-87d0-0242ac130003']));
         $this->brighteApi->expects(self::once())->method('post')
             ->with('/communications/notifications', json_encode($expectedBody))
             ->willReturn($response);
