@@ -14,7 +14,7 @@ class PromotionApi extends AbstractApi
     public const PATH = '/promotions';
 
     /**
-     * Tries apply promotion to application if its applicable
+     * Tries apply promotion to application if its applicable for vendor and product type
      * 202 status code means it not applicable
      *
      * @param \BrighteCapital\Api\Promotion\Models\ApplicationPromotion $applicationPromotion
