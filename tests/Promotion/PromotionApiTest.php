@@ -43,6 +43,9 @@ class PromotionApiTest extends TestCase
             new ApplicationPromotion(10, 1, 5, 'Brighte_pay');
     }
 
+    /**
+     * @covers \BrighteCapital\Api\Promotion\PromotionApi::applyPromotion
+     */
     public function testApplyPromotionThrowsBadException()
     {
         $this->apiClient->expects($this->once())->method('post')->with(
@@ -58,7 +61,9 @@ class PromotionApiTest extends TestCase
         $this->api->applyPromotion($this->applicationPromotion);
     }
 
-
+    /**
+     * @covers \BrighteCapital\Api\Promotion\PromotionApi::applyPromotion
+     */
     public function testApplyPromotionReturnsNullForNoContentStatusCode()
     {
         $this->apiClient->expects($this->once())->method('post')->with(
@@ -73,6 +78,9 @@ class PromotionApiTest extends TestCase
         $this->assertNull($this->api->applyPromotion($this->applicationPromotion));
     }
 
+    /**
+     * @covers \BrighteCapital\Api\Promotion\PromotionApi::applyPromotion
+     */
     public function testApplyPromotionReturnsPromotionCode()
     {
         $promoEntity = [
@@ -97,6 +105,9 @@ class PromotionApiTest extends TestCase
         $this->assertEquals($expected, $actual);
     }
 
+    /**
+     * @covers \BrighteCapital\Api\Promotion\PromotionApi::applyPromotion
+     */
     public function testApplyPromotionThrowGenericException()
     {
         $this->apiClient->expects($this->once())->method('post')->with(
@@ -111,6 +122,9 @@ class PromotionApiTest extends TestCase
         $this->api->applyPromotion($this->applicationPromotion);
     }
 
+    /**
+     * @covers \BrighteCapital\Api\Promotion\PromotionApi::getPromotion
+     */
     public function testGetPromotionReturnSinglePromotion()
     {
         $promoEntity = [
@@ -131,6 +145,9 @@ class PromotionApiTest extends TestCase
         $this->assertEquals($expected, $this->api->getPromotion(10));
     }
 
+    /**
+     * @covers \BrighteCapital\Api\Promotion\PromotionApi::getPromotion
+     */
     public function testGetPromotionThrowsRecordNotFoundException()
     {
         $this->apiClient->expects($this->once())->method('get')

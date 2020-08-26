@@ -7,7 +7,10 @@ use PHPUnit\Framework\TestCase;
 
 class ApplicationPromotionTest extends TestCase
 {
-    public function testToArrayReturnsExpectionArray()
+    /**
+     * @covers \BrighteCapital\Api\Promotion\Models\ApplicationPromotion::toArray
+     */
+    public function testToArrayReturnsAssocArray()
     {
         $applicationPromotion = new ApplicationPromotion(10, 1, 5, 'Brighte_pay');
         $expected = [
