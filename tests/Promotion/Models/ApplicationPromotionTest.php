@@ -9,6 +9,7 @@ class ApplicationPromotionTest extends TestCase
 {
     /**
      * @covers \BrighteCapital\Api\Promotion\Models\ApplicationPromotion::toArray
+     * @covers \BrighteCapital\Api\Promotion\Models\ApplicationPromotion::__construct
      */
     public function testToArrayReturnsAssocArray()
     {

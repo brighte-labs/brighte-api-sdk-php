@@ -13,6 +13,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\NullLogger;
 
+/**@coversDefaultClass  \BrighteCapital\Api\Promotion\PromotionApi */
 class PromotionApiTest extends TestCase
 {
 
@@ -33,6 +34,7 @@ class PromotionApiTest extends TestCase
      */
     private $applicationPromotion;
 
+    /**@covers \BrighteCapital\Api\Promotion\PromotionApi::__construct */
     protected function setUp()
     {
         parent::setUp();
@@ -45,6 +47,10 @@ class PromotionApiTest extends TestCase
 
     /**
      * @covers \BrighteCapital\Api\Promotion\PromotionApi::applyPromotion
+     * @covers \BrighteCapital\Api\AbstractApi::__construct
+     * @covers \BrighteCapital\Api\Promotion\Models\ApplicationPromotion::toArray
+     * @covers \BrighteCapital\Api\Promotion\Models\ApplicationPromotion::__construct
+     * @covers \BrighteCapital\Api\Promotion\Exceptions\BadRequestException::__construct
      */
     public function testApplyPromotionThrowsBadException()
     {
@@ -62,7 +68,10 @@ class PromotionApiTest extends TestCase
     }
 
     /**
+     * @covers \BrighteCapital\Api\AbstractApi::__construct
      * @covers \BrighteCapital\Api\Promotion\PromotionApi::applyPromotion
+     * @covers \BrighteCapital\Api\Promotion\Models\ApplicationPromotion::toArray
+     * @covers \BrighteCapital\Api\Promotion\Models\ApplicationPromotion::__construct
      */
     public function testApplyPromotionReturnsNullForNoContentStatusCode()
     {
@@ -80,6 +89,9 @@ class PromotionApiTest extends TestCase
 
     /**
      * @covers \BrighteCapital\Api\Promotion\PromotionApi::applyPromotion
+     * @covers \BrighteCapital\Api\AbstractApi::__construct
+     * @covers \BrighteCapital\Api\Promotion\Models\ApplicationPromotion::toArray
+     * @covers \BrighteCapital\Api\Promotion\Models\ApplicationPromotion::__construct
      */
     public function testApplyPromotionReturnsPromotionCode()
     {
@@ -107,6 +119,10 @@ class PromotionApiTest extends TestCase
 
     /**
      * @covers \BrighteCapital\Api\Promotion\PromotionApi::applyPromotion
+     * @covers \BrighteCapital\Api\AbstractApi::__construct
+     * @covers \BrighteCapital\Api\Promotion\Models\ApplicationPromotion::toArray
+     * @covers \BrighteCapital\Api\Promotion\Models\ApplicationPromotion::__construct
+     * @covers \BrighteCapital\Api\Promotion\Exceptions\BadRequestException::__construct
      */
     public function testApplyPromotionThrowGenericException()
     {
@@ -124,6 +140,8 @@ class PromotionApiTest extends TestCase
 
     /**
      * @covers \BrighteCapital\Api\Promotion\PromotionApi::getPromotion
+     * @covers \BrighteCapital\Api\AbstractApi::__construct
+     * @covers \BrighteCapital\Api\Promotion\Models\ApplicationPromotion::__construct
      */
     public function testGetPromotionReturnSinglePromotion()
     {
@@ -147,6 +165,9 @@ class PromotionApiTest extends TestCase
 
     /**
      * @covers \BrighteCapital\Api\Promotion\PromotionApi::getPromotion
+     * @covers \BrighteCapital\Api\AbstractApi::__construct
+     * @covers \BrighteCapital\Api\Promotion\Models\ApplicationPromotion::__construct
+     * @covers \BrighteCapital\Api\Promotion\Exceptions\RecordNotFoundException::__construct
      */
     public function testGetPromotionThrowsRecordNotFoundException()
     {

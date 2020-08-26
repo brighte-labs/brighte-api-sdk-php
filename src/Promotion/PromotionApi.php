@@ -56,7 +56,7 @@ class PromotionApi extends AbstractApi
     {
         $response = $this->brighteApi->get(sprintf('%s/%s', self::PATH, $id));
 
-        if ($response->getStatusCode() == StatusCodeInterface::STATUS_OK) {
+        if ($response->getStatusCode() === StatusCodeInterface::STATUS_OK) {
             return json_decode((string)$response->getBody());
         }
 
