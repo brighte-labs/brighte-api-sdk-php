@@ -22,6 +22,7 @@ class PromotionApi extends AbstractApi
      * @return \BrighteCapital\Api\Promotion\Models\ApplicationPromotion|null
      * @throws \BrighteCapital\Api\Promotion\Exceptions\BadRequestException
      * @throws \BrighteCapital\Api\Promotion\Exceptions\PromotionException
+     * @throws \ReflectionException
      */
     public function applyPromotion(ApplicationPromotion $applicationPromotion): ?Promotion
     {
@@ -51,8 +52,9 @@ class PromotionApi extends AbstractApi
 
     /**
      * @param int $id promotion id
-     * @return array
+     * @return \BrighteCapital\Api\Promotion\Models\Promotion
      * @throws \BrighteCapital\Api\Promotion\Exceptions\RecordNotFoundException
+     * @throws \ReflectionException
      */
     public function getPromotion(int $id): Promotion
     {
