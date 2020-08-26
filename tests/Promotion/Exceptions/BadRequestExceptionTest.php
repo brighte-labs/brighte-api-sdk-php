@@ -1,8 +1,6 @@
 <?php
 
-
 namespace BrighteCapital\Api\Tests\Promotion\Exceptions;
-
 
 use BrighteCapital\Api\Promotion\Exceptions\BadRequestException;
 

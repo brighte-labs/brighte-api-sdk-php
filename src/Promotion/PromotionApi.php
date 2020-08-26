@@ -19,7 +19,7 @@ class PromotionApi extends AbstractApi
      * 202 status code means it not applicable
      *
      * @param \BrighteCapital\Api\Promotion\Models\ApplicationPromotion $applicationPromotion
-     * @return \BrighteCapital\Api\Promotion\Models\Promotion|null
+     * @return \BrighteCapital\Api\Promotion\Models\ApplicationPromotion|null
      * @throws \BrighteCapital\Api\Promotion\Exceptions\BadRequestException
      * @throws \BrighteCapital\Api\Promotion\Exceptions\PromotionException
      */
@@ -27,7 +27,6 @@ class PromotionApi extends AbstractApi
     {
         $url = sprintf('%s/applications', self::PATH);
         $body = json_encode($applicationPromotion->toArray());
-
         $response = $this->brighteApi->post($url, $body);
 
         $statusCode = $response->getStatusCode();
@@ -43,7 +42,11 @@ class PromotionApi extends AbstractApi
         }
 
         if ($statusCode === StatusCodeInterface::STATUS_CREATED) {
-            return json_decode((string)$response->getBody());
+            $applicationPromotionModel = new Promotion();
+            $applicationPromotionResponse = json_decode($response->getBody());
+            $this->mapperFactory->default()->mapObject($applicationPromotionResponse, $applicationPromotionModel);
+
+            return $applicationPromotionModel;
         }
         throw new PromotionException("Failed to apply promotion");
     }
@@ -53,12 +56,16 @@ class PromotionApi extends AbstractApi
      * @return array
      * @throws \BrighteCapital\Api\Promotion\Exceptions\RecordNotFoundException
      */
-    public function getPromotion(int $id)
+    public function getPromotion(int $id): Promotion
     {
         $response = $this->brighteApi->get(sprintf('%s/%s', self::PATH, $id));
 
         if ($response->getStatusCode() === StatusCodeInterface::STATUS_OK) {
-            return json_decode((string)$response->getBody());
+            $promotionModel = new Promotion();
+            $promotionResponse = json_decode((string)$response->getBody());
+            $this->mapperFactory->default()->mapObject($promotionResponse, $promotionModel);
+
+            return $promotionModel;
         }
 
         throw new RecordNotFoundException();

@@ -28,9 +28,28 @@ class Promotion
     /** @var string */
     public $display_text;
 
-    /** @var \DateTime */
+    /** @var string */
     public $start_date;
 
-    /** @var \DateTime */
+    /** @var \string */
     public $end_date;
+
+    /**
+     * @return array
+     */
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'code' => $this->code,
+            'products' => $this->products,
+            'type_id' => $this->type_id,
+            'description' => $this->description,
+            'contents' => $this->contents,
+            'display_title' => $this->display_title,
+            'display_text' => $this->display_text,
+            'start_date' => $this->start_date,
+            'end_date' => $this->end_date,
+        ];
+    }
 }

@@ -7,6 +7,7 @@ use BrighteCapital\Api\Promotion\Exceptions\BadRequestException;
 use BrighteCapital\Api\Promotion\Exceptions\PromotionException;
 use BrighteCapital\Api\Promotion\Exceptions\RecordNotFoundException;
 use BrighteCapital\Api\Promotion\Models\ApplicationPromotion;
+use BrighteCapital\Api\Promotion\Models\Promotion;
 use BrighteCapital\Api\Promotion\PromotionApi;
 use Fig\Http\Message\StatusCodeInterface;
 use PHPUnit\Framework\TestCase;
@@ -16,7 +17,6 @@ use Psr\Log\NullLogger;
 /**@coversDefaultClass  \BrighteCapital\Api\Promotion\PromotionApi */
 class PromotionApiTest extends TestCase
 {
-
     /**
      * @var \PHPUnit\Framework\MockObject\MockObject
      */
@@ -46,7 +46,7 @@ class PromotionApiTest extends TestCase
         $this->api = new PromotionApi(new NullLogger(), $this->apiClient);
         $this->response = $this->createMock(ResponseInterface::class);
         $this->applicationPromotion =
-            new ApplicationPromotion(10, 1, 5, 'Brighte_pay');
+            new ApplicationPromotion(105, 1, 5, 'Brighte_pay');
     }
 
     /**
@@ -99,10 +99,11 @@ class PromotionApiTest extends TestCase
      */
     public function testApplyPromotionReturnsPromotionCode()
     {
-        $promoEntity = [
-            'id' => 10,
-            'code' => 'code'
-        ];
+        $promotion = new Promotion();
+        $promotion->id = 1;
+        $promotion->code = 10;
+        $promotion->products[] = 'Brighte_pay';
+        $promotion->products[] = 'BGL';
 
         $this->apiClient->expects($this->once())->method('post')->with(
             '/promotions/applications',
@@ -114,11 +115,13 @@ class PromotionApiTest extends TestCase
             ->willReturn(StatusCodeInterface::STATUS_CREATED);
         $this->response->expects($this->once())
             ->method('getBody')
-            ->willReturn(json_encode($promoEntity));
+            ->willReturn(json_encode($promotion->toArray()));
 
-        $expected = json_decode(json_encode($promoEntity));
         $actual = $this->api->applyPromotion($this->applicationPromotion);
-        $this->assertEquals($expected, $actual);
+
+        $this->assertEquals($promotion, $actual);
+
+        $this->assertInstanceOf(Promotion::class, $actual);
     }
 
     /**
@@ -152,7 +155,7 @@ class PromotionApiTest extends TestCase
     {
         $promoEntity = [
             'id' => 10,
-            'code' => 'code'
+            'code' => 'code',
         ];
 
         $this->apiClient->expects($this->once())->method('get')
@@ -164,8 +167,11 @@ class PromotionApiTest extends TestCase
             ->method('getBody')
             ->willReturn(json_encode($promoEntity));
 
-        $expected = json_decode(json_encode($promoEntity));
-        $this->assertEquals($expected, $this->api->getPromotion(10));
+        $promotion = new Promotion();
+        $promotion->id = 10;
+        $promotion->code = 'code';
+
+        $this->assertEquals($promotion, $this->api->getPromotion(10));
     }
 
     /**
