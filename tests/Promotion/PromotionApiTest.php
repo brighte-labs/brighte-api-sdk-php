@@ -34,7 +34,11 @@ class PromotionApiTest extends TestCase
      */
     private $applicationPromotion;
 
-    /**@covers \BrighteCapital\Api\Promotion\PromotionApi::__construct */
+    /**
+     * @covers ::__construct
+     * @covers \BrighteCapital\Api\Promotion\Models\ApplicationPromotion::__construct
+     * @covers \BrighteCapital\Api\Promotion\Models\ApplicationPromotion::__construct
+     */
     protected function setUp()
     {
         parent::setUp();
