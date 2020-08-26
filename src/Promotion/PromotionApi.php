@@ -32,7 +32,7 @@ class PromotionApi extends AbstractApi
         $statusCode = $response->getStatusCode();
 
         if ($statusCode === StatusCodeInterface::STATUS_BAD_REQUEST) {
-            $errors = json_decode((string)$response->getBody());
+            $errors = json_decode($response->getBody());
 
             throw new BadRequestException($errors);
         }
@@ -42,11 +42,9 @@ class PromotionApi extends AbstractApi
         }
 
         if ($statusCode === StatusCodeInterface::STATUS_CREATED) {
-            $applicationPromotionModel = new Promotion();
-            $applicationPromotionResponse = json_decode($response->getBody());
-            $this->mapperFactory->default()->mapObject($applicationPromotionResponse, $applicationPromotionModel);
+            $applicationPromotionResponse = $response->getBody();
 
-            return $applicationPromotionModel;
+            return $this->jsonMapper::map($applicationPromotionResponse, Promotion::class);
         }
         throw new PromotionException("Failed to apply promotion");
     }
@@ -61,11 +59,9 @@ class PromotionApi extends AbstractApi
         $response = $this->brighteApi->get(sprintf('%s/%s', self::PATH, $id));
 
         if ($response->getStatusCode() === StatusCodeInterface::STATUS_OK) {
-            $promotionModel = new Promotion();
-            $promotionResponse = json_decode((string)$response->getBody());
-            $this->mapperFactory->default()->mapObject($promotionResponse, $promotionModel);
+            $promotionResponse = $response->getBody();
 
-            return $promotionModel;
+            return $this->jsonMapper::map($promotionResponse, Promotion::class);
         }
 
         throw new RecordNotFoundException();
