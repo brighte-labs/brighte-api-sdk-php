@@ -4,7 +4,7 @@ namespace BrighteCapital\Api\Promotion\Exceptions;
 
 use Throwable;
 
-class BadRequestException extends PromotionException
+class BadRequestException extends \Exception
 {
     public $errors = [];
 

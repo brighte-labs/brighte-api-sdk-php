@@ -96,6 +96,8 @@ class PromotionApiTest extends TestCase
      * @covers \BrighteCapital\Api\AbstractApi::__construct
      * @covers \BrighteCapital\Api\Promotion\Models\ApplicationPromotion::toArray
      * @covers \BrighteCapital\Api\Promotion\Models\ApplicationPromotion::__construct
+     * @covers \BrighteCapital\Api\Promotion\Models\Promotion::__construct
+     * @covers \JsonMapper\JsonMapperFactory::default
      */
     public function testApplyPromotionReturnsPromotionCode()
     {

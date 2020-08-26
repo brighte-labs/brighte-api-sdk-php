@@ -5,17 +5,13 @@ namespace BrighteCapital\Api\Tests\Promotion\Models;
 use BrighteCapital\Api\Promotion\Models\Promotion;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @coversDefaultClass  \BrighteCapital\Api\Promotion\Models\Promotion
- */
 class PromotionTest extends TestCase
 {
-
     /**
-     * @covers  \BrighteCapital\Api\Promotion\Models\Promotion::toArray
-     * @covers  ::__construct
+     * @covers \BrighteCapital\Api\Promotion\Models\Promotion::toArray
+     * @covers \BrighteCapital\Api\Promotion\Models\Promotion::__construct
      */
-    public function testToArrayReturnsAssocArray()
+    public function testToArray()
     {
         $promotion = new Promotion();
         $promotion->id = 1;
