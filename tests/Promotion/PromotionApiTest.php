@@ -127,6 +127,7 @@ class PromotionApiTest extends TestCase
      * @covers \BrighteCapital\Api\Promotion\Models\ApplicationPromotion::toArray
      * @covers \BrighteCapital\Api\Promotion\Models\ApplicationPromotion::__construct
      * @covers \BrighteCapital\Api\Promotion\Exceptions\BadRequestException::__construct
+     * @covers \BrighteCapital\Api\Promotion\Exceptions\PromotionException::__construct
      */
     public function testApplyPromotionThrowGenericException()
     {
