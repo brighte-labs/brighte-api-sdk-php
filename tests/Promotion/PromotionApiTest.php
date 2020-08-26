@@ -136,8 +136,8 @@ class PromotionApiTest extends TestCase
             json_encode($this->applicationPromotion->toArray())
         )->willReturn($this->response);
 
-        $this->response->expects($this->once())->method('getStatusCode')
-            ->willReturn(StatusCodeInterface::STATUS_BAD_REQUEST);
+        $this->response->expects($this->once())->method('getStatusCode');
+
 
         $this->expectException(PromotionException::class);
         $this->api->applyPromotion($this->applicationPromotion);
