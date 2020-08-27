@@ -68,4 +68,30 @@ class PromotionApi extends AbstractApi
 
         throw new RecordNotFoundException();
     }
+
+    /**
+     * Return array of Promotion objects or empty array
+     *
+     * @param string|null $query query string
+     * @return Promotion[]
+     * @throws \BrighteCapital\Api\Promotion\Exceptions\PromotionException
+     * @throws \ReflectionException
+     */
+    public function getPromotions(string $query = null): array
+    {
+        $response = $this->brighteApi->get(sprintf('%s?%s', self::PATH, $query));
+
+        if ($response->getStatusCode() === StatusCodeInterface::STATUS_OK) {
+            $promotionsResponse = $response->getBody();
+            $promotionList = json_decode($promotionsResponse, true);
+
+            if (count($promotionList) > 0) {
+                return $this->jsonMapper::mapArray($promotionsResponse, Promotion::class);
+            }
+
+            return [];
+        }
+
+        throw new PromotionException();
+    }
 }

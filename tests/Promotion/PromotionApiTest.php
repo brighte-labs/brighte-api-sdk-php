@@ -96,8 +96,8 @@ class PromotionApiTest extends TestCase
      * @covers \BrighteCapital\Api\AbstractApi::__construct
      * @covers \BrighteCapital\Api\Promotion\Models\ApplicationPromotion::toArray
      * @covers \BrighteCapital\Api\Promotion\Models\ApplicationPromotion::__construct
-     * @uses \BrighteCapital\Api\Promotion\Models\Promotion::toArray()
-     * @uses \Averor\JsonMapper\JsonMapper::map()
+     * @uses   \BrighteCapital\Api\Promotion\Models\Promotion::toArray()
+     * @uses   \Averor\JsonMapper\JsonMapper::map()
      */
     public function testApplyPromotionReturnsPromotionCode()
     {
@@ -191,5 +191,93 @@ class PromotionApiTest extends TestCase
 
         $this->expectException(RecordNotFoundException::class);
         $this->api->getPromotion(10);
+    }
+
+    /**
+     * @covers \BrighteCapital\Api\Promotion\PromotionApi::getPromotions
+     * @covers \BrighteCapital\Api\AbstractApi::__construct
+     * @covers \BrighteCapital\Api\Promotion\Exceptions\PromotionException::__construct
+     * @uses   \Averor\JsonMapper\JsonMapper::mapArray()
+     */
+    public function testGetPromotionsReturnListOfPromotions()
+    {
+        $promotionsList = [
+            [
+                'id' => 10,
+                'code' => 'code',
+            ]
+        ];
+
+        $promotionOne = new Promotion();
+        $promotionOne->id = 10;
+        $promotionOne->code = 'code';
+
+        $expected = [
+            0 => $promotionOne,
+        ];
+
+        $vendorId = 5;
+        $product = 'Brighte_pay';
+        $promoCode = 'code';
+        $query = http_build_query(compact('vendorId', 'product', 'promoCode'));
+
+        $this->apiClient->expects($this->once())->method('get')
+            ->with('/promotions?' . $query)->willReturn($this->response);
+
+        $this->response->expects($this->once())->method('getStatusCode')
+            ->willReturn(StatusCodeInterface::STATUS_OK);
+        $this->response->expects($this->once())
+            ->method('getBody')
+            ->willReturn(json_encode($promotionsList));
+
+        $promotion = new Promotion();
+        $promotion->id = 10;
+        $promotion->code = 'code';
+        $actual = $this->api->getPromotions($query);
+        $this->assertEquals($expected, $actual);
+
+        $this->assertInstanceOf(Promotion::class, $expected[0]);
+    }
+
+
+    /**
+     * @covers \BrighteCapital\Api\Promotion\PromotionApi::getPromotions
+     * @covers \BrighteCapital\Api\AbstractApi::__construct
+     * @covers \BrighteCapital\Api\Promotion\Exceptions\PromotionException::__construct
+     * @uses   \Averor\JsonMapper\JsonMapper::mapArray()
+     */
+    public function testGetPromotionsReturnEmptyArray()
+    {
+        $promotionsList = [];
+        $this->apiClient->expects($this->once())->method('get')
+            ->with('/promotions?')->willReturn($this->response);
+
+        $this->response->expects($this->once())->method('getStatusCode')
+            ->willReturn(StatusCodeInterface::STATUS_OK);
+        $this->response->expects($this->once())
+            ->method('getBody')
+            ->willReturn(json_encode($promotionsList));
+
+        $actual = $this->api->getPromotions();
+        $this->assertEquals([], $actual);
+    }
+
+
+    /**
+     * @covers \BrighteCapital\Api\Promotion\PromotionApi::getPromotions
+     * @covers \BrighteCapital\Api\AbstractApi::__construct
+     * @covers \BrighteCapital\Api\Promotion\Exceptions\PromotionException::__construct
+     * @uses   \Averor\JsonMapper\JsonMapper::mapArray()
+     */
+    public function testGetPromotionsThrowsException()
+    {
+        $this->apiClient->expects($this->once())->method('get')
+            ->with('/promotions?')->willReturn($this->response);
+
+        $this->response->expects($this->once())->method('getStatusCode')
+            ->willReturn(null);
+
+        $this->expectException(PromotionException::class);
+        $this->assertEquals([], $this->api->getPromotions());
     }
 }
