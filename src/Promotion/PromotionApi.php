@@ -43,9 +43,7 @@ class PromotionApi extends AbstractApi
         }
 
         if ($statusCode === StatusCodeInterface::STATUS_CREATED) {
-            $applicationPromotionResponse = $response->getBody();
-
-            return $this->jsonMapper::map($applicationPromotionResponse, Promotion::class);
+            return $this->jsonMapper::map($response->getBody(), Promotion::class);
         }
         throw new PromotionException("Failed to apply promotion");
     }
