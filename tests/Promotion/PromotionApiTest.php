@@ -258,22 +258,4 @@ class PromotionApiTest extends TestCase
         $actual = $this->api->getPromotions();
         $this->assertEquals([], $actual);
     }
-
-
-    /**
-     * @covers \BrighteCapital\Api\Promotion\PromotionApi::getPromotions
-     * @covers \BrighteCapital\Api\AbstractApi::__construct
-     * @covers \BrighteCapital\Api\Promotion\Exceptions\PromotionException::__construct
-     */
-    public function testGetPromotionsThrowsException()
-    {
-        $this->apiClient->expects($this->once())->method('get')
-            ->with('/promotions?')->willReturn($this->response);
-
-        $this->response->expects($this->once())->method('getStatusCode')
-            ->willReturn(null);
-
-        $this->expectException(PromotionException::class);
-        $this->assertEquals([], $this->api->getPromotions());
-    }
 }

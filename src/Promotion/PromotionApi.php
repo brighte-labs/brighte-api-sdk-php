@@ -60,13 +60,11 @@ class PromotionApi extends AbstractApi
     {
         $response = $this->brighteApi->get(sprintf('%s/%s', self::PATH, $id));
 
-        if ($response->getStatusCode() === StatusCodeInterface::STATUS_OK) {
-            $promotionResponse = $response->getBody();
-
-            return $this->jsonMapper::map($promotionResponse, Promotion::class);
+        if ($response->getStatusCode() !== StatusCodeInterface::STATUS_OK) {
+            throw new RecordNotFoundException();
         }
 
-        throw new RecordNotFoundException();
+        return $this->jsonMapper::map($response->getBody(), Promotion::class);
     }
 
     /**
@@ -74,24 +72,23 @@ class PromotionApi extends AbstractApi
      *
      * @param string|null $query query string
      * @return Promotion[]
-     * @throws \BrighteCapital\Api\Promotion\Exceptions\PromotionException
      * @throws \ReflectionException
      */
     public function getPromotions(string $query = null): array
     {
         $response = $this->brighteApi->get(sprintf('%s?%s', self::PATH, $query));
 
-        if ($response->getStatusCode() === StatusCodeInterface::STATUS_OK) {
-            $promotionsResponse = $response->getBody();
-            $promotionList = json_decode($promotionsResponse, true);
-
-            if (count($promotionList) > 0) {
-                return $this->jsonMapper::mapArray($promotionsResponse, Promotion::class);
-            }
-
+        if ($response->getStatusCode() !== StatusCodeInterface::STATUS_OK) {
             return [];
         }
 
-        throw new PromotionException();
+        $promotionsResponse = $response->getBody();
+        $promotionList = json_decode($promotionsResponse, true);
+
+        if (count($promotionList) <= 0) {
+            return [];
+        }
+
+        return $this->jsonMapper::mapArray($promotionsResponse, Promotion::class);
     }
 }
