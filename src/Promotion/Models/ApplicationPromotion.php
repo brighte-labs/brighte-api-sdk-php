@@ -4,9 +4,6 @@ namespace BrighteCapital\Api\Promotion\Models;
 
 class ApplicationPromotion
 {
-    /** @var int promotion ID */
-    public $promotionId;
-
     /** @var int application ID */
     public $applicationId;
 
@@ -16,19 +13,22 @@ class ApplicationPromotion
     /** @var string product type */
     public $product;
 
+    /** @var string product variant */
+    public $product_variant;
+
     /**
      * ApplicationPromotion constructor.
-     * @param int $promotionId promotion Id
      * @param int $applicationId application id
      * @param int $vendorId vendor id
      * @param string $product product type
+     * @param null $variant
      */
-    public function __construct(int $promotionId, int $applicationId, int $vendorId, string $product)
+    public function __construct(int $applicationId, int $vendorId, string $product, $variant = null)
     {
-        $this->promotionId = $promotionId;
         $this->applicationId = $applicationId;
         $this->vendorId = $vendorId;
         $this->product = $product;
+        $this->product_variant = $variant;
     }
 
     /**
@@ -37,10 +37,10 @@ class ApplicationPromotion
     public function toArray(): array
     {
         return [
-            'promotionId' => $this->promotionId,
             'applicationId' => $this->applicationId,
             'vendorId' => $this->vendorId,
-            'product' => $this->product
+            'product' => $this->product,
+            'product_variant' => $this->product_variant,
         ];
     }
 }

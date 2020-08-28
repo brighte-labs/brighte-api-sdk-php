@@ -46,7 +46,7 @@ class PromotionApiTest extends TestCase
         $this->api = new PromotionApi(new NullLogger(), $this->apiClient);
         $this->response = $this->createMock(ResponseInterface::class);
         $this->applicationPromotion =
-            new ApplicationPromotion(105, 1, 5, 'Brighte_pay');
+            new ApplicationPromotion(1, 5, 'Brighte_pay');
     }
 
     /**
@@ -194,10 +194,11 @@ class PromotionApiTest extends TestCase
     }
 
     /**
-     * @covers \BrighteCapital\Api\Promotion\PromotionApi::getPromotions
-     * @covers \BrighteCapital\Api\AbstractApi::__construct
-     * @covers \BrighteCapital\Api\Promotion\Exceptions\PromotionException::__construct
-     * @uses   \Averor\JsonMapper\JsonMapper::mapArray()
+     * @covers   \BrighteCapital\Api\Promotion\PromotionApi::getPromotions
+     * @covers   \BrighteCapital\Api\AbstractApi::__construct
+     * @covers   \BrighteCapital\Api\Promotion\Models\Promotion::__construct
+     * @uses     \BrighteCapital\Api\BrighteApi::get
+     * @uses     \Averor\JsonMapper\JsonMapper::mapArray()
      */
     public function testGetPromotionsReturnListOfPromotions()
     {
@@ -230,9 +231,6 @@ class PromotionApiTest extends TestCase
             ->method('getBody')
             ->willReturn(json_encode($promotionsList));
 
-        $promotion = new Promotion();
-        $promotion->id = 10;
-        $promotion->code = 'code';
         $actual = $this->api->getPromotions($query);
         $this->assertEquals($expected, $actual);
 
@@ -244,7 +242,6 @@ class PromotionApiTest extends TestCase
      * @covers \BrighteCapital\Api\Promotion\PromotionApi::getPromotions
      * @covers \BrighteCapital\Api\AbstractApi::__construct
      * @covers \BrighteCapital\Api\Promotion\Exceptions\PromotionException::__construct
-     * @uses   \Averor\JsonMapper\JsonMapper::mapArray()
      */
     public function testGetPromotionsReturnEmptyArray()
     {
@@ -267,7 +264,6 @@ class PromotionApiTest extends TestCase
      * @covers \BrighteCapital\Api\Promotion\PromotionApi::getPromotions
      * @covers \BrighteCapital\Api\AbstractApi::__construct
      * @covers \BrighteCapital\Api\Promotion\Exceptions\PromotionException::__construct
-     * @uses   \Averor\JsonMapper\JsonMapper::mapArray()
      */
     public function testGetPromotionsThrowsException()
     {
