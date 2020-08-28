@@ -256,7 +256,24 @@ class PromotionApiTest extends TestCase
             ->method('getBody')
             ->willReturn(json_encode($promotionsList));
 
-        $actual = $this->api->getPromotions();
-        $this->assertEquals([], $actual);
+        $this->assertEquals([], $this->api->getPromotions());
+    }
+
+
+    /**
+     * @covers   \BrighteCapital\Api\Promotion\PromotionApi::getPromotions
+     * @uses     \BrighteCapital\Api\AbstractApi::__construct
+     * @uses     \BrighteCapital\Api\BrighteApi::get
+     * @uses     \BrighteCapital\Api\Promotion\Models\ApplicationPromotion::__construct
+     */
+    public function testGetPromotionsReturnEmptyArrayForNon200StatusCodes()
+    {
+        $this->apiClient->expects($this->once())->method('get')
+            ->with('/promotions?')->willReturn($this->response);
+
+        $this->response->expects($this->once())->method('getStatusCode')
+            ->willReturn(StatusCodeInterface::STATUS_BAD_REQUEST);
+
+        $this->assertEquals([], $this->api->getPromotions());
     }
 }
