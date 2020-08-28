@@ -6,7 +6,7 @@ use BrighteCapital\Api\AbstractApi;
 use BrighteCapital\Api\Promotion\Exceptions\BadRequestException;
 use BrighteCapital\Api\Promotion\Exceptions\PromotionException;
 use BrighteCapital\Api\Promotion\Exceptions\RecordNotFoundException;
-use BrighteCapital\Api\Promotion\Models\ApplicationPromotion;
+use BrighteCapital\Api\Promotion\Models\Application;
 use BrighteCapital\Api\Promotion\Models\Promotion;
 use Fig\Http\Message\StatusCodeInterface;
 
@@ -18,13 +18,13 @@ class PromotionApi extends AbstractApi
      * Tries apply promotion to application if its applicable for vendor and product type
      * 202 status code means it not applicable
      *
-     * @param \BrighteCapital\Api\Promotion\Models\ApplicationPromotion $applicationPromotion
-     * @return \BrighteCapital\Api\Promotion\Models\ApplicationPromotion|null
+     * @param \BrighteCapital\Api\Promotion\Models\Application $applicationPromotion
+     * @return \BrighteCapital\Api\Promotion\Models\Application|null
      * @throws \BrighteCapital\Api\Promotion\Exceptions\BadRequestException
      * @throws \BrighteCapital\Api\Promotion\Exceptions\PromotionException
      * @throws \ReflectionException
      */
-    public function applyPromotion(ApplicationPromotion $applicationPromotion): ?Promotion
+    public function applyPromotion(Application $applicationPromotion): ?Promotion
     {
         $url = sprintf('%s/applications', self::PATH);
         $body = json_encode($applicationPromotion->toArray());

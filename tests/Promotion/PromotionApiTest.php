@@ -6,7 +6,7 @@ use BrighteCapital\Api\BrighteApi;
 use BrighteCapital\Api\Promotion\Exceptions\BadRequestException;
 use BrighteCapital\Api\Promotion\Exceptions\PromotionException;
 use BrighteCapital\Api\Promotion\Exceptions\RecordNotFoundException;
-use BrighteCapital\Api\Promotion\Models\ApplicationPromotion;
+use BrighteCapital\Api\Promotion\Models\Application;
 use BrighteCapital\Api\Promotion\Models\Promotion;
 use BrighteCapital\Api\Promotion\PromotionApi;
 use Fig\Http\Message\StatusCodeInterface;
@@ -30,14 +30,14 @@ class PromotionApiTest extends TestCase
      */
     private $response;
     /**
-     * @var \BrighteCapital\Api\Promotion\Models\ApplicationPromotion
+     * @var \BrighteCapital\Api\Promotion\Models\Application
      */
     private $applicationPromotion;
 
     /**
      * @covers ::__construct
-     * @covers \BrighteCapital\Api\Promotion\Models\ApplicationPromotion::__construct
-     * @covers \BrighteCapital\Api\Promotion\Models\ApplicationPromotion::__construct
+     * @covers \BrighteCapital\Api\Promotion\Models\Application::__construct
+     * @covers \BrighteCapital\Api\Promotion\Models\Application::__construct
      */
     protected function setUp()
     {
@@ -46,14 +46,14 @@ class PromotionApiTest extends TestCase
         $this->api = new PromotionApi(new NullLogger(), $this->apiClient);
         $this->response = $this->createMock(ResponseInterface::class);
         $this->applicationPromotion =
-            new ApplicationPromotion(1, 5, 'Brighte_pay');
+            new Application(1, 5, 'Brighte_pay');
     }
 
     /**
      * @covers \BrighteCapital\Api\Promotion\PromotionApi::applyPromotion
      * @covers \BrighteCapital\Api\AbstractApi::__construct
-     * @covers \BrighteCapital\Api\Promotion\Models\ApplicationPromotion::toArray
-     * @covers \BrighteCapital\Api\Promotion\Models\ApplicationPromotion::__construct
+     * @covers \BrighteCapital\Api\Promotion\Models\Application::toArray
+     * @covers \BrighteCapital\Api\Promotion\Models\Application::__construct
      * @covers \BrighteCapital\Api\Promotion\Exceptions\BadRequestException::__construct
      */
     public function testApplyPromotionThrowsBadException()
@@ -74,8 +74,8 @@ class PromotionApiTest extends TestCase
     /**
      * @covers \BrighteCapital\Api\AbstractApi::__construct
      * @covers \BrighteCapital\Api\Promotion\PromotionApi::applyPromotion
-     * @covers \BrighteCapital\Api\Promotion\Models\ApplicationPromotion::toArray
-     * @covers \BrighteCapital\Api\Promotion\Models\ApplicationPromotion::__construct
+     * @covers \BrighteCapital\Api\Promotion\Models\Application::toArray
+     * @covers \BrighteCapital\Api\Promotion\Models\Application::__construct
      */
     public function testApplyPromotionReturnsNullForNoContentStatusCode()
     {
@@ -94,8 +94,8 @@ class PromotionApiTest extends TestCase
     /**
      * @covers \BrighteCapital\Api\Promotion\PromotionApi::applyPromotion
      * @covers \BrighteCapital\Api\AbstractApi::__construct
-     * @covers \BrighteCapital\Api\Promotion\Models\ApplicationPromotion::toArray
-     * @covers \BrighteCapital\Api\Promotion\Models\ApplicationPromotion::__construct
+     * @covers \BrighteCapital\Api\Promotion\Models\Application::toArray
+     * @covers \BrighteCapital\Api\Promotion\Models\Application::__construct
      * @uses   \BrighteCapital\Api\Promotion\Models\Promotion::toArray()
      * @uses   \Averor\JsonMapper\JsonMapper::map()
      */
@@ -129,8 +129,8 @@ class PromotionApiTest extends TestCase
     /**
      * @covers \BrighteCapital\Api\Promotion\PromotionApi::applyPromotion
      * @covers \BrighteCapital\Api\AbstractApi::__construct
-     * @covers \BrighteCapital\Api\Promotion\Models\ApplicationPromotion::toArray
-     * @covers \BrighteCapital\Api\Promotion\Models\ApplicationPromotion::__construct
+     * @covers \BrighteCapital\Api\Promotion\Models\Application::toArray
+     * @covers \BrighteCapital\Api\Promotion\Models\Application::__construct
      * @covers \BrighteCapital\Api\Promotion\Exceptions\BadRequestException::__construct
      * @covers \BrighteCapital\Api\Promotion\Exceptions\PromotionException::__construct
      */
@@ -151,7 +151,7 @@ class PromotionApiTest extends TestCase
     /**
      * @covers \BrighteCapital\Api\Promotion\PromotionApi::getPromotion
      * @covers \BrighteCapital\Api\AbstractApi::__construct
-     * @covers \BrighteCapital\Api\Promotion\Models\ApplicationPromotion::__construct
+     * @covers \BrighteCapital\Api\Promotion\Models\Application::__construct
      */
     public function testGetPromotionReturnSinglePromotion()
     {
@@ -179,7 +179,7 @@ class PromotionApiTest extends TestCase
     /**
      * @covers \BrighteCapital\Api\Promotion\PromotionApi::getPromotion
      * @covers \BrighteCapital\Api\AbstractApi::__construct
-     * @covers \BrighteCapital\Api\Promotion\Models\ApplicationPromotion::__construct
+     * @covers \BrighteCapital\Api\Promotion\Models\Application::__construct
      * @covers \BrighteCapital\Api\Promotion\Exceptions\RecordNotFoundException::__construct
      */
     public function testGetPromotionThrowsRecordNotFoundException()
@@ -195,7 +195,7 @@ class PromotionApiTest extends TestCase
 
     /**
      * @covers   \BrighteCapital\Api\Promotion\PromotionApi::getPromotions
-     * @uses     \BrighteCapital\Api\Promotion\Models\ApplicationPromotion::__construct
+     * @uses     \BrighteCapital\Api\Promotion\Models\Application::__construct
      * @uses     \BrighteCapital\Api\AbstractApi::__construct
      * @uses     \BrighteCapital\Api\BrighteApi::get
      * @uses     \Averor\JsonMapper\JsonMapper::mapArray()
@@ -242,7 +242,7 @@ class PromotionApiTest extends TestCase
      * @covers   \BrighteCapital\Api\Promotion\PromotionApi::getPromotions
      * @uses     \BrighteCapital\Api\AbstractApi::__construct
      * @uses     \BrighteCapital\Api\BrighteApi::get
-     * @uses     \BrighteCapital\Api\Promotion\Models\ApplicationPromotion::__construct
+     * @uses     \BrighteCapital\Api\Promotion\Models\Application::__construct
      */
     public function testGetPromotionsReturnEmptyArray()
     {
@@ -264,7 +264,7 @@ class PromotionApiTest extends TestCase
      * @covers   \BrighteCapital\Api\Promotion\PromotionApi::getPromotions
      * @uses     \BrighteCapital\Api\AbstractApi::__construct
      * @uses     \BrighteCapital\Api\BrighteApi::get
-     * @uses     \BrighteCapital\Api\Promotion\Models\ApplicationPromotion::__construct
+     * @uses     \BrighteCapital\Api\Promotion\Models\Application::__construct
      */
     public function testGetPromotionsReturnEmptyArrayForNon200StatusCodes()
     {

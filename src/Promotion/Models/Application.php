@@ -2,7 +2,7 @@
 
 namespace BrighteCapital\Api\Promotion\Models;
 
-class ApplicationPromotion
+class Application
 {
     /** @var int application ID */
     public $applicationId;
@@ -17,7 +17,7 @@ class ApplicationPromotion
     public $product_variant;
 
     /**
-     * ApplicationPromotion constructor.
+     * Application constructor.
      * @param int $applicationId application id
      * @param int $vendorId vendor id
      * @param string $product product type
