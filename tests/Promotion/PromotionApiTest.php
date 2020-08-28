@@ -195,8 +195,8 @@ class PromotionApiTest extends TestCase
 
     /**
      * @covers   \BrighteCapital\Api\Promotion\PromotionApi::getPromotions
-     * @covers   \BrighteCapital\Api\AbstractApi::__construct
-     * @covers   \BrighteCapital\Api\Promotion\Models\Promotion::__construct
+     * @uses     \BrighteCapital\Api\Promotion\Models\ApplicationPromotion::__construct
+     * @uses     \BrighteCapital\Api\AbstractApi::__construct
      * @uses     \BrighteCapital\Api\BrighteApi::get
      * @uses     \Averor\JsonMapper\JsonMapper::mapArray()
      */
@@ -239,9 +239,10 @@ class PromotionApiTest extends TestCase
 
 
     /**
-     * @covers \BrighteCapital\Api\Promotion\PromotionApi::getPromotions
-     * @covers \BrighteCapital\Api\AbstractApi::__construct
-     * @covers \BrighteCapital\Api\Promotion\Exceptions\PromotionException::__construct
+     * @covers   \BrighteCapital\Api\Promotion\PromotionApi::getPromotions
+     * @uses     \BrighteCapital\Api\AbstractApi::__construct
+     * @uses     \BrighteCapital\Api\BrighteApi::get
+     * @uses     \BrighteCapital\Api\Promotion\Models\ApplicationPromotion::__construct
      */
     public function testGetPromotionsReturnEmptyArray()
     {
