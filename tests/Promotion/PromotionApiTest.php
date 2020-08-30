@@ -46,7 +46,7 @@ class PromotionApiTest extends TestCase
         $this->api = new PromotionApi(new NullLogger(), $this->apiClient);
         $this->response = $this->createMock(ResponseInterface::class);
         $this->application =
-            new Application(1, 5, 'Brighte_pay');
+            new Application('1', '5', 'Brighte_pay');
     }
 
     /**

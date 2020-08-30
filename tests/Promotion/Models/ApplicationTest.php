@@ -13,10 +13,10 @@ class ApplicationTest extends TestCase
      */
     public function testToArrayReturnsAssocArray()
     {
-        $applicationPromotion = new Application(1, 5, 'Brighte_pay', true);
+        $applicationPromotion = new Application('E451', 'E5', 'Brighte_pay');
         $expected = [
-            'applicationId' => 1,
-            'vendorId' => 5,
+            'applicationId' => 'E451',
+            'vendorId' => 'E5',
             'product' => 'Brighte_pay',
             'isGreenCategory' => true
         ];

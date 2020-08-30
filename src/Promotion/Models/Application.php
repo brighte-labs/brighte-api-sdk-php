@@ -13,23 +13,24 @@ class Application
     /** @var string product type */
     public $product;
 
-    /** @var string isGreenCategory */
+    /** @var bool isGreenCategory */
     public $isGreenCategory;
 
     /**
      * Application constructor.
-     * @param int $applicationId application id
-     * @param int $vendorId vendor id
-     * @param string $product product type
+     * @param string $applicationId
+     * @param string $vendorId
+     * @param string $product
      * @param bool $isGreenCategory
      */
-    public function __construct(int $applicationId, int $vendorId, string $product, bool $isGreenCategory = true)
+    public function __construct(string $applicationId, string $vendorId, string $product, bool $isGreenCategory = true)
     {
         $this->applicationId = $applicationId;
         $this->vendorId = $vendorId;
         $this->product = $product;
         $this->isGreenCategory = $isGreenCategory;
     }
+
 
     /**
      * @return array
