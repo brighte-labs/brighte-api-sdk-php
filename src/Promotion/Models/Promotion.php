@@ -29,10 +29,10 @@ class Promotion
     public $display_text;
 
     /** @var string */
-    public $start_date;
+    public $start;
 
     /** @var \string */
-    public $end_date;
+    public $end;
 
     /**
      * @return array
@@ -48,8 +48,8 @@ class Promotion
             'contents' => $this->contents,
             'display_title' => $this->display_title,
             'display_text' => $this->display_text,
-            'start_date' => $this->start_date,
-            'end_date' => $this->end_date,
+            'start' => $this->start,
+            'end' => $this->end,
         ];
     }
 }

@@ -20,8 +20,8 @@ class PromotionTest extends TestCase
         $promotion->code = 'code123';
         $promotion->products[] = 'Brighte_pay';
         $promotion->products[] = 'BGL';
-        $promotion->start_date = '2016-10-05 23:00:03';
-        $promotion->end_date = '2016-10-05 23:00:03';
+        $promotion->start = '2016-10-05 23:00:03';
+        $promotion->end = '2016-10-05 23:00:03';
 
         $expected = [
             'id' => 1,
@@ -37,8 +37,8 @@ class PromotionTest extends TestCase
             'contents' => null,
             'display_title' => null,
             'display_text' => null,
-            'start_date' => '2016-10-05 23:00:03',
-            'end_date' => '2016-10-05 23:00:03',
+            'start' => '2016-10-05 23:00:03',
+            'end' => '2016-10-05 23:00:03',
         ];
 
         $this->assertEquals($expected, $promotion->toArray());
