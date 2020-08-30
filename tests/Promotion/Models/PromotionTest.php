@@ -32,7 +32,7 @@ class PromotionTest extends TestCase
                 1 => 'BGL'
             ],
 
-            'type_id' => null,
+            'promotion_type_id' => null,
             'description' => null,
             'contents' => null,
             'display_title' => null,

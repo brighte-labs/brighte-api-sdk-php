@@ -22,7 +22,6 @@ class PromotionApi extends AbstractApi
      * @return \BrighteCapital\Api\Promotion\Models\Application|null
      * @throws \BrighteCapital\Api\Promotion\Exceptions\BadRequestException
      * @throws \BrighteCapital\Api\Promotion\Exceptions\PromotionException
-     * @throws \ReflectionException
      */
     public function applyPromotion(Application $applicationPromotion): ?Promotion
     {
@@ -33,26 +32,32 @@ class PromotionApi extends AbstractApi
         $statusCode = $response->getStatusCode();
 
         if ($statusCode === StatusCodeInterface::STATUS_BAD_REQUEST) {
-            $errors = json_decode($response->getBody());
-
-            throw new BadRequestException($errors);
+            throw new BadRequestException(json_decode($response->getBody()));
         }
 
         if ($statusCode === StatusCodeInterface::STATUS_NO_CONTENT) {
             return null;
         }
 
-        if ($statusCode === StatusCodeInterface::STATUS_CREATED) {
-            return $this->jsonMapper::map($response->getBody(), Promotion::class);
+        if ($statusCode !== StatusCodeInterface::STATUS_CREATED) {
+            throw new PromotionException("Failed to apply promotion");
         }
-        throw new PromotionException("Failed to apply promotion");
+
+        try {
+            $this->jsonMapper->bStrictNullTypes = false;
+            return $this->jsonMapper->map(json_decode($response->getBody()), new Promotion());
+        } catch (\Exception $e) {
+            throw new PromotionException(
+                sprintf("Failed to map json response to :%s - %s", Promotion::class, $e->getMessage())
+            );
+        }
     }
 
     /**
      * @param int $id promotion id
      * @return \BrighteCapital\Api\Promotion\Models\Promotion
+     * @throws \BrighteCapital\Api\Promotion\Exceptions\PromotionException
      * @throws \BrighteCapital\Api\Promotion\Exceptions\RecordNotFoundException
-     * @throws \ReflectionException
      */
     public function getPromotion(int $id): Promotion
     {
@@ -62,7 +67,14 @@ class PromotionApi extends AbstractApi
             throw new RecordNotFoundException();
         }
 
-        return $this->jsonMapper::map($response->getBody(), Promotion::class);
+        try {
+            $this->jsonMapper->bStrictNullTypes = false;
+            return $this->jsonMapper->map(json_decode($response->getBody()), new Promotion());
+        } catch (\Exception $e) {
+            throw new PromotionException(
+                sprintf("Failed to map json response to :%s - %s", Promotion::class, $e->getMessage())
+            );
+        }
     }
 
     /**
@@ -70,7 +82,7 @@ class PromotionApi extends AbstractApi
      *
      * @param string|null $query query string
      * @return Promotion[]
-     * @throws \ReflectionException
+     * @throws \BrighteCapital\Api\Promotion\Exceptions\PromotionException
      */
     public function getPromotions(string $query = null): array
     {
@@ -80,13 +92,13 @@ class PromotionApi extends AbstractApi
             return [];
         }
 
-        $promotionsResponse = $response->getBody();
-        $promotionList = json_decode($promotionsResponse, true);
-
-        if (count($promotionList) <= 0) {
-            return [];
+        try {
+            $this->jsonMapper->bStrictNullTypes = false;
+            return $this->jsonMapper->mapArray(json_decode($response->getBody()), array(), Promotion::class);
+        } catch (\Exception $e) {
+            throw new PromotionException(
+                sprintf("Failed to map json response to :%s - %s", Promotion::class, $e->getMessage())
+            );
         }
-
-        return $this->jsonMapper::mapArray($promotionsResponse, Promotion::class);
     }
 }

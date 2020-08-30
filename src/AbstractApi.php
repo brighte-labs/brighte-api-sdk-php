@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace BrighteCapital\Api;
 
-use Averor\JsonMapper\JsonMapper;
+use JsonMapper;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use stdClass;
@@ -20,7 +20,7 @@ abstract class AbstractApi
     /** @var \BrighteCapital\Api\BrighteApi */
     protected $brighteApi;
     /**
-     * @var \Averor\JsonMapper\JsonMapper
+     * @var JsonMapper
      */
     protected $jsonMapper;
 

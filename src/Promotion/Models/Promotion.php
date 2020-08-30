@@ -4,7 +4,7 @@ namespace BrighteCapital\Api\Promotion\Models;
 
 class Promotion
 {
-    /** @var int */
+    /** @var string */
     public $id;
 
     /** @var string */
@@ -13,8 +13,8 @@ class Promotion
     /** @var array */
     public $products;
 
-    /** @var int */
-    public $type_id;
+    /** @var string */
+    public $promotion_type_id;
 
     /** @var string */
     public $description;
@@ -43,7 +43,7 @@ class Promotion
             'id' => $this->id,
             'code' => $this->code,
             'products' => $this->products,
-            'type_id' => $this->type_id,
+            'promotion_type_id' => $this->promotion_type_id,
             'description' => $this->description,
             'contents' => $this->contents,
             'display_title' => $this->display_title,

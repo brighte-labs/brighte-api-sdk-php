@@ -5,7 +5,7 @@ namespace BrighteCapital\Api\Tests\Promotion\Models;
 use BrighteCapital\Api\Promotion\Models\Application;
 use PHPUnit\Framework\TestCase;
 
-class ApplicationPromotionTest extends TestCase
+class ApplicationTest extends TestCase
 {
     /**
      * @covers \BrighteCapital\Api\Promotion\Models\Application::toArray
@@ -13,12 +13,12 @@ class ApplicationPromotionTest extends TestCase
      */
     public function testToArrayReturnsAssocArray()
     {
-        $applicationPromotion = new Application(1, 5, 'Brighte_pay', 'BPL-HI');
+        $applicationPromotion = new Application(1, 5, 'Brighte_pay', true);
         $expected = [
             'applicationId' => 1,
             'vendorId' => 5,
             'product' => 'Brighte_pay',
-            'product_variant' => 'BPL-HI'
+            'isGreenCategory' => true
         ];
 
         $this->assertEquals($expected, $applicationPromotion->toArray());
