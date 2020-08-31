@@ -3,9 +3,9 @@
 namespace BrighteCapital\Api\Tests;
 
 use BrighteCapital\Api\BrighteApi;
-use BrighteCapital\Api\Promotion\Exceptions\BadRequestException;
+use BrighteCapital\Api\Exceptions\BadRequestException;
+use BrighteCapital\Api\Exceptions\RecordNotFoundException;
 use BrighteCapital\Api\Promotion\Exceptions\PromotionException;
-use BrighteCapital\Api\Promotion\Exceptions\RecordNotFoundException;
 use BrighteCapital\Api\Promotion\Models\Application;
 use BrighteCapital\Api\Promotion\Models\Promotion;
 use BrighteCapital\Api\Promotion\PromotionApi;
@@ -54,7 +54,7 @@ class PromotionApiTest extends TestCase
      * @covers \BrighteCapital\Api\AbstractApi::__construct
      * @covers \BrighteCapital\Api\Promotion\Models\Application::toArray
      * @covers \BrighteCapital\Api\Promotion\Models\Application::__construct
-     * @covers \BrighteCapital\Api\Promotion\Exceptions\BadRequestException::__construct
+     * @covers \BrighteCapital\Api\Exceptions\BadRequestException::__construct
      */
     public function testApplyPromotionThrowsBadException()
     {
@@ -96,7 +96,7 @@ class PromotionApiTest extends TestCase
      * @covers \BrighteCapital\Api\AbstractApi::__construct
      * @covers \BrighteCapital\Api\Promotion\Models\Application::toArray
      * @covers \BrighteCapital\Api\Promotion\Models\Application::__construct
-     * @covers \BrighteCapital\Api\Promotion\Exceptions\BadRequestException::__construct
+     * @covers \BrighteCapital\Api\Exceptions\BadRequestException::__construct
      * @covers \BrighteCapital\Api\Promotion\Exceptions\PromotionException::__construct
      */
     public function testApplyPromotionThrowsPromotionException()
@@ -206,7 +206,7 @@ class PromotionApiTest extends TestCase
      * @covers \BrighteCapital\Api\Promotion\PromotionApi::getPromotion
      * @covers \BrighteCapital\Api\AbstractApi::__construct
      * @covers \BrighteCapital\Api\Promotion\Models\Application::__construct
-     * @covers \BrighteCapital\Api\Promotion\Exceptions\RecordNotFoundException::__construct
+     * @covers \BrighteCapital\Api\Exceptions\RecordNotFoundException::__construct
      */
     public function testGetPromotionThrowsRecordNotFoundException()
     {

@@ -16,7 +16,8 @@ class Promotion
     /** @var string */
     public $promotion_type_id;
 
-    public $promotionTyped;
+    /** @var string */
+    public $productTypes;
 
     /** @var string */
     public $description;
@@ -52,6 +53,7 @@ class Promotion
             'code' => $this->code,
             'products' => $this->products,
             'promotionTypeId' => $this->promotion_type_id,
+            'productTypes' => $this->productTypes,
             'description' => $this->description,
             'contents' => $this->contents,
             'displayTitle' => $this->display_title,

@@ -1,6 +1,6 @@
 <?php
 
-namespace BrighteCapital\Api\Promotion\Exceptions;
+namespace BrighteCapital\Api\Exceptions;
 
 use Throwable;
 

@@ -13,12 +13,12 @@ class ApplicationTest extends TestCase
      */
     public function testToArrayReturnsAssocArray()
     {
-        $applicationPromotion = new Application('E451', 'E5', 'Brighte_pay');
+        $applicationPromotion = new Application('E451', 'E5', 'Brighte_pay', 'somecode');
         $expected = [
             'applicationId' => 'E451',
             'vendorId' => 'E5',
             'product' => 'Brighte_pay',
-            'code' => null
+            'code' => 'somecode'
         ];
 
         $this->assertEquals($expected, $applicationPromotion->toArray());

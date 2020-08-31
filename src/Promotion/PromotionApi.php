@@ -3,9 +3,9 @@
 namespace BrighteCapital\Api\Promotion;
 
 use BrighteCapital\Api\AbstractApi;
-use BrighteCapital\Api\Promotion\Exceptions\BadRequestException;
+use BrighteCapital\Api\Exceptions\RecordNotFoundException;
+use BrighteCapital\Api\Exceptions\BadRequestException;
 use BrighteCapital\Api\Promotion\Exceptions\PromotionException;
-use BrighteCapital\Api\Promotion\Exceptions\RecordNotFoundException;
 use BrighteCapital\Api\Promotion\Models\Application;
 use BrighteCapital\Api\Promotion\Models\Promotion;
 use Fig\Http\Message\StatusCodeInterface;
