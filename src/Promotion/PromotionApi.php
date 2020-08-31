@@ -3,8 +3,8 @@
 namespace BrighteCapital\Api\Promotion;
 
 use BrighteCapital\Api\AbstractApi;
-use BrighteCapital\Api\Exceptions\RecordNotFoundException;
 use BrighteCapital\Api\Exceptions\BadRequestException;
+use BrighteCapital\Api\Exceptions\RecordNotFoundException;
 use BrighteCapital\Api\Promotion\Exceptions\PromotionException;
 use BrighteCapital\Api\Promotion\Models\Application;
 use BrighteCapital\Api\Promotion\Models\Promotion;
@@ -20,7 +20,7 @@ class PromotionApi extends AbstractApi
      *
      * @param \BrighteCapital\Api\Promotion\Models\Application $applicationPromotion
      * @return \BrighteCapital\Api\Promotion\Models\Application|null
-     * @throws \BrighteCapital\Api\Promotion\Exceptions\BadRequestException
+     * @throws \BrighteCapital\Api\Exceptions\BadRequestException
      * @throws \BrighteCapital\Api\Promotion\Exceptions\PromotionException
      */
     public function applyPromotion(Application $applicationPromotion): ?Promotion
@@ -54,12 +54,12 @@ class PromotionApi extends AbstractApi
     }
 
     /**
-     * @param int $id promotion id
+     * @param string $id promotion id
      * @return \BrighteCapital\Api\Promotion\Models\Promotion
+     * @throws \BrighteCapital\Api\Exceptions\RecordNotFoundException
      * @throws \BrighteCapital\Api\Promotion\Exceptions\PromotionException
-     * @throws \BrighteCapital\Api\Promotion\Exceptions\RecordNotFoundException
      */
-    public function getPromotion(int $id): Promotion
+    public function getPromotion(string $id): Promotion
     {
         $response = $this->brighteApi->get(sprintf('%s/%s', self::PATH, $id));
 
