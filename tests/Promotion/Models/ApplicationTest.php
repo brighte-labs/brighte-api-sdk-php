@@ -18,7 +18,7 @@ class ApplicationTest extends TestCase
             'applicationId' => 'E451',
             'vendorId' => 'E5',
             'product' => 'Brighte_pay',
-            'isGreenCategory' => true
+            'code' => null
         ];
 
         $this->assertEquals($expected, $applicationPromotion->toArray());

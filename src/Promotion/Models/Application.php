@@ -13,22 +13,22 @@ class Application
     /** @var string product type */
     public $product;
 
-    /** @var bool isGreenCategory */
-    public $isGreenCategory;
+    /** @var string promotion code */
+    public $code;
 
     /**
      * Application constructor.
      * @param string $applicationId
      * @param string $vendorId
      * @param string $product
-     * @param bool $isGreenCategory
+     * @param string|null code
      */
-    public function __construct(string $applicationId, string $vendorId, string $product, bool $isGreenCategory = true)
+    public function __construct(string $applicationId, string $vendorId, string $product, string $code = null)
     {
         $this->applicationId = $applicationId;
         $this->vendorId = $vendorId;
         $this->product = $product;
-        $this->isGreenCategory = $isGreenCategory;
+        $this->code = $code;
     }
 
 
@@ -41,7 +41,7 @@ class Application
             'applicationId' => $this->applicationId,
             'vendorId' => $this->vendorId,
             'product' => $this->product,
-            'isGreenCategory' => $this->isGreenCategory,
+            'code' => $this->code,
         ];
     }
 }

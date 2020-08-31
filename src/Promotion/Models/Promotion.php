@@ -16,6 +16,8 @@ class Promotion
     /** @var string */
     public $promotion_type_id;
 
+    public $promotionTyped;
+
     /** @var string */
     public $description;
 
@@ -34,6 +36,12 @@ class Promotion
     /** @var \string */
     public $end;
 
+    /** @var string */
+    public $created;
+
+    /** @var \string */
+    public $modified;
+
     /**
      * @return array
      */
@@ -43,13 +51,15 @@ class Promotion
             'id' => $this->id,
             'code' => $this->code,
             'products' => $this->products,
-            'promotion_type_id' => $this->promotion_type_id,
+            'promotionTypeId' => $this->promotion_type_id,
             'description' => $this->description,
             'contents' => $this->contents,
-            'display_title' => $this->display_title,
-            'display_text' => $this->display_text,
+            'displayTitle' => $this->display_title,
+            'displayText' => $this->display_text,
             'start' => $this->start,
             'end' => $this->end,
+            'created' => $this->created,
+            'modified' => $this->modified,
         ];
     }
 }

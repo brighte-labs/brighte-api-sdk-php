@@ -32,13 +32,15 @@ class PromotionTest extends TestCase
                 1 => 'BGL'
             ],
 
-            'promotion_type_id' => null,
+            'promotionTypeId' => null,
             'description' => null,
             'contents' => null,
-            'display_title' => null,
-            'display_text' => null,
+            'displayTitle' => null,
+            'displayText' => null,
             'start' => '2016-10-05 23:00:03',
             'end' => '2016-10-05 23:00:03',
+            'created' => null,
+            'modified' => null,
         ];
 
         $this->assertEquals($expected, $promotion->toArray());
