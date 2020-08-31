@@ -4,7 +4,7 @@ namespace BrighteCapital\Api\Tests\Promotion\Exceptions;
 
 use BrighteCapital\Api\Exceptions\BadRequestException;
 
-/**@coversDefaultClass \BrighteCapital\Api\Promotion\Exceptions\BadRequestException*/
+/**@coversDefaultClass \BrighteCapital\Api\Promotion\Exceptions\PromotionException*/
 class BadRequestExceptionTest extends \PHPUnit\Framework\TestCase
 {
 
