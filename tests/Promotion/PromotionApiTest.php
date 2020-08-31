@@ -125,8 +125,7 @@ class PromotionApiTest extends TestCase
         $promotion = new Promotion();
         $promotion->id = 1;
         $promotion->code = '10';
-        $promotion->products[] = 'Brighte_pay';
-        $promotion->products[] = 'BGL';
+        $promotion->products= 'Brighte_pay';
 
         $this->apiClient->expects($this->once())->method('post')->with(
             '/promotions/applications',

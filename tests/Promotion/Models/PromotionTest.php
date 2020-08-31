@@ -18,9 +18,7 @@ class PromotionTest extends TestCase
         $promotion = new Promotion();
         $promotion->id = 1;
         $promotion->code = 'code123';
-        $promotion->products[] = 'Brighte_pay';
-        $promotion->products[] = 'BGL';
-        $promotion->productTypes = '{BGL}';
+        $promotion->products = '{BGL}';
         $promotion->start = '2016-10-05 23:00:03';
         $promotion->end = '2016-10-05 23:00:03';
         $promotion->created = '2016-10-05 23:00:03';
@@ -29,18 +27,12 @@ class PromotionTest extends TestCase
         $expected = [
             'id' => 1,
             'code' => 'code123',
-
-            'products' => [
-                0 => 'Brighte_pay',
-                1 => 'BGL'
-            ],
-
             'promotionTypeId' => null,
             'description' => null,
             'contents' => null,
             'displayTitle' => null,
             'displayText' => null,
-            'productTypes' => "{BGL}",
+            'products' => "{BGL}",
             'start' => '2016-10-05 23:00:03',
             'end' => '2016-10-05 23:00:03',
             'created' => '2016-10-05 23:00:03',

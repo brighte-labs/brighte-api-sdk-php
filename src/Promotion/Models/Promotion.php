@@ -10,14 +10,12 @@ class Promotion
     /** @var string */
     public $code;
 
-    /** @var array */
+    /** @var string (json)*/
     public $products;
 
-    /** @var string */
-    public $promotion_type_id;
 
     /** @var string */
-    public $productTypes;
+    public $promotionTypeId;
 
     /** @var string */
     public $description;
@@ -26,10 +24,10 @@ class Promotion
     public $contents;
 
     /** @var string */
-    public $display_title;
+    public $displayTitle;
 
     /** @var string */
-    public $display_text;
+    public $displayText;
 
     /** @var string */
     public $start;
@@ -52,12 +50,11 @@ class Promotion
             'id' => $this->id,
             'code' => $this->code,
             'products' => $this->products,
-            'promotionTypeId' => $this->promotion_type_id,
-            'productTypes' => $this->productTypes,
+            'promotionTypeId' => $this->promotionTypeId,
             'description' => $this->description,
             'contents' => $this->contents,
-            'displayTitle' => $this->display_title,
-            'displayText' => $this->display_text,
+            'displayTitle' => $this->displayTitle,
+            'displayText' => $this->displayText,
             'start' => $this->start,
             'end' => $this->end,
             'created' => $this->created,
