@@ -4,7 +4,9 @@
 namespace BrighteCapital\Api\Exceptions;
 
 
-class BadRequestException
+use Throwable;
+
+class BadRequestException extends \Exception
 {
     public $errors = [];
 
