@@ -1,6 +1,5 @@
 <?php
 
-
 namespace BrighteCapital\Api\Exceptions;
 
 class RecordNotFoundException extends \Exception
@@ -9,5 +8,4 @@ class RecordNotFoundException extends \Exception
     {
         parent::__construct($message, $code, $previous);
     }
-
 }

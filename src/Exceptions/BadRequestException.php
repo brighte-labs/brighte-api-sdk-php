@@ -1,8 +1,6 @@
 <?php
 
-
 namespace BrighteCapital\Api\Exceptions;
-
 
 use Throwable;
 
@@ -20,5 +18,4 @@ class BadRequestException extends \Exception
     {
         return $this->errors;
     }
-
 }
