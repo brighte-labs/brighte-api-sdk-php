@@ -23,7 +23,7 @@ class PromotionApi extends AbstractApi
      * @throws \BrighteCapital\Api\Exceptions\BadRequestException
      * @throws \BrighteCapital\Api\Promotion\Exceptions\PromotionException
      */
-    public function applyPromotion(Application $applicationPromotion): ?Promotion
+    public function applyPromotion(Application $applicationPromotion): ?Application
     {
         $url = sprintf('%s/applications', self::PATH);
         $body = json_encode($applicationPromotion->toArray());
@@ -44,11 +44,17 @@ class PromotionApi extends AbstractApi
         }
 
         try {
-            $this->jsonMapper->bStrictNullTypes = false;
-            return $this->jsonMapper->map(json_decode($response->getBody()), new Promotion());
+            $response = json_decode($response->getBody(), true);
+
+            return new Application(
+                $response['id'],
+                $response['vendorId'],
+                $response['product'],
+                $response['code']
+            );
         } catch (\Exception $e) {
             throw new PromotionException(
-                sprintf("Failed to map json response to :%s - %s", Promotion::class, $e->getMessage())
+                'Failed to parse response after promo application - ' . $e->getMessage()
             );
         }
     }

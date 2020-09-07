@@ -15,7 +15,7 @@ class ApplicationTest extends TestCase
     {
         $applicationPromotion = new Application('E451', 'E5', 'Brighte_pay', 'somecode');
         $expected = [
-            'applicationId' => 'E451',
+            'id' => 'E451',
             'vendorId' => 'E5',
             'product' => 'Brighte_pay',
             'code' => 'somecode'

@@ -17,7 +17,7 @@ use Psr\Log\NullLogger;
 /**@coversDefaultClass  \BrighteCapital\Api\Promotion\PromotionApi */
 class PromotionApiTest extends TestCase
 {
-    /**
+    /**'
      * @var \PHPUnit\Framework\MockObject\MockObject
      */
     private $apiClient;
@@ -122,10 +122,7 @@ class PromotionApiTest extends TestCase
      */
     public function testApplyPromotionReturnsPromotionCode()
     {
-        $promotion = new Promotion();
-        $promotion->id = 1;
-        $promotion->code = '10';
-        $promotion->products = 'Brighte_pay';
+        $application = new Application(1,'E10', 'BGL', 'gold20Test');
 
         $this->apiClient->expects($this->once())->method('post')->with(
             '/promotions/applications',
@@ -137,13 +134,13 @@ class PromotionApiTest extends TestCase
             ->willReturn(StatusCodeInterface::STATUS_CREATED);
         $this->response->expects($this->any())
             ->method('getBody')
-            ->willReturn(json_encode($promotion->toArray()));
+            ->willReturn(json_encode($application->toArray()));
 
         $actual = $this->api->applyPromotion($this->application);
 
-        $this->assertEquals($promotion, $actual);
+        $this->assertEquals($application, $actual);
 
-        $this->assertInstanceOf(Promotion::class, $actual);
+        $this->assertInstanceOf(Application::class, $actual);
     }
 
     /**

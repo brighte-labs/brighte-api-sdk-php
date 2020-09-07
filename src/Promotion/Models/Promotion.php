@@ -10,7 +10,7 @@ class Promotion
     /** @var string */
     public $code;
 
-    /** @var string (json)*/
+    /** @var string (json) */
     public $products;
 
 
@@ -21,7 +21,7 @@ class Promotion
     public $description;
 
     /** @var string */
-    public $contents;
+    public $content;
 
     /** @var string */
     public $displayTitle;
@@ -52,7 +52,7 @@ class Promotion
             'products' => $this->products,
             'promotionTypeId' => $this->promotionTypeId,
             'description' => $this->description,
-            'contents' => $this->contents,
+            'content' => $this->content,
             'displayTitle' => $this->displayTitle,
             'displayText' => $this->displayText,
             'start' => $this->start,

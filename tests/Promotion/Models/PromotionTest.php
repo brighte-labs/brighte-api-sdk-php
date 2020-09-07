@@ -29,7 +29,7 @@ class PromotionTest extends TestCase
             'code' => 'code123',
             'promotionTypeId' => null,
             'description' => null,
-            'contents' => null,
+            'content' => null,
             'displayTitle' => null,
             'displayText' => null,
             'products' => "{BGL}",
