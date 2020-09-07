@@ -7,10 +7,10 @@ namespace BrighteCapital\Tests\Api;
 use BrighteCapital\Api\BrighteApi;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\Psr7\Uri;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
-use Slim\Psr7\Uri;
 
 /**
  * @coversDefaultClass \BrighteCapital\Api\BrighteApi
@@ -53,7 +53,7 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
         $accessToken = 'SLf:$*h$5fpj(#*pa';
         $expectApiRequest = new Request(
             'GET',
-            new Uri('https', 'api.brighte.com.au', null, '/v1/chipmonks', 'size=0.5'),
+            new Uri('https://api.brighte.com.au/v1/chipmonks?size=0.5'),
             [
                 'accept' => 'application/json',
                 'content-type' => 'application/json',

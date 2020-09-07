@@ -10,7 +10,6 @@ use GuzzleHttp\Psr7\Uri;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
-use Slim\Psr7\Uri as SlimUri;
 
 class BrighteApi
 {
@@ -129,7 +128,7 @@ class BrighteApi
     ): ResponseInterface {
         return $this->doRequest('POST', $path, $query, $body, $headers, $auth);
     }
-    
+
     /**
      * @param string $method
      * @param string $path
@@ -163,13 +162,13 @@ class BrighteApi
 
         return $this->http->sendRequest(new Request(
             $method,
-            new SlimUri(
-                $this->scheme,
-                $this->host,
-                $this->port,
-                $this->prefix . $path,
-                $query
-            ),
+            Uri::fromParts([
+                'scheme' => $this->scheme,
+                'host' => $this->host,
+                'port' => $this->port,
+                'path' => $this->prefix . $path,
+                'query' => $query,
+            ]),
             $headers,
             $body
         ));
