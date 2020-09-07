@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BrighteCapital\Api;
 
+use JsonMapper;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use stdClass;
@@ -18,11 +19,17 @@ abstract class AbstractApi
 
     /** @var \BrighteCapital\Api\BrighteApi */
     protected $brighteApi;
+    /**
+     * @var JsonMapper
+     */
+    protected $jsonMapper;
 
-    public function __construct(LoggerInterface $logger, BrighteApi $brighteApi)
+
+    public function __construct(LoggerInterface $logger, BrighteApi $brighteApi, JsonMapper $mapper = null)
     {
         $this->logger = $logger;
         $this->brighteApi = $brighteApi;
+        $this->jsonMapper = $mapper ?: new JsonMapper();
     }
 
     protected function logResponse(string $function, ResponseInterface $response): void
