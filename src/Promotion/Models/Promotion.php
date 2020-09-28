@@ -10,10 +10,6 @@ class Promotion
     /** @var string */
     public $code;
 
-    /** @var string (json) */
-    public $products;
-
-
     /** @var string */
     public $promotionTypeId;
 
@@ -49,7 +45,6 @@ class Promotion
         return [
             'id' => $this->id,
             'code' => $this->code,
-            'products' => $this->products,
             'promotionTypeId' => $this->promotionTypeId,
             'description' => $this->description,
             'content' => $this->content,
