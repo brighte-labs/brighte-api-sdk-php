@@ -100,6 +100,7 @@ class PromotionApi extends AbstractApi
 
         try {
             $this->jsonMapper->bStrictNullTypes = false;
+
             return $this->jsonMapper->mapArray(json_decode($response->getBody()), array(), Promotion::class);
         } catch (\Exception $e) {
             throw new PromotionException(

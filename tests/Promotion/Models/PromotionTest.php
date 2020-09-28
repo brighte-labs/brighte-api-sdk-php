@@ -18,7 +18,6 @@ class PromotionTest extends TestCase
         $promotion = new Promotion();
         $promotion->id = 1;
         $promotion->code = 'code123';
-        $promotion->products = '{BGL}';
         $promotion->start = '2016-10-05 23:00:03';
         $promotion->end = '2016-10-05 23:00:03';
         $promotion->created = '2016-10-05 23:00:03';
@@ -32,7 +31,6 @@ class PromotionTest extends TestCase
             'content' => null,
             'displayTitle' => null,
             'displayText' => null,
-            'products' => "{BGL}",
             'start' => '2016-10-05 23:00:03',
             'end' => '2016-10-05 23:00:03',
             'created' => '2016-10-05 23:00:03',
