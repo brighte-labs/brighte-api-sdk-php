@@ -28,13 +28,13 @@ class Promotion
     /** @var string */
     public $start;
 
-    /** @var \string */
+    /** @var string */
     public $end;
 
     /** @var string */
     public $created;
 
-    /** @var \string */
+    /** @var string */
     public $modified;
 
     /**
