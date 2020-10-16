@@ -267,7 +267,7 @@ class PromotionApiTest extends TestCase
         $query = http_build_query(compact('vendorId', 'product', 'promoCode'));
 
         $this->apiClient->expects($this->once())->method('get')
-            ->with('/promotions?' . $query)->willReturn($this->response);
+            ->with('/promotions', $query)->willReturn($this->response);
 
         $this->response->expects($this->once())->method('getStatusCode')
             ->willReturn(StatusCodeInterface::STATUS_OK);
@@ -294,7 +294,7 @@ class PromotionApiTest extends TestCase
     public function testGetPromotionsThrowPromotionException()
     {
         $this->apiClient->expects($this->once())->method('get')
-            ->with('/promotions?')->willReturn($this->response);
+            ->with('/promotions', '')->willReturn($this->response);
 
         $this->response->expects($this->once())->method('getStatusCode')
             ->willReturn(StatusCodeInterface::STATUS_OK);
@@ -316,7 +316,7 @@ class PromotionApiTest extends TestCase
     {
         $promotionsList = [];
         $this->apiClient->expects($this->once())->method('get')
-            ->with('/promotions?')->willReturn($this->response);
+            ->with(PromotionApi::PATH, 'id=1')->willReturn($this->response);
 
         $this->response->expects($this->once())->method('getStatusCode')
             ->willReturn(StatusCodeInterface::STATUS_OK);
@@ -324,7 +324,7 @@ class PromotionApiTest extends TestCase
             ->method('getBody')
             ->willReturn(json_encode($promotionsList));
 
-        $this->assertEquals([], $this->api->getPromotions());
+        $this->assertEquals([], $this->api->getPromotions('id=1'));
     }
 
 
@@ -337,7 +337,7 @@ class PromotionApiTest extends TestCase
     public function testGetPromotionsReturnEmptyArrayForNon200StatusCodes()
     {
         $this->apiClient->expects($this->once())->method('get')
-            ->with('/promotions?')->willReturn($this->response);
+            ->with('/promotions', '')->willReturn($this->response);
 
         $this->response->expects($this->once())->method('getStatusCode')
             ->willReturn(StatusCodeInterface::STATUS_BAD_REQUEST);

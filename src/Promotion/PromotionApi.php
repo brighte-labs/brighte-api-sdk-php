@@ -92,7 +92,7 @@ class PromotionApi extends AbstractApi
      */
     public function getPromotions(string $query = null): array
     {
-        $response = $this->brighteApi->get(self::PATH, $query);
+        $response = $this->brighteApi->get(self::PATH, $query ?? '');
 
         if ($response->getStatusCode() !== StatusCodeInterface::STATUS_OK) {
             return [];
