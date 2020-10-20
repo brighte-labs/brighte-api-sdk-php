@@ -16,7 +16,9 @@ class PromotionApi extends AbstractApi
 
     /**
      * Tries apply promotion to application if its applicable for vendor and product type
-     * 202 status code means it not applicable
+     * 201 status code means it's applied
+     * 204 status code means it not applicable
+     * 200 status code means it's already applied
      *
      * @param \BrighteCapital\Api\Promotion\Models\Application $applicationPromotion
      * @return \BrighteCapital\Api\Promotion\Models\Application|null
@@ -39,7 +41,12 @@ class PromotionApi extends AbstractApi
             return null;
         }
 
-        if ($statusCode !== StatusCodeInterface::STATUS_CREATED) {
+        if (
+            !in_array($statusCode, [
+            StatusCodeInterface::STATUS_CREATED,
+            StatusCodeInterface::STATUS_OK
+            ])
+        ) {
             throw new PromotionException("Failed to apply promotion");
         }
 

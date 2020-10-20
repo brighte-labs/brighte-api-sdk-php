@@ -124,22 +124,27 @@ class PromotionApiTest extends TestCase
     {
         $application = new Application(1, 'E10', 'BGL', 'gold20Test');
 
-        $this->apiClient->expects($this->once())->method('post')->with(
+        $this->apiClient->expects($this->exactly(2))->method('post')->with(
             '/promotions/applications',
             json_encode($this->application->toArray())
         )->willReturn($this->response);
 
-        $this->response->expects($this->once())
+        $this->response->expects($this->exactly(2))
             ->method('getStatusCode')
-            ->willReturn(StatusCodeInterface::STATUS_CREATED);
+            ->willReturnOnConsecutiveCalls(
+                StatusCodeInterface::STATUS_CREATED,
+                StatusCodeInterface::STATUS_OK
+            );
         $this->response->expects($this->any())
             ->method('getBody')
             ->willReturn(json_encode($application->toArray()));
 
         $actual = $this->api->applyPromotion($this->application);
-
         $this->assertEquals($application, $actual);
+        $this->assertInstanceOf(Application::class, $actual);
 
+        $actual = $this->api->applyPromotion($this->application);
+        $this->assertEquals($application, $actual);
         $this->assertInstanceOf(Application::class, $actual);
     }
 
