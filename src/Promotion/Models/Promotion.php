@@ -26,6 +26,9 @@ class Promotion
     public $displayText;
 
     /** @var string */
+    public $displayUrl;
+
+    /** @var string */
     public $start;
 
     /** @var string */
@@ -50,6 +53,7 @@ class Promotion
             'content' => $this->content,
             'displayTitle' => $this->displayTitle,
             'displayText' => $this->displayText,
+            'displayUrl' => $this->displayUrl,
             'start' => $this->start,
             'end' => $this->end,
             'created' => $this->created,
