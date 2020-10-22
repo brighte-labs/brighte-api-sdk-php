@@ -22,6 +22,7 @@ class PromotionTest extends TestCase
         $promotion->end = '2016-10-05 23:00:03';
         $promotion->created = '2016-10-05 23:00:03';
         $promotion->modified = '2016-10-05 23:00:03';
+        $promotion->displayUrl = 'https://brighte.com.au';
 
         $expected = [
             'id' => 1,
@@ -35,6 +36,7 @@ class PromotionTest extends TestCase
             'end' => '2016-10-05 23:00:03',
             'created' => '2016-10-05 23:00:03',
             'modified' => '2016-10-05 23:00:03',
+            'displayUrl' => 'https://brighte.com.au',
         ];
 
         $this->assertEquals($expected, $promotion->toArray());
