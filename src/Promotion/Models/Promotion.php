@@ -16,7 +16,7 @@ class Promotion
     /** @var string */
     public $description;
 
-    /** @var string */
+    /** @var array */
     public $content;
 
     /** @var string */
