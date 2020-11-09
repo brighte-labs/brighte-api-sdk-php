@@ -27,8 +27,13 @@ class Application
      * @param string|null $applicationType promo code
      * @param string|null $code promo code
      */
-    public function __construct(string $id, string $vendorId, string $product, string $applicationType = '', string $code = null)
-    {
+    public function __construct(
+        string $id,
+        string $vendorId,
+        string $product,
+        string $applicationType = '',
+        string $code = null
+    ) {
         $this->id = $id;
         $this->vendorId = $vendorId;
         $this->product = $product;
