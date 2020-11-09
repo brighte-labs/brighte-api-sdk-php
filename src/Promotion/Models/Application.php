@@ -16,19 +16,24 @@ class Application
     /** @var string promotion code */
     public $code;
 
+    /** @var string applicaiton type */
+    public $applicationType;
+
     /**
      * Application constructor.
      * @param string $id application remote id
      * @param string $vendorId vendor remote id
      * @param string $product product code name
+     * @param string|null $applicationType promo code
      * @param string|null $code promo code
      */
-    public function __construct(string $id, string $vendorId, string $product, string $code = null)
+    public function __construct(string $id, string $vendorId, string $product, string $applicationType = '', string $code = null)
     {
         $this->id = $id;
         $this->vendorId = $vendorId;
         $this->product = $product;
         $this->code = $code;
+        $this->applicationType = $applicationType;
     }
 
 
@@ -42,6 +47,7 @@ class Application
             'vendorId' => $this->vendorId,
             'product' => $this->product,
             'code' => $this->code,
+            'applicationType' => $this->applicationType,
         ];
     }
 }

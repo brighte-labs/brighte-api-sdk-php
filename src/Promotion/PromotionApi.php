@@ -57,6 +57,7 @@ class PromotionApi extends AbstractApi
                 $response['id'],
                 $response['vendorId'],
                 $response['product'],
+                $response['applicationType'],
                 $response['code']
             );
         } catch (\Exception $e) {
