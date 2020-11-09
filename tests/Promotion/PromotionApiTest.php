@@ -122,7 +122,7 @@ class PromotionApiTest extends TestCase
      */
     public function testApplyPromotionReturnsPromotionCode()
     {
-        $application = new Application(1, 'E10', 'BGL', 'gold20Test');
+        $application = new Application(1, 'E10', 'BGL', 'applicationType', 'gold20Test');
 
         $this->apiClient->expects($this->exactly(2))->method('post')->with(
             '/promotions/applications',
