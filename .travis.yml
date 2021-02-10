@@ -7,5 +7,7 @@ install: composer install
 script:
   - vendor/bin/phpcs
   - vendor/bin/phpunit --coverage-clover=coverage.xml
+before_script:
+  - echo "xdebug.mode=coverage" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
 after_script:
   - bash <(curl -s https://codecov.io/bash)
