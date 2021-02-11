@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace BrighteCapital\Tests\Api;
 
 use BrighteCapital\Api\BrighteApi;
+use Cache\Adapter\Common\CacheItem;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\Uri;
+use Psr\Cache\CacheItemInterface;
+use Psr\Cache\CacheItemPoolInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
@@ -24,6 +27,9 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
     /** @var \Psr\Log\LoggerInterface */
     protected $logger;
 
+    /** @var \PHPUnit\Framework\MockObject\MockObject|CacheItemPoolInterface */
+    protected $cache;
+
     /** @var \BrighteCapital\Api\BrighteApi */
     protected $api;
 
@@ -36,7 +42,8 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
         ];
         $this->http = $this->createMock(ClientInterface::class);
         $this->logger = $this->createMock(LoggerInterface::class);
-        $this->api = new BrighteApi($this->http, $this->logger, $config);
+        $this->cache = $this->createMock(CacheItemPoolInterface::class);
+        $this->api = new BrighteApi($this->http, $this->logger, $config, $this->cache);
     }
 
     /**
@@ -61,6 +68,7 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
                 'Authorization' => 'Bearer ' . $accessToken,
             ]
         );
+        $this->cache->expects(self::once())->method('save');
         $authResponse = new Response(200, [], json_encode(compact('accessToken')));
         $apiResponse = new Response(200, [], 'Sample Response');
         $this->http->expects(self::exactly(3))->method('sendRequest')
@@ -101,6 +109,33 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
         // Authenticate but fail
         $this->expectException(\InvalidArgumentException::class);
         $this->api->get('/chipmonks', 'size=0.5', ['extra-header' => 'extra-header']);
+    }
+    /**
+     * @covers ::__construct
+     * @covers ::getCached
+     * @covers ::get
+     * @covers ::post
+     * @covers ::doRequest
+     * @covers ::authenticate
+     * @covers ::getToken
+     */
+    public function testAuthCache(): void
+    {
+        $accessToken = 'SLf:$*h$5fpj(#*pa';
+        $expectApiRequest = new Request(
+            'GET',
+            new Uri('https://api.brighte.com.au/v1/chipmonks'),
+            [
+                'accept' => 'application/json',
+                'content-type' => 'application/json',
+                'Authorization' => 'Bearer ' . $accessToken,
+            ]
+        );
+        $item = $this->createMock(CacheItemInterface::class);
+        $item->expects(self::once())->method('get')->willReturn($accessToken);
+        $this->cache->expects(self::once())->method('getItem')->with('service_jwt')->willReturn($item);
+        $this->http->expects(self::exactly(1))->method('sendRequest')->with($expectApiRequest);
+        $this->api->get('/chipmonks');
     }
 
     /**

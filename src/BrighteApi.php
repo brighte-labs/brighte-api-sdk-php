@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace BrighteCapital\Api;
 
+use Cache\Adapter\Common\CacheItem;
 use Fig\Http\Message\StatusCodeInterface;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Uri;
+use Psr\Cache\CacheItemPoolInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
@@ -41,16 +43,21 @@ class BrighteApi
     /** @var (string|int|bool)[][] */
     protected $cache = [];
 
+    /** @var CacheItemPoolInterface|null */
+    protected $cacheItemPool;
+
     /**
      * @param \Psr\Http\Client\ClientInterface $http HTTP client
      * @param \Psr\Log\LoggerInterface $log Logger
      * @param (string|int)[] $config configuration for API
+     * @param CacheItemPoolInterface|null $cache
      * @Inject({"config"="settings.brighteApi"})
      */
     public function __construct(
         ClientInterface $http,
         LoggerInterface $log,
-        array $config
+        array $config,
+        ?CacheItemPoolInterface $cache
     ) {
         $uri = new Uri($config['uri']);
         $this->scheme = $uri->getScheme();
@@ -59,7 +66,8 @@ class BrighteApi
         $this->port = $uri->getPort();
         $this->apiKey = $config['key'];
         $this->http = $http;
-        $this->log = $log;
+        $this->logger = $log;
+        $this->cacheItemPool = $cache;
     }
 
     protected function getToken(): string
@@ -75,14 +83,32 @@ class BrighteApi
 
     protected function authenticate(): void
     {
+        if ($this->cacheItemPool && $accessToken = $this->cacheItemPool->getItem('service_jwt')) {
+            $this->accessToken = $accessToken->get();
+            if ($this->accessToken) {
+                $this->logger->debug("Fetched Service JWT from cache");
+                return;
+            }
+        }
+
+        $this->logger->info("Not authenticated with Brighte APIs, authenticating");
+
         $response = $this->post('/identity/authenticate', json_encode(['apiKey' => $this->apiKey]), '', [], false);
         $body = json_decode((string) $response->getBody());
 
         if ($response->getStatusCode() !== StatusCodeInterface::STATUS_OK) {
-            throw new \InvalidArgumentException($body->message);
+            throw new \InvalidArgumentException($body->message ?? $response->getReasonPhrase());
         }
 
         $this->accessToken = $body->accessToken;
+
+        if ($this->cacheItemPool) {
+            $item = new CacheItem('service_jwt', true, $this->accessToken);
+            $expires = new \DateInterval($body->expires_in ?? 'PT15M');
+            $item->expiresAfter($expires);
+            $this->cacheItemPool->save($item);
+            $this->logger->info("Service JWT stored in cache");
+        }
     }
 
     /**
@@ -146,7 +172,7 @@ class BrighteApi
         array $headers,
         bool $auth = true
     ): ResponseInterface {
-        $this->log->debug(
+        $this->logger->debug(
             'BrighteApi->' . __FUNCTION__,
             $path === '/identity/authenticate' ? compact('path') : func_get_args()
         );
