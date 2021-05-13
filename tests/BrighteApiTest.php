@@ -38,7 +38,8 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
         parent::setUp();
         $config = [
             'uri' => 'https://api.brighte.com.au/v1',
-            'key' => 'theapikeysecretnottoshare',
+            'client_id' => 'test-client',
+            'client_secret' => 'client-secret',
         ];
         $this->http = $this->createMock(ClientInterface::class);
         $this->logger = $this->createMock(LoggerInterface::class);
@@ -69,7 +70,7 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
             ]
         );
         $this->cache->expects(self::once())->method('save');
-        $authResponse = new Response(200, [], json_encode(compact('accessToken')));
+        $authResponse = new Response(200, [], json_encode(['access_token' => $accessToken]));
         $apiResponse = new Response(200, [], 'Sample Response');
         $this->http->expects(self::exactly(3))->method('sendRequest')
             ->withConsecutive([self::isInstanceOf(Request::class)], [$expectApiRequest])
@@ -100,8 +101,13 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
      * @covers ::authenticate
      * @covers ::getToken
      */
-    public function testAuthFail(): void
+    public function testApiKeyAuthFail(): void
     {
+        $config = [
+            'uri' => 'https://api.brighte.com.au/v1',
+            'key' => 'supersecretapikey',
+        ];
+        $this->api = new BrighteApi($this->http, $this->logger, $config, $this->cache);
         $authResponse = new Response(401, [], json_encode(['message' => 'API key mismatch']));
         $this->http->expects(self::exactly(1))->method('sendRequest')
             ->with(self::isInstanceOf(Request::class))
@@ -110,6 +116,27 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
         $this->expectException(\InvalidArgumentException::class);
         $this->api->get('/chipmonks', 'size=0.5', ['extra-header' => 'extra-header']);
     }
+
+    /**
+     * @covers ::__construct
+     * @covers ::getCached
+     * @covers ::get
+     * @covers ::post
+     * @covers ::doRequest
+     * @covers ::authenticate
+     * @covers ::getToken
+     */
+    public function testAuthFail(): void
+    {
+        $authResponse = new Response(401, [], json_encode(['error' => 'unauthorized_client']));
+        $this->http->expects(self::exactly(1))->method('sendRequest')
+            ->with(self::isInstanceOf(Request::class))
+            ->willReturn($authResponse);
+        // Authenticate but fail
+        $this->expectException(\InvalidArgumentException::class);
+        $this->api->get('/chipmonks', 'size=0.5', ['extra-header' => 'extra-header']);
+    }
+
     /**
      * @covers ::__construct
      * @covers ::getCached
@@ -148,7 +175,7 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
     public function testPost(): void
     {
         $accessToken = 'SLf:$*h$5fpj(#*pa';
-        $authResponse = new Response(200, [], json_encode(compact('accessToken')));
+        $authResponse = new Response(200, [], json_encode(['access_token' => $accessToken]));
         $apiResponse = new Response(200, [], 'Sample Response');
         $this->http->expects(self::exactly(2))->method('sendRequest')
             ->with(self::isInstanceOf(Request::class))

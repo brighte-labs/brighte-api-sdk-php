@@ -16,6 +16,12 @@ use Psr\Log\LoggerInterface;
 class BrighteApi
 {
 
+    /** @var string|null */
+    public $clientId;
+
+    /** @var string|null */
+    public $clientSecret;
+
     /** @var string scheme */
     protected $scheme;
 
@@ -28,7 +34,10 @@ class BrighteApi
     /** @var int port */
     protected $port;
 
-    /** @var string apiKey */
+    /**
+     * @deprecated please don't use this anymore
+     * @var string|null apiKey
+     **/
     protected $apiKey;
 
     /** @var string accessToken */
@@ -64,7 +73,9 @@ class BrighteApi
         $this->host = $uri->getHost();
         $this->prefix = $uri->getPath();
         $this->port = $uri->getPort();
-        $this->apiKey = $config['key'];
+        $this->clientId = $config['client_id'] ?? null;
+        $this->clientSecret = $config['client_secret'] ?? null;
+        $this->apiKey = $config['key'] ?? null;
         $this->http = $http;
         $this->logger = $log;
         $this->cacheItemPool = $cache;
@@ -92,15 +103,26 @@ class BrighteApi
         }
 
         $this->logger->info("Not authenticated with Brighte APIs, authenticating");
-
-        $response = $this->post('/identity/authenticate', json_encode(['apiKey' => $this->apiKey]), '', [], false);
+        if ($this->clientId && $this->clientSecret) {
+            $authPath = '/identity/token';
+            $options = [
+                'client_id' => $this->clientId,
+                'client_secret' => $this->clientSecret,
+                'grant_type' => 'client_credentials',
+            ];
+            $authBody = \json_encode($options);
+        } else {
+            $authPath = '/identity/authenticate';
+            $authBody = json_encode(['apiKey' => $this->apiKey]);
+        }
+        $response = $this->post($authPath, $authBody, '', [], false);
         $body = json_decode((string) $response->getBody());
 
         if ($response->getStatusCode() !== StatusCodeInterface::STATUS_OK) {
             throw new \InvalidArgumentException($body->message ?? $response->getReasonPhrase());
         }
 
-        $this->accessToken = $body->accessToken;
+        $this->accessToken = $body->access_token ?? $body->accessToken;
 
         if ($this->cacheItemPool) {
             $item = new CacheItem('service_jwt', true, $this->accessToken);
