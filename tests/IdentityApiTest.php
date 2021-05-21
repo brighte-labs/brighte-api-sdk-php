@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace BrighteCapital\Tests\Api;
 
+use BrighteCapital\Api\Exceptions\AuthenticationFailedException;
 use BrighteCapital\Api\BrighteApi;
 use BrighteCapital\Api\IdentityApi;
+use BrighteCapital\Api\Models\IdentityTokenResponse;
 use BrighteCapital\Api\Models\User;
 use GuzzleHttp\Psr7\Response;
+use PHPUnit\Framework\MockObject\MockObject;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -19,7 +22,7 @@ class IdentityApiTest extends \PHPUnit\Framework\TestCase
     /** @var \Psr\Log\LoggerInterface */
     protected $logger;
 
-    /** @var \BrighteCapital\Api\BrighteApi */
+    /** @var \BrighteCapital\Api\BrighteApi|MockObject */
     protected $brighteApi;
 
     /** @var \BrighteCapital\Api\IdentityApi */
@@ -122,5 +125,115 @@ class IdentityApiTest extends \PHPUnit\Framework\TestCase
             ->with('/identity/users')->willReturn($response);
         $user = $this->identityApi->createUser(new User());
         self::assertNull($user);
+    }
+
+    /**
+     * @covers ::__construct
+     * @covers ::getUserTokenByCode
+     * @covers \BrighteCapital\Api\Models\IdentityTokenResponse::__construct
+     */
+    public function testGetUserTokenByCode(): void
+    {
+        $code = 'one-time-authorization-code';
+        $expectedBody = [
+            'grant_type' => 'authorization_code',
+            'code' => $code,
+            'client_id' => 'test-client',
+        ];
+        $responseObject = new IdentityTokenResponse(
+            'access-token',
+            'refresh-token',
+            900,
+            'bearer'
+        );
+        $this->brighteApi->clientId = 'test-client';
+        $response = new Response(200, [], json_encode([
+            'access_token' => 'access-token',
+            'refresh_token' => 'refresh-token',
+            'expires_in' => 900,
+            'token_type' => 'bearer',
+        ]));
+        $this->brighteApi->expects(self::once())->method('post')
+            ->with('/identity/token', json_encode($expectedBody))
+            ->willReturn($response);
+        self::assertEquals(
+            $responseObject,
+            $this->identityApi->getUserTokenByCode($code)
+        );
+    }
+
+    /**
+     * @covers ::__construct
+     * @covers ::getUserTokenByCode
+     * @covers \BrighteCapital\Api\Models\IdentityTokenResponse::__construct
+     * @uses BrighteCapital\Api\AbstractApi
+     */
+    public function testGetUserTokenByCodeFailure(): void
+    {
+        $code = 'one-time-authorization-code';
+        $expectedBody = [
+            'grant_type' => 'authorization_code',
+            'code' => $code,
+            'client_id' => 'test-client',
+        ];
+        $this->brighteApi->clientId = 'test-client';
+        $response = new Response(401, [], json_encode([
+            'error' => 'invalid_grant',
+            'error_description' => 'NO_USER_SESSION_FOUND',
+        ]));
+        $this->brighteApi->expects(self::once())->method('post')
+            ->with('/identity/token', json_encode($expectedBody))
+            ->willReturn($response);
+        $this->expectException(AuthenticationFailedException::class);
+        $this->identityApi->getUserTokenByCode($code);
+    }
+
+    /**
+     * @covers ::__construct
+     * @covers ::refreshToken
+     * @covers \BrighteCapital\Api\Models\IdentityTokenResponse::__construct
+     */
+    public function testRefreshToken(): void
+    {
+        $refreshToken = 'fake-refresh-token';
+        $expectedBody = ['refreshToken' => $refreshToken];
+        $responseObject = new IdentityTokenResponse(
+            'access-token',
+            'refresh-token',
+            900,
+            'bearer'
+        );
+        $response = new Response(200, [], json_encode([
+            'access_token' => 'access-token',
+            'refresh_token' => 'refresh-token',
+            'expires_in' => 900,
+            'token_type' => 'bearer',
+        ]));
+        $this->brighteApi->expects(self::once())->method('post')
+            ->with('/identity/refresh', json_encode($expectedBody))
+            ->willReturn($response);
+        self::assertEquals(
+            $responseObject,
+            $this->identityApi->refreshToken($refreshToken)
+        );
+    }
+
+    /**
+     * @covers ::__construct
+     * @covers ::refreshToken
+     * @uses BrighteCapital\Api\AbstractApi
+     */
+    public function testRefreshTokenFail(): void
+    {
+        $refreshToken = 'fake-refresh-token';
+        $expectedBody = ['refreshToken' => $refreshToken];
+        $response = new Response(401, [], json_encode([
+            'code' => 'jwt expired'
+        ]));
+        $this->brighteApi->expects(self::once())->method('post')
+            ->with('/identity/refresh', json_encode($expectedBody))
+            ->willReturn($response);
+        $this->expectException(AuthenticationFailedException::class);
+        $this->identityApi->refreshToken($refreshToken);
     }
 }
