@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace BrighteCapital\Api;
 
+use BrighteCapital\Api\Exceptions\AuthenticationFailedException;
+use BrighteCapital\Api\Models\IdentityTokenResponse;
 use BrighteCapital\Api\Models\User;
 use Fig\Http\Message\StatusCodeInterface;
 
@@ -60,5 +62,53 @@ class IdentityApi extends \BrighteCapital\Api\AbstractApi
         $user->id = (int) $result->id ?? null;
 
         return $user;
+    }
+
+    public function getUserTokenByCode(string $code): IdentityTokenResponse
+    {
+        $body = \json_encode([
+            'grant_type' => 'authorization_code',
+            'code' => $code,
+            'client_id' => $this->brighteApi->clientId
+        ]);
+
+        $response = $this->brighteApi->post(sprintf('%s/token', self::PATH), $body);
+        
+        if ($response->getStatusCode() !== StatusCodeInterface::STATUS_OK) {
+            $this->logResponse(__FUNCTION__, $response);
+
+            throw new AuthenticationFailedException(\json_decode((string) $response->getBody())->error);
+        }
+        
+        $result = json_decode((string) $response->getBody());
+
+        return new IdentityTokenResponse(
+            $result->access_token,
+            $result->refresh_token,
+            $result->expires_in,
+            $result->token_type
+        );
+    }
+
+    public function refreshToken(string $refreshToken): IdentityTokenResponse
+    {
+        $body = \json_encode(['refreshToken' => $refreshToken]);
+
+        $response = $this->brighteApi->post(sprintf('%s/refresh', self::PATH), $body);
+        
+        if ($response->getStatusCode() !== StatusCodeInterface::STATUS_OK) {
+            $this->logResponse(__FUNCTION__, $response);
+
+            throw new AuthenticationFailedException(\json_decode((string) $response->getBody())->code);
+        }
+        
+        $result = json_decode((string) $response->getBody());
+
+        return new IdentityTokenResponse(
+            $result->access_token,
+            $result->refresh_token,
+            $result->expires_in,
+            $result->token_type
+        );
     }
 }
