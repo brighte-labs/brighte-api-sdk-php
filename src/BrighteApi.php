@@ -126,7 +126,8 @@ class BrighteApi
 
         if ($this->cacheItemPool) {
             $item = new CacheItem('service_jwt', true, $this->accessToken);
-            $expires = new \DateInterval($body->expires_in ?? 'PT15M');
+            $expires = $body->expires_in ?? null;
+            $expires = (int) $expires ?: new \DateInterval('PT' . strtoupper($expires ?: "15m"));
             $item->expiresAfter($expires);
             $this->cacheItemPool->save($item);
             $this->logger->info("Service JWT stored in cache");

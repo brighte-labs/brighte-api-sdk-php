@@ -70,7 +70,7 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
             ]
         );
         $this->cache->expects(self::once())->method('save');
-        $authResponse = new Response(200, [], json_encode(['access_token' => $accessToken]));
+        $authResponse = new Response(200, [], json_encode(['access_token' => $accessToken, 'expires_in' => 900]));
         $apiResponse = new Response(200, [], 'Sample Response');
         $this->http->expects(self::exactly(3))->method('sendRequest')
             ->withConsecutive([self::isInstanceOf(Request::class)], [$expectApiRequest])
