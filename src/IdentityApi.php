@@ -83,10 +83,10 @@ class IdentityApi extends \BrighteCapital\Api\AbstractApi
         $result = json_decode((string) $response->getBody());
 
         return new IdentityTokenResponse(
-            $result->access_token,
-            $result->refresh_token,
-            $result->expires_in,
-            $result->token_type
+            (string) $result->access_token,
+            (string) $result->refresh_token,
+            (int) $result->expires_in,
+            (string) $result->token_type
         );
     }
 
@@ -105,10 +105,10 @@ class IdentityApi extends \BrighteCapital\Api\AbstractApi
         $result = json_decode((string) $response->getBody());
 
         return new IdentityTokenResponse(
-            $result->access_token,
-            $result->refresh_token,
-            $result->expires_in,
-            $result->token_type
+            (string) $result->access_token,
+            (string) $result->refresh_token,
+            (int) $result->expires_in,
+            (string) $result->token_type
         );
     }
 }
