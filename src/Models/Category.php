@@ -15,4 +15,7 @@ class Category
 
     /** @var string Slug */
     public $slug;
+
+    /** @var string Group */
+    public $group;
 }
