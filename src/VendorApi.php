@@ -91,6 +91,27 @@ class VendorApi extends \BrighteCapital\Api\AbstractApi
         return $categories;
     }
 
+    public function getCategory(int $categoryId): ?Category
+    {
+        $response = $this->brighteApi->get('/category/' . $categoryId);
+
+        if ($response->getStatusCode() !== StatusCodeInterface::STATUS_OK) {
+            $this->logResponse(__FUNCTION__, $response);
+
+            return null;
+        }
+
+        $result = json_decode((string) $response->getBody());
+
+        $category = new Category();
+        $category->id = $result->id;
+        $category->name = $result->name;
+        $category->slug = $result->slug;
+        $category->group = $result->group ?? null;
+
+        return $category;
+    }
+
     /**
      * @param int $vendorId
      * @param bool $active

@@ -143,6 +143,39 @@ class VendorApiTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::__construct
+     * @covers ::getCategory
+     */
+    public function testGetCategory(): void
+    {
+        $result = ['id' => 1, 'name' => 'Solar Systems', 'slug' => 'solar-systems', 'group' => 'Green'];
+        $response = new Response(200, [], json_encode($result));
+        $this->brighteApi->expects(self::once())->method('get')->with('/category/1')->willReturn($response);
+        $category = $this->vendorApi->getCategory(1);
+        self::assertInstanceOf(Category::class, $category);
+        self::assertEquals(1, $category->id);
+        self::assertEquals('Solar Systems', $category->name);
+        self::assertEquals('solar-systems', $category->slug);
+        self::assertEquals('Green', $category->group);
+    }
+
+    /**
+     * @covers ::__construct
+     * @covers ::getCategory
+     * @covers ::logResponse
+     */
+    public function testGetCategoryFail(): void
+    {
+        $response = new Response(404, [], json_encode(['message' => 'Not found']));
+        $this->logger->expects(self::once())->method('warning')->with(
+            'BrighteCapital\Api\AbstractApi->getCategory: 404: Not found'
+        );
+        $this->brighteApi->method('get')->willReturn($response);
+        $category = $this->vendorApi->getCategory(1);
+        self::assertNull($category);
+    }
+
+    /**
+     * @covers ::__construct
      * @covers ::getVendorPromos
      */
     public function testGetVendorPromos(): void
