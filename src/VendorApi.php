@@ -7,6 +7,7 @@ namespace BrighteCapital\Api;
 use BrighteCapital\Api\Models\Category;
 use BrighteCapital\Api\Models\PromoCode;
 use BrighteCapital\Api\Models\Vendor;
+use BrighteCapital\Api\Models\VendorFlag;
 use Fig\Http\Message\StatusCodeInterface;
 
 class VendorApi extends \BrighteCapital\Api\AbstractApi
@@ -44,6 +45,39 @@ class VendorApi extends \BrighteCapital\Api\AbstractApi
         return $vendors;
     }
 
+    public function getVendor(int $vendorId): ?Vendor
+    {
+        $response = $this->brighteApi->get(self::PATH . '/' . $vendorId);
+        
+        if ($response->getStatusCode() !== StatusCodeInterface::STATUS_OK) {
+            $this->logResponse(__FUNCTION__, $response);
+
+            return null;
+        }
+        
+        $result = json_decode((string) $response->getBody());
+
+        $vendor = new Vendor();
+        $vendor->id = $result->id ?? null;
+        $vendor->remoteId = $result->remoteId ?? null;
+        $vendor->tradingName = $result->tradingName ?? null;
+        $vendor->salesforceAccountId = $result->salesforceAccountId ?? null;
+        $vendor->accountsEmail = $result->accountsEmail ?? null;
+        $vendor->slug = $result->slug ?? null;
+
+        if (is_array($result->flags ?? null)) {
+            $vendor->flags = [];
+            foreach ($result->flags as $flagData) {
+                $flag = new VendorFlag();
+                $flag->id = $flagData->id ?? null;
+                $flag->flag = $flagData->flag ?? null;
+                $flag->description = $flagData->description ?? null;
+                $vendor->flags[] = $flag;
+            }
+        }
+
+        return $vendor;
+    }
     /**
      * @param int $vendorId
      * @return int[]
