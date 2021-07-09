@@ -24,4 +24,7 @@ class Vendor
 
     /** @var string Slug */
     public $slug;
+
+    /** @var VendorFlag[] */
+    public $flags;
 }
