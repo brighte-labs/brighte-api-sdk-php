@@ -65,19 +65,34 @@ class VendorApi extends \BrighteCapital\Api\AbstractApi
         $vendor->accountsEmail = $result->accountsEmail ?? null;
         $vendor->slug = $result->slug ?? null;
 
-        if (is_array($result->flags ?? null)) {
-            $vendor->flags = [];
-            foreach ($result->flags as $flagData) {
-                $flag = new VendorFlag();
-                $flag->id = $flagData->id ?? null;
-                $flag->flag = $flagData->flag ?? null;
-                $flag->description = $flagData->description ?? null;
-                $vendor->flags[] = $flag;
-            }
-        }
-
         return $vendor;
     }
+
+    /**
+     * @return VendorFlag[]
+     */
+    public function getVendorFlags(int $vendorId): array
+    {
+        $path = sprintf("%s/%d/flags", self::PATH, $vendorId);
+        $response = $this->brighteApi->get($path);
+        if ($response->getStatusCode() !== StatusCodeInterface::STATUS_OK) {
+            $this->logResponse(__FUNCTION__, $response);
+
+            return [];
+        }
+
+        $flags = [];
+        $results = json_decode((string) $response->getBody());
+        foreach ($results as $result) {
+            $flag = new VendorFlag();
+            $flag->id = $result->id ?? null;
+            $flag->flag = $result->flag ?? null;
+            $flag->description = $result->description ?? null;
+            $flags[] = $flag;
+        }
+        return $flags;
+    }
+
     /**
      * @param int $vendorId
      * @return int[]
