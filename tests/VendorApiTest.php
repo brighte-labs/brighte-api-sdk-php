@@ -8,6 +8,7 @@ use BrighteCapital\Api\BrighteApi;
 use BrighteCapital\Api\Models\Category;
 use BrighteCapital\Api\Models\PromoCode;
 use BrighteCapital\Api\Models\Vendor;
+use BrighteCapital\Api\Models\VendorFlag;
 use BrighteCapital\Api\VendorApi;
 use GuzzleHttp\Psr7\Response;
 use Psr\Log\LoggerInterface;
@@ -90,13 +91,6 @@ class VendorApiTest extends \PHPUnit\Framework\TestCase
             'salesforceAccountId' => 'salesforce-account-id',
             'accountsEmail' => 'accounts@solar.inc',
             'slug' => 'solar-installers-inc',
-            'flags' => [
-                [
-                    'id' => 1,
-                    'flag' => 'enable-cool-feature',
-                    'description' => 'Enable Cool Feature',
-                ]
-            ],
         ];
         $response = new Response(200, [], json_encode($providedVendor));
         $this->brighteApi->expects(self::once())->method('get')->with('/vendors/1')->willReturn($response);
@@ -124,6 +118,43 @@ class VendorApiTest extends \PHPUnit\Framework\TestCase
         $this->brighteApi->expects(self::once())->method('get')->with('/vendors/1')->willReturn($response);
         $vendor = $this->vendorApi->getVendor(1);
         self::assertNull($vendor);
+    }
+
+    /**
+     * @covers ::__construct
+     * @covers ::getVendorFlags
+     */
+    public function testGetVendorFlags(): void
+    {
+        $providedFlag = [
+            'id' => 1,
+            'flag' => 'test_flag',
+            'description' => 'Test Flag',
+        ];
+        $response = new Response(200, [], json_encode([$providedFlag]));
+        $this->brighteApi->expects(self::once())->method('get')->with('/vendors/1/flags')->willReturn($response);
+        $flags = $this->vendorApi->getVendorFlags(1);
+        self::assertCount(1, $flags);
+        self::assertInstanceOf(VendorFlag::class, $flags[0]);
+        self::assertEquals(1, $flags[0]->id);
+        self::assertEquals('test_flag', $flags[0]->flag);
+        self::assertEquals('Test Flag', $flags[0]->description);
+    }
+
+    /**
+     * @covers ::__construct
+     * @covers ::getVendorFlags
+     * @covers ::logResponse
+     */
+    public function testGetVendorFlagsFail(): void
+    {
+        $response = new Response(404, [], json_encode(['message' => 'Not found']));
+        $this->logger->expects(self::once())->method('warning')->with(
+            'BrighteCapital\Api\AbstractApi->getVendorFlags: 404: Not found'
+        );
+        $this->brighteApi->expects(self::once())->method('get')->with('/vendors/1/flags')->willReturn($response);
+        $flags = $this->vendorApi->getVendorFlags(1);
+        self::assertEmpty($flags);
     }
 
     /**
