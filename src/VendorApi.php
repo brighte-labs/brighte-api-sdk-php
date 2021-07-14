@@ -7,6 +7,7 @@ namespace BrighteCapital\Api;
 use BrighteCapital\Api\Models\Category;
 use BrighteCapital\Api\Models\PromoCode;
 use BrighteCapital\Api\Models\Vendor;
+use BrighteCapital\Api\Models\VendorFlag;
 use Fig\Http\Message\StatusCodeInterface;
 
 class VendorApi extends \BrighteCapital\Api\AbstractApi
@@ -42,6 +43,54 @@ class VendorApi extends \BrighteCapital\Api\AbstractApi
         }
 
         return $vendors;
+    }
+
+    public function getVendor(int $vendorId): ?Vendor
+    {
+        $response = $this->brighteApi->get(self::PATH . '/' . $vendorId);
+        
+        if ($response->getStatusCode() !== StatusCodeInterface::STATUS_OK) {
+            $this->logResponse(__FUNCTION__, $response);
+
+            return null;
+        }
+        
+        $result = json_decode((string) $response->getBody());
+
+        $vendor = new Vendor();
+        $vendor->id = $result->id ?? null;
+        $vendor->remoteId = $result->remoteId ?? null;
+        $vendor->tradingName = $result->tradingName ?? null;
+        $vendor->salesforceAccountId = $result->salesforceAccountId ?? null;
+        $vendor->accountsEmail = $result->accountsEmail ?? null;
+        $vendor->slug = $result->slug ?? null;
+
+        return $vendor;
+    }
+
+    /**
+     * @return VendorFlag[]
+     */
+    public function getVendorFlags(int $vendorId): array
+    {
+        $path = sprintf("%s/%d/flags", self::PATH, $vendorId);
+        $response = $this->brighteApi->get($path);
+        if ($response->getStatusCode() !== StatusCodeInterface::STATUS_OK) {
+            $this->logResponse(__FUNCTION__, $response);
+
+            return [];
+        }
+
+        $flags = [];
+        $results = json_decode((string) $response->getBody());
+        foreach ($results as $result) {
+            $flag = new VendorFlag();
+            $flag->id = $result->id ?? null;
+            $flag->flag = $result->flag ?? null;
+            $flag->description = $result->description ?? null;
+            $flags[] = $flag;
+        }
+        return $flags;
     }
 
     /**
