@@ -142,7 +142,7 @@ class VendorApi extends \BrighteCapital\Api\AbstractApi
 
     public function getCategory(int $categoryId): ?Category
     {
-        $response = $this->brighteApi->get('/category/' . $categoryId);
+        $response = $this->brighteApi->get('/categories/' . $categoryId);
 
         if ($response->getStatusCode() !== StatusCodeInterface::STATUS_OK) {
             $this->logResponse(__FUNCTION__, $response);
