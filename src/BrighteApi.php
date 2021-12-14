@@ -257,8 +257,8 @@ class BrighteApi
      */
     private function decodeToken(string $token): \stdClass
     {
-        list($header, $payload, $signature) = explode(".", $token);
+        $tokenPayload = explode(".", $token)[1];
 
-        return json_decode(base64_decode($payload));
+        return json_decode(base64_decode($tokenPayload));
     }
 }
