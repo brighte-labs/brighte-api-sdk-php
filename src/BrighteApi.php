@@ -84,7 +84,11 @@ class BrighteApi
     protected function getToken(): string
     {
         if ($this->accessToken) {
-            return $this->accessToken;
+            if (!$this->isTokenExpired($this->accessToken)) {
+                return $this->accessToken;
+            }
+
+            $this->cacheItemPool->deleteItem('service_jwt');
         }
 
         $this->authenticate();
@@ -157,7 +161,17 @@ class BrighteApi
      */
     protected function getCached(string $key, callable $callback, array $args): ResponseInterface
     {
-        return $this->cache[$key] ?? ($this->cache[$key] = $callback(...$args));
+        if (isset($this->cache[$key])) {
+            return $this->cache[$key];
+        }
+
+        $response = ($callback(...$args));
+
+        if ($response->getStatusCode() == StatusCodeInterface::STATUS_OK) {
+            $this->cache[$key] = $response;
+        }
+
+        return $response;
     }
 
     /**
@@ -209,7 +223,7 @@ class BrighteApi
             $headers['Authorization'] = 'Bearer ' . $this->getToken();
         }
 
-        return $this->http->sendRequest(new Request(
+        return  $this->http->sendRequest(new Request(
             $method,
             Uri::fromParts([
                 'scheme' => $this->scheme,
@@ -221,5 +235,30 @@ class BrighteApi
             $headers,
             $body
         ));
+    }
+
+    /**
+     * @param string $token
+     * @return bool
+     */
+    private function isTokenExpired(string $token): bool
+    {
+        $bufferInSeconds = 3;
+
+        $currentTimestamp = time();
+        $decoded = $this->decodeToken($token);
+
+        return $currentTimestamp > ($decoded->exp - $bufferInSeconds);
+    }
+
+    /**
+     * @param string $token
+     * @return \stdClass
+     */
+    private function decodeToken(string $token): \stdClass
+    {
+        list($header, $payload, $signature) = explode(".", $token);
+
+        return json_decode(base64_decode($payload));
     }
 }
