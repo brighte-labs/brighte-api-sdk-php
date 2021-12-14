@@ -92,7 +92,8 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
      * @covers ::doRequest
      * @covers ::authenticate
      * @covers ::getToken
-     * @group nick
+     * @covers ::isTokenExpired
+     * @covers ::decodeToken
      */
     public function testGet(): void
     {
@@ -164,7 +165,6 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
      * @covers ::getToken
      * @covers ::isTokenExpired
      * @covers ::decodeToken
-     * @group nick2
      */
     public function testJWTExpired(): void
     {
