@@ -93,7 +93,7 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
     /**
      * @return array
      */
-    public function testGetProvider()
+    public function getProvider()
     {
         return [
             [self::URL_CHIPMONKS, '200', 2],
@@ -113,7 +113,7 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
      * @covers ::getToken
      * @covers ::isTokenExpired
      * @covers ::decodeToken
-     * @dataProvider testGetProvider
+     * @dataProvider getProvider
      * @group nick
      */
     public function testGet($url, $statusCode, $sendRequestCalled): void
