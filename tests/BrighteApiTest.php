@@ -197,7 +197,7 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
         $authResponseExpired = new Response(
             200,
             [],
-            json_encode(['access_token' => $this->accessTokenExpired, 'expires_in' => 900]),
+            json_encode(['access_token' => $this->accessTokenExpired, 'expires_in' => 900])
         );
         $apiResponse = new Response(200, [], self::SAMPLE_RESPONSE);
 
