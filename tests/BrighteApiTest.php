@@ -38,12 +38,12 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
     /** @var string */
     protected $accessTokenExpired;
 
-    const BEARER = 'Bearer ';
-    const SAMPLE_RESPONSE = 'Sample Response';
-    const URL_CHIPMONKS = '/chipmonks';
-    const URL_DANGER_MOUSE = '/dangermouse';
-    const URL_MOLE = '/mole';
-    const URL_PARAM_SIZE = 'size=0.5';
+    private const BEARER = 'Bearer ';
+    private const SAMPLE_RESPONSE = 'Sample Response';
+    private const URL_CHIPMONKS = '/chipmonks';
+    private const URL_DANGER_MOUSE = '/dangermouse';
+    private const URL_MOLE = '/mole';
+    private const URL_PARAM_SIZE = 'size=0.5';
 
     protected function setUp(): void
     {
@@ -132,7 +132,11 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
 
         $authResponse = new Response(200, [], json_encode(['access_token' => $this->accessToken, 'expires_in' => 900]));
         $apiResponse = new Response(200, [], self::SAMPLE_RESPONSE);
-        $apiFailResponse = new Response(401, [], json_encode(['access_token' => $this->accessToken, 'expires_in' => 900]));
+        $apiFailResponse = new Response(
+            401,
+            [],
+            json_encode(['access_token' => $this->accessToken, 'expires_in' => 900]),
+        );
 
         $secondCall = $apiResponse;
         if ($statusCode !== '200') {
@@ -311,7 +315,7 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
             ->willReturnOnConsecutiveCalls($authResponse, $apiResponse);
         $this->assertInstanceOf(
             ResponseInterface::class,
-            $this->api->post( self::URL_CHIPMONKS, 'body', self::URL_PARAM_SIZE, ['extra-header' => 'extra-header'])
+            $this->api->post(self::URL_CHIPMONKS, 'body', self::URL_PARAM_SIZE, ['extra-header' => 'extra-header'])
         );
     }
 }
