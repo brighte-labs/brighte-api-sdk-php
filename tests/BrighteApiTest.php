@@ -20,7 +20,6 @@ use Psr\Log\LoggerInterface;
  */
 class BrighteApiTest extends \PHPUnit\Framework\TestCase
 {
-
     /** @var \Psr\Http\Client\ClientInterface */
     protected $http;
 
@@ -32,6 +31,19 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
 
     /** @var \BrighteCapital\Api\BrighteApi */
     protected $api;
+
+    /** @var string */
+    protected $accessToken;
+
+    /** @var string */
+    protected $accessTokenExpired;
+
+    private const BEARER = 'Bearer ';
+    private const SAMPLE_RESPONSE = 'Sample Response';
+    private const URL_CHIPMONKS = '/chipmonks';
+    private const URL_DANGER_MOUSE = '/dangermouse';
+    private const URL_MOLE = '/mole';
+    private const URL_PARAM_SIZE = 'size=0.5';
 
     protected function setUp(): void
     {
@@ -45,6 +57,50 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
         $this->logger = $this->createMock(LoggerInterface::class);
         $this->cache = $this->createMock(CacheItemPoolInterface::class);
         $this->api = new BrighteApi($this->http, $this->logger, $config, $this->cache);
+
+        $tokenHeader = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9';
+        $tokenSignature = 'vSOe9pC7ex0LwD5KM9_kp_jrXFLoTTKfvy959tHtU5g';
+
+        $tokenPayload = [
+            'userId' => '6',
+            'remoteId' => 'U15',
+            'firstName' => 'Andy',
+            'lastName' => 'Fake',
+            'email' => 'vendor@brighte.com.au',
+            'mobile' => '0400000044',
+            'role' => 'VENDOR',
+            'roleId' => 3,
+            'scope' => ["create:notifications"],
+            'vendors' => [3, 7],
+            'agent' => null,
+            'iat' => 1639434967,
+            'exp' => 1639434967,
+            'aud' => 'https://brighte.com.au',
+            'iss' => 'Brighte'
+        ];
+
+        $tokenPayloadEncoded = base64_encode(json_encode($tokenPayload, JSON_UNESCAPED_SLASHES));
+
+        $this->accessTokenExpired = $tokenHeader . '.' . $tokenPayloadEncoded . '.' . $tokenSignature;
+
+        $tokenPayload['exp'] = time() + 60;
+
+        $tokenPayloadEncoded = base64_encode(json_encode($tokenPayload, JSON_UNESCAPED_SLASHES));
+
+        $this->accessToken = $tokenHeader . '.' . $tokenPayloadEncoded . '.' . $tokenSignature;
+    }
+
+    /**
+     * @return array
+     */
+    public function getProvider()
+    {
+        return [
+            [self::URL_CHIPMONKS, '200', 2],
+            [self::URL_DANGER_MOUSE, '200', 3],
+            [self::URL_MOLE, '401', 3],
+            [self::URL_MOLE, '200', 3],
+        ];
     }
 
     /**
@@ -55,10 +111,12 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
      * @covers ::doRequest
      * @covers ::authenticate
      * @covers ::getToken
+     * @covers ::isTokenExpired
+     * @covers ::decodeToken
+     * @dataProvider getProvider
      */
-    public function testGet(): void
+    public function testGet($url, $statusCode, $sendRequestCalled): void
     {
-        $accessToken = 'SLf:$*h$5fpj(#*pa';
         $expectApiRequest = new Request(
             'GET',
             new Uri('https://api.brighte.com.au/v1/chipmonks?size=0.5'),
@@ -66,30 +124,107 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
                 'accept' => 'application/json',
                 'content-type' => 'application/json',
                 'extra-header' => 'extra-header',
-                'Authorization' => 'Bearer ' . $accessToken,
+                'Authorization' => self::BEARER . $this->accessToken,
             ]
         );
+
         $this->cache->expects(self::once())->method('save');
-        $authResponse = new Response(200, [], json_encode(['access_token' => $accessToken, 'expires_in' => 900]));
-        $apiResponse = new Response(200, [], 'Sample Response');
-        $this->http->expects(self::exactly(3))->method('sendRequest')
+
+        $authResponse = new Response(200, [], json_encode(['access_token' => $this->accessToken, 'expires_in' => 900]));
+        $apiResponse = new Response(200, [], self::SAMPLE_RESPONSE);
+        $apiFailResponse = new Response(
+            401,
+            [],
+            json_encode(['access_token' => $this->accessToken, 'expires_in' => 900])
+        );
+
+        $secondCall = $apiResponse;
+        if ($statusCode !== '200') {
+            $secondCall = $apiFailResponse;
+        }
+
+        $this->http->expects(self::exactly($sendRequestCalled))->method('sendRequest')
             ->withConsecutive([self::isInstanceOf(Request::class)], [$expectApiRequest])
-            ->willReturnOnConsecutiveCalls($authResponse, $apiResponse, $apiResponse);
+            ->willReturnOnConsecutiveCalls($authResponse, $apiResponse, $secondCall);
+
+        // Authenticate, fill cache on first call
+        $this->assertInstanceOf(
+            ResponseInterface::class,
+            $result = $this->api->get(self::URL_CHIPMONKS, self::URL_PARAM_SIZE, ['extra-header' => 'extra-header'])
+        );
+
+        $this->assertInstanceOf(
+            ResponseInterface::class,
+            $result = $this->api->get($url, self::URL_PARAM_SIZE, ['extra-header' => 'extra-header'])
+        );
+
+        $this->assertEquals($statusCode, $result->getStatusCode());
+    }
+
+    /**
+     * @covers ::__construct
+     * @covers ::getCached
+     * @covers ::get
+     * @covers ::post
+     * @covers ::doRequest
+     * @covers ::authenticate
+     * @covers ::getToken
+     * @covers ::isTokenExpired
+     * @covers ::decodeToken
+     */
+    public function testJWTExpired(): void
+    {
+        $uriData = [
+            'accept' => 'application/json',
+            'content-type' => 'application/json',
+            'extra-header' => 'extra-header',
+            'Authorization' => self::BEARER . $this->accessTokenExpired,
+        ];
+
+        $expectApiRequestExpired = new Request(
+            'GET',
+            new Uri('https://api.brighte.com.au/v1/chipmonks?size=0.5'),
+            $uriData
+        );
+
+        $expectApiRequestExpiredOther = new Request(
+            'GET',
+            new Uri('https://api.brighte.com.au/v1/dangermouse?size=0.5'),
+            $uriData
+        );
+
+        $this->cache->expects(self::exactly(2))->method('save');
+        $authResponseExpired = new Response(
+            200,
+            [],
+            json_encode(['access_token' => $this->accessTokenExpired, 'expires_in' => 900])
+        );
+        $apiResponse = new Response(200, [], self::SAMPLE_RESPONSE);
+
+        $this->http->expects(self::exactly(4))->method('sendRequest')
+            ->withConsecutive(
+                [self::isInstanceOf(Request::class)],
+                [$expectApiRequestExpired],
+                [self::isInstanceOf(Request::class)],
+                [$expectApiRequestExpiredOther]
+            )
+            ->willReturnOnConsecutiveCalls($authResponseExpired, $apiResponse, $authResponseExpired, $apiResponse);
+
         // Authenticate, fill cache
         $this->assertInstanceOf(
             ResponseInterface::class,
-            $this->api->get('/chipmonks', 'size=0.5', ['extra-header' => 'extra-header'])
+            $result = $this->api->get(self::URL_CHIPMONKS, self::URL_PARAM_SIZE, ['extra-header' => 'extra-header'])
         );
-        // Use cache
-        $this->assertInstanceOf(
-            ResponseInterface::class,
-            $this->api->get('/chipmonks', 'size=0.5', ['extra-header' => 'extra-header'])
-        );
+
+        $this->assertEquals('200', $result->getStatusCode());
+
         // Use existing auth, get fresh
         $this->assertInstanceOf(
             ResponseInterface::class,
-            $this->api->get('/dangermouse', 'size=0.5', ['extra-header' => 'extra-header'])
+            $result = $this->api->get(self::URL_DANGER_MOUSE, self::URL_PARAM_SIZE, ['extra-header' => 'extra-header'])
         );
+
+        $this->assertEquals('200', $result->getStatusCode());
     }
 
     /**
@@ -114,7 +249,7 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
             ->willReturn($authResponse);
         // Authenticate but fail
         $this->expectException(\InvalidArgumentException::class);
-        $this->api->get('/chipmonks', 'size=0.5', ['extra-header' => 'extra-header']);
+        $this->api->get(self::URL_CHIPMONKS, self::URL_PARAM_SIZE, ['extra-header' => 'extra-header']);
     }
 
     /**
@@ -134,7 +269,7 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
             ->willReturn($authResponse);
         // Authenticate but fail
         $this->expectException(\InvalidArgumentException::class);
-        $this->api->get('/chipmonks', 'size=0.5', ['extra-header' => 'extra-header']);
+        $this->api->get(self::URL_CHIPMONKS, self::URL_PARAM_SIZE, ['extra-header' => 'extra-header']);
     }
 
     /**
@@ -148,21 +283,20 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
      */
     public function testAuthCache(): void
     {
-        $accessToken = 'SLf:$*h$5fpj(#*pa';
         $expectApiRequest = new Request(
             'GET',
             new Uri('https://api.brighte.com.au/v1/chipmonks'),
             [
                 'accept' => 'application/json',
                 'content-type' => 'application/json',
-                'Authorization' => 'Bearer ' . $accessToken,
+                'Authorization' => self::BEARER . $this->accessToken,
             ]
         );
         $item = $this->createMock(CacheItemInterface::class);
-        $item->expects(self::once())->method('get')->willReturn($accessToken);
+        $item->expects(self::once())->method('get')->willReturn($this->accessToken);
         $this->cache->expects(self::once())->method('getItem')->with('service_jwt')->willReturn($item);
         $this->http->expects(self::exactly(1))->method('sendRequest')->with($expectApiRequest);
-        $this->api->get('/chipmonks');
+        $this->api->get(self::URL_CHIPMONKS);
     }
 
     /**
@@ -174,15 +308,14 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
      */
     public function testPost(): void
     {
-        $accessToken = 'SLf:$*h$5fpj(#*pa';
-        $authResponse = new Response(200, [], json_encode(['access_token' => $accessToken]));
-        $apiResponse = new Response(200, [], 'Sample Response');
+        $authResponse = new Response(200, [], json_encode(['access_token' => $this->accessToken]));
+        $apiResponse = new Response(200, [], self::SAMPLE_RESPONSE);
         $this->http->expects(self::exactly(2))->method('sendRequest')
             ->with(self::isInstanceOf(Request::class))
             ->willReturnOnConsecutiveCalls($authResponse, $apiResponse);
         $this->assertInstanceOf(
             ResponseInterface::class,
-            $this->api->post('/chipmonks', 'body', 'size=0.5', ['extra-header' => 'extra-header'])
+            $this->api->post(self::URL_CHIPMONKS, 'body', self::URL_PARAM_SIZE, ['extra-header' => 'extra-header'])
         );
     }
 }
