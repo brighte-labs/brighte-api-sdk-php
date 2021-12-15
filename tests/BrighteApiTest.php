@@ -135,7 +135,7 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
         $apiFailResponse = new Response(
             401,
             [],
-            json_encode(['access_token' => $this->accessToken, 'expires_in' => 900]),
+            json_encode(['access_token' => $this->accessToken, 'expires_in' => 900])
         );
 
         $secondCall = $apiResponse;
