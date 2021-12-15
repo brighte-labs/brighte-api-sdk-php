@@ -114,7 +114,6 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
      * @covers ::isTokenExpired
      * @covers ::decodeToken
      * @dataProvider getProvider
-     * @group nick
      */
     public function testGet($url, $statusCode, $sendRequestCalled): void
     {
@@ -171,26 +170,23 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
      */
     public function testJWTExpired(): void
     {
+        $uriData = [
+            'accept' => 'application/json',
+            'content-type' => 'application/json',
+            'extra-header' => 'extra-header',
+            'Authorization' => self::BEARER . $this->accessTokenExpired,
+        ];
+
         $expectApiRequestExpired = new Request(
             'GET',
             new Uri('https://api.brighte.com.au/v1/chipmonks?size=0.5'),
-            [
-                'accept' => 'application/json',
-                'content-type' => 'application/json',
-                'extra-header' => 'extra-header',
-                'Authorization' => self::BEARER . $this->accessTokenExpired,
-            ]
+            $uriData
         );
 
         $expectApiRequestExpiredOther = new Request(
             'GET',
             new Uri('https://api.brighte.com.au/v1/dangermouse?size=0.5'),
-            [
-                'accept' => 'application/json',
-                'content-type' => 'application/json',
-                'extra-header' => 'extra-header',
-                'Authorization' => self::BEARER . $this->accessTokenExpired,
-            ]
+            $uriData
         );
 
         $this->cache->expects(self::exactly(2))->method('save');
@@ -218,18 +214,10 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
 
         $this->assertEquals('200', $result->getStatusCode());
 
-        // Use cache
-        $this->assertInstanceOf(
-            ResponseInterface::class,
-            $result = $this->api->get(self::URL_CHIPMONKS, self::URL_PARAM_SIZE, ['extra-header' => 'extra-header'])
-        );
-
-        $this->assertEquals('200', $result->getStatusCode());
-
         // Use existing auth, get fresh
         $this->assertInstanceOf(
             ResponseInterface::class,
-            $result = $this->api->get('/dangermouse', self::URL_PARAM_SIZE, ['extra-header' => 'extra-header'])
+            $result = $this->api->get(self::URL_DANGER_MOUSE, self::URL_PARAM_SIZE, ['extra-header' => 'extra-header'])
         );
 
         $this->assertEquals('200', $result->getStatusCode());
