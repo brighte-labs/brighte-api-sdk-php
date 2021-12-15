@@ -41,6 +41,8 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
     const BEARER = 'Bearer ';
     const SAMPLE_RESPONSE = 'Sample Response';
     const URL_CHIPMONKS = '/chipmonks';
+    const URL_DANGER_MOUSE = '/dangermouse';
+    const URL_MOLE = '/mole';
     const URL_PARAM_SIZE = 'size=0.5';
 
     protected function setUp(): void
@@ -89,6 +91,19 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
+     * @return array
+     */
+    public function testGetProvider()
+    {
+        return [
+            [self::URL_CHIPMONKS, '200', 2],
+            [self::URL_DANGER_MOUSE, '200', 3],
+            [self::URL_MOLE, '401', 3],
+            [self::URL_MOLE, '200', 3],
+        ];
+    }
+
+    /**
      * @covers ::__construct
      * @covers ::getCached
      * @covers ::get
@@ -98,8 +113,10 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
      * @covers ::getToken
      * @covers ::isTokenExpired
      * @covers ::decodeToken
+     * @dataProvider testGetProvider
+     * @group nick
      */
-    public function testGet(): void
+    public function testGet($url, $statusCode, $sendRequestCalled): void
     {
         $expectApiRequest = new Request(
             'GET',
@@ -111,52 +128,34 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
                 'Authorization' => self::BEARER . $this->accessToken,
             ]
         );
+
         $this->cache->expects(self::once())->method('save');
+
         $authResponse = new Response(200, [], json_encode(['access_token' => $this->accessToken, 'expires_in' => 900]));
         $apiResponse = new Response(200, [], self::SAMPLE_RESPONSE);
-        $apiFailResponse = new Response(401, [], self::SAMPLE_RESPONSE);
-        $this->http->expects(self::exactly(5))->method('sendRequest')
+        $apiFailResponse = new Response(401, [], json_encode(['access_token' => $this->accessToken, 'expires_in' => 900]));
+
+        $secondCall = $apiResponse;
+        if ($statusCode !== '200') {
+            $secondCall = $apiFailResponse;
+        }
+
+        $this->http->expects(self::exactly($sendRequestCalled))->method('sendRequest')
             ->withConsecutive([self::isInstanceOf(Request::class)], [$expectApiRequest])
-            ->willReturnOnConsecutiveCalls($authResponse, $apiResponse, $apiResponse, $apiFailResponse, $authResponse);
-        // Authenticate, fill cache
+            ->willReturnOnConsecutiveCalls($authResponse, $apiResponse, $secondCall);
+
+        // Authenticate, fill cache on first call
         $this->assertInstanceOf(
             ResponseInterface::class,
             $result = $this->api->get(self::URL_CHIPMONKS, self::URL_PARAM_SIZE, ['extra-header' => 'extra-header'])
         );
 
-        $this->assertEquals('200', $result->getStatusCode());
-
-        // Use cache
         $this->assertInstanceOf(
             ResponseInterface::class,
-            $result = $this->api->get(self::URL_CHIPMONKS, self::URL_PARAM_SIZE, ['extra-header' => 'extra-header'])
+            $result = $this->api->get($url, self::URL_PARAM_SIZE, ['extra-header' => 'extra-header'])
         );
 
-        $this->assertEquals('200', $result->getStatusCode());
-
-        // Use existing auth, get fresh
-        $this->assertInstanceOf(
-            ResponseInterface::class,
-            $result = $this->api->get('/dangermouse', self::URL_PARAM_SIZE, ['extra-header' => 'extra-header'])
-        );
-
-        $this->assertEquals('200', $result->getStatusCode());
-
-        // Use existing auth, get fresh but failed (401).
-        $this->assertInstanceOf(
-            ResponseInterface::class,
-            $result = $this->api->get('/mole', self::URL_PARAM_SIZE, ['extra-header' => 'extra-header'])
-        );
-
-        $this->assertEquals('401', $result->getStatusCode());
-
-        // Use existing auth, Using same failed resource again, but get fresh due to prior failure.
-        $this->assertInstanceOf(
-            ResponseInterface::class,
-            $result = $this->api->get('/mole', self::URL_PARAM_SIZE, ['extra-header' => 'extra-header'])
-        );
-
-        $this->assertEquals('200', $result->getStatusCode());
+        $this->assertEquals($statusCode, $result->getStatusCode());
     }
 
     /**
