@@ -41,14 +41,14 @@ class FinanceCoreApi extends \BrighteCapital\Api\AbstractApi
                     fpAccountType
                 }
             }
-        GQL;        
+        GQL;
 
         $body = [
             'query' => $query
         ];
     
         $response = $this->brighteApi->post(sprintf('%s/graphql', self::PATH), json_encode($body), '', [
-            'Content-Type' => 'application/json' 
+            'Content-Type' => 'application/json'
         ], true);
         
         if ($response->getStatusCode() !== StatusCodeInterface::STATUS_OK) {

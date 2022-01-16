@@ -60,7 +60,7 @@ class FinanceCoreApiTest extends \PHPUnit\Framework\TestCase
                     'manualSettlementRequired' => true,
                     'version' => 1,
                     'fpAccountType' => 'savings',
-                    'fpBranch'=> 'branch',
+                    'fpBranch' => 'branch',
                 ]
             ]
         ];
@@ -96,14 +96,13 @@ class FinanceCoreApiTest extends \PHPUnit\Framework\TestCase
                     fpAccountType
                 }
             }
-        GQL;   
+        GQL;
 
         $expectedBody = [
             'query' => $query
         ];
 
         $response = new Response(200, [], json_encode($response));
-        print(json_encode($expectedBody));
         $this->brighteApi->expects(self::once())->method('post')
             ->with('../v2/finance/graphql', json_encode($expectedBody))
             ->willReturn($response);
