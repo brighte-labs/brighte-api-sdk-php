@@ -17,27 +17,27 @@ class FinanceCoreApiTest extends \PHPUnit\Framework\TestCase
 {
 
     /** @var \Psr\Log\LoggerInterface */
-protected $logger;
+    protected $logger;
 
     /** @var \BrighteCapital\Api\BrighteApi */
-protected $brighteApi;
+    protected $brighteApi;
 
     /** @var \BrighteCapital\Api\FinanceCoreApi */
-protected $financeCoreApi;
+    protected $financeCoreApi;
 
-protected function setUp(): void
-{
-    parent::setUp();
-    $this->logger = $this->createMock(LoggerInterface::class);
-    $this->brighteApi = $this->createMock(BrighteApi::class);
-    $this->financeCoreApi = new FinanceCoreApi($this->logger, $this->brighteApi);
-}
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->logger = $this->createMock(LoggerInterface::class);
+        $this->brighteApi = $this->createMock(BrighteApi::class);
+        $this->financeCoreApi = new FinanceCoreApi($this->logger, $this->brighteApi);
+    }
 
     /**
      * @covers ::__construct
      * @covers ::getProductConfig
      */
-public function testgetProductConfig(): void
+    public function testgetProductConfig(): void
     {
         $response = [
             'data' => [
@@ -96,7 +96,7 @@ public function testgetProductConfig(): void
                     fpAccountType
                 }
             }
-        GQL;
+GQL;
 
         $expectedBody = [
             'query' => $query
@@ -125,22 +125,22 @@ public function testgetProductConfig(): void
         self::assertEquals(1, $config->version);
         self::assertEquals('savings', $config->fpAccountType);
         self::assertEquals('branch', $config->fpBranch);
-        }
+    }
 
         /**
         * @covers ::__construct
         * @covers ::getProductConfig
         * @covers ::logResponse
         */
-        public function testgetProductConfigFail(): void
-        {
+    public function testgetProductConfigFail(): void
+    {
         $response = new Response(404, [], json_encode(['message' => 'Not found']));
         $this->logger->expects(self::once())->method('warning')->with(
             'BrighteCapital\Api\AbstractApi->getProductConfig: 404: Not found'
         );
         $this->brighteApi->expects(self::once())->method('post')
-            ->with('../v2/finance/graphql')->willReturn($response);
+        ->with('../v2/finance/graphql')->willReturn($response);
         $config = $this->financeCoreApi->getProductConfig('slug');
         self::assertNull($config);
-        }
-        }
+    }
+}

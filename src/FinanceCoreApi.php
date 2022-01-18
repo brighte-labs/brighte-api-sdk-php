@@ -9,10 +9,9 @@ use Fig\Http\Message\StatusCodeInterface;
 
 class FinanceCoreApi extends \BrighteCapital\Api\AbstractApi
 {
+    public const PATH = '../v2/finance';
 
-public const PATH = '../v2/finance';
-
-public function getProductConfig(string $slug, string $vendorId = null, int $version = null): ?ProductConfig
+    public function getProductConfig(string $slug, string $vendorId = null, int $version = null): ?ProductConfig
     {
         $query = <<<GQL
             query {
@@ -41,7 +40,7 @@ public function getProductConfig(string $slug, string $vendorId = null, int $ver
                     fpAccountType
                 }
             }
-        GQL;
+GQL;
 
         $body = [
             'query' => $query
