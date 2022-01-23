@@ -7,3 +7,5 @@ coverage.xml
 composer.lock
 
 .idea/
+
+.env

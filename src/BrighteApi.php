@@ -81,7 +81,7 @@ class BrighteApi
         $this->cacheItemPool = $cache;
     }
 
-    protected function getToken(): string
+    public function getToken(): string
     {
         if ($this->accessToken) {
             if (!$this->isTokenExpired($this->accessToken)) {

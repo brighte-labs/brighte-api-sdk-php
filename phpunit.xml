@@ -14,6 +14,7 @@
     <testsuites>
         <testsuite name="tests">
             <directory suffix="Test.php">./tests</directory>
+            <exclude>./tests/Pact</exclude>
         </testsuite>
     </testsuites>
     <php>

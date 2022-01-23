@@ -1,0 +1,62 @@
+{
+  "consumer": {
+    "name": "brighte-api-sdk-consumer"
+  },
+  "provider": {
+    "name": "finance-core-provider"
+  },
+  "interactions": [
+    {
+      "description": "A request to get product configuration",
+      "request": {
+        "method": "POST",
+        "path": "/v2/finance/graphql",
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "data": {
+            "getProductConfiguration": {
+              "version": 1,
+              "fpAccountType": "savings",
+              "fpBranch": "branch",
+              "establishmentFee": 4.99,
+              "interestRate": 5.99,
+              "applicationFee": 6.99,
+              "annualFee": 7.99,
+              "weeklyAccountFee": 8.99,
+              "latePaymentFee": 9.99,
+              "introducerFee": 10.99,
+              "enableExpressSettlement": true,
+              "minimumFinanceAmount": 11.99,
+              "maximumFinanceAmount": 12.99,
+              "minRepaymentYear": 13.99,
+              "maxRepaymentYear": 14.99,
+              "forceCcaProcess": true,
+              "paymentCycle": null,
+              "invoiceRequired": true,
+              "manualSettlementRequired": true,
+              "defaultPaymentCycle": "weekly"
+            }
+          }
+        },
+        "matchingRules": {
+          "$.body.data.getProductConfiguration": {
+            "match": "type"
+          }
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "pactSpecification": {
+      "version": "2.0.0"
+    }
+  }
+}

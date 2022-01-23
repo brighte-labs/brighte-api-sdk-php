@@ -46,9 +46,7 @@ GQL;
             'query' => $query
         ];
     
-        $response = $this->brighteApi->post(sprintf('%s/graphql', self::PATH), json_encode($body), '', [
-            'Content-Type' => 'application/json'
-        ], true);
+        $response = $this->brighteApi->post(sprintf('%s/graphql', self::PATH), json_encode($body), '', [], true);
         
         if ($response->getStatusCode() !== StatusCodeInterface::STATUS_OK) {
             $this->logResponse(__FUNCTION__, $response);
