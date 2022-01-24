@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace BrighteCapital\Api\Tests;
+namespace BrighteCapital\Api\Tests\Pact;
 
 use BrighteCapital\Api\FinanceCoreApi;
 use BrighteCapital\Api\Models\ProductConfig;
