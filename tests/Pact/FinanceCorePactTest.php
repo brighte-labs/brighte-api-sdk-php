@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace BrighteCapital\Tests\Pact;
+namespace BrighteCapital\Api\Tests;
 
 use BrighteCapital\Api\FinanceCoreApi;
 use BrighteCapital\Api\Models\ProductConfig;
@@ -14,25 +14,11 @@ use PhpPact\Standalone\MockService\MockServerEnvConfig;
 use Psr\Log\LoggerInterface;
 use BrighteCapital\Api\BrighteApi;
 use Psr\Cache\CacheItemPoolInterface;
-use GuzzleHttp\Client;
-use Psr\Http\Client\ClientInterface;
-use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ResponseInterface;
 
 $dotenv = \Dotenv\Dotenv::createUnsafeImmutable(\dirname(\dirname(__DIR__)));
 $dotenv->load();
 
-class PactTestingHttpClient implements ClientInterface
-{
-    public function sendRequest(RequestInterface $request): ResponseInterface
-    {
-        $client = new Client();
-        $response = $client->send($request);
-        return $response;
-    }
-}
-
-class FinanceCoreApiTest extends \PHPUnit\Framework\TestCase
+class FinanceCorePactTest extends \PHPUnit\Framework\TestCase
 {
     protected $logger;
 
