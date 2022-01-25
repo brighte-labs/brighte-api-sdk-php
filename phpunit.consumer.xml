@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit bootstrap="vendor/autoload.php" colors="true">
+    <testsuites>
+        <testsuite name="Pact Consumer Tests">
+            <directory>tests/Pact</directory>
+        </testsuite>
+    </testsuites>
+    <listeners>
+        <listener class="PhpPact\Consumer\Listener\PactTestListener">
+            <arguments>
+                <array>
+                     <element key="0">
+                        <string>Pact Consumer Tests</string>
+                    </element>
+                </array>
+            </arguments>
+        </listener>
+    </listeners>
+</phpunit>
