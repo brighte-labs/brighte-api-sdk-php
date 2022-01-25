@@ -7,7 +7,7 @@ install: composer install
 script:
   - vendor/bin/phpcs
   - vendor/bin/phpunit --coverage-clover=coverage.xml
-  - vendor/bin/phpunit  --debug -c tests/Pact/phpunit.consumer.xml
+  - vendor/bin/phpunit  --debug -c phpunit.consumer.xml
 before_script:
   - echo "xdebug.mode=coverage" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
   - cp .env.example .env
