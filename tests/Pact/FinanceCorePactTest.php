@@ -15,9 +15,6 @@ use Psr\Log\LoggerInterface;
 use BrighteCapital\Api\BrighteApi;
 use Psr\Cache\CacheItemPoolInterface;
 
-$dotenv = \Dotenv\Dotenv::createUnsafeImmutable(\dirname(\dirname(__DIR__)));
-$dotenv->load();
-
 class FinanceCorePactTest extends \PHPUnit\Framework\TestCase
 {
     protected $logger;
