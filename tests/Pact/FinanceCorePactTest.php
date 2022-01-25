@@ -30,7 +30,6 @@ class FinanceCorePactTest extends \PHPUnit\Framework\TestCase
         $this->logger = $this->createMock(LoggerInterface::class);
         $this->http = new PactTestingHttpClient();
         $this->cache = $this->createMock(CacheItemPoolInterface::class);
-        $stub = $this->createPartialMock(BrighteApi::class, ['getToken']);
 
         $this->brighteApi = $this->getMockBuilder(BrighteApi::class)
             ->setConstructorArgs([
@@ -39,12 +38,10 @@ class FinanceCorePactTest extends \PHPUnit\Framework\TestCase
                     ['uri' => 'http://localhost:7200/'],
                     $this->cache,
                 ])
-            ->enableProxyingToOriginalMethods()
             ->setMethods(['getToken'])
-            ->setProxyTarget($stub)
             ->getMock();
         
-        $stub->method('getToken')->withAnyParameters()
+        $this->brighteApi->method('getToken')->withAnyParameters()
             ->willReturn('test-token');
 
         $this->financeCoreApi = new FinanceCoreApi($this->logger, $this->brighteApi);
