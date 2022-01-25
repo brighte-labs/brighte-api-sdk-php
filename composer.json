@@ -33,7 +33,7 @@
         "cbf": "phpcbf",
         "test": "phpunit --colors=always",
         "test:coverage": "phpunit --colors=always --coverage-text --coverage-clover=coverage.xml",
-        "test:pact": "phpunit  --debug -c tests/Pact/phpunit.consumer.xml"
+        "test:pact": "phpunit  --debug -c phpunit.consumer.xml"
     },
     "autoload": {
         "psr-4": {

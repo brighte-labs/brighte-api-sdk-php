@@ -64,8 +64,6 @@ class FinanceCorePactTest extends \PHPUnit\Framework\TestCase
             ->setPath('/v2/finance/graphql')
             ->addHeader('Content-Type', 'application/json');
 
-        $matcher = new Matcher();
-
         $config = new ProductConfig();
         $config->version = 1;
         $config->establishmentFee = 4.99;
@@ -76,12 +74,10 @@ class FinanceCorePactTest extends \PHPUnit\Framework\TestCase
         $config->latePaymentFee = 9.99;
         $config->introducerFee = 10.99;
         $config->enableExpressSettlement = true;
-        $config->fpAccountType = 'savings';
         $config->minimumFinanceAmount = 11.99;
         $config->maximumFinanceAmount = 12.99;
-        $config->minRepaymentYear = 13.99;
-        $config->maxRepaymentYear = 14.99;
-        $config->fpBranch = 'branch';
+        $config->minRepaymentMonth = 13;
+        $config->maxRepaymentMonth = 30;
         $config->forceCcaProcess = true;
         $config->defaultPaymentCycle = 'weekly';
         $config->invoiceRequired = true;
@@ -111,6 +107,7 @@ class FinanceCorePactTest extends \PHPUnit\Framework\TestCase
             $builder->verify();
         } catch (\Exception $e) {
             $hasException = true;
+            echo $e->getMessage();
         }
 
         $this->assertFalse($hasException, "We expect the pacts to validate");

@@ -30,14 +30,12 @@ class FinanceCoreApi extends \BrighteCapital\Api\AbstractApi
                     enableExpressSettlement
                     minimumFinanceAmount
                     maximumFinanceAmount
-                    minRepaymentYear
-                    maxRepaymentYear
+                    minRepaymentMonth
+                    maxRepaymentMonth
                     forceCcaProcess
                     defaultPaymentCycle
                     invoiceRequired
                     manualSettlementRequired
-                    fpBranch
-                    fpAccountType
                 }
             }
 GQL;
@@ -68,12 +66,10 @@ GQL;
         $config->latePaymentFee = $data->latePaymentFee;
         $config->introducerFee = $data->introducerFee;
         $config->enableExpressSettlement = $data->enableExpressSettlement;
-        $config->fpAccountType = $data->fpAccountType;
         $config->minimumFinanceAmount = $data->minimumFinanceAmount;
         $config->maximumFinanceAmount = $data->maximumFinanceAmount;
-        $config->minRepaymentYear = $data->minRepaymentYear;
-        $config->maxRepaymentYear = $data->maxRepaymentYear;
-        $config->fpBranch = $data->fpBranch;
+        $config->minRepaymentMonth = $data->minRepaymentMonth;
+        $config->maxRepaymentMonth = $data->maxRepaymentMonth;
         $config->forceCcaProcess = $data->forceCcaProcess;
         $config->defaultPaymentCycle = $data->defaultPaymentCycle;
         $config->invoiceRequired = $data->invoiceRequired;

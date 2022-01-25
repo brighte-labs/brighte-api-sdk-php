@@ -52,15 +52,13 @@ class FinanceCoreApiTest extends \PHPUnit\Framework\TestCase
                     'enableExpressSettlement' => true,
                     'minimumFinanceAmount' => 11.99,
                     'maximumFinanceAmount' => 12.99,
-                    'minRepaymentYear' => 13.99,
-                    'maxRepaymentYear' => 14.99,
+                    'minRepaymentMonth' => 13,
+                    'maxRepaymentMonth' => 30,
                     'forceCcaProcess' => true,
                     'defaultPaymentCycle' => 'weekly',
                     'invoiceRequired' => true,
                     'manualSettlementRequired' => true,
                     'version' => 1,
-                    'fpAccountType' => 'savings',
-                    'fpBranch' => 'branch',
                 ]
             ]
         ];
@@ -86,14 +84,12 @@ class FinanceCoreApiTest extends \PHPUnit\Framework\TestCase
                     enableExpressSettlement
                     minimumFinanceAmount
                     maximumFinanceAmount
-                    minRepaymentYear
-                    maxRepaymentYear
+                    minRepaymentMonth
+                    maxRepaymentMonth
                     forceCcaProcess
                     defaultPaymentCycle
                     invoiceRequired
                     manualSettlementRequired
-                    fpBranch
-                    fpAccountType
                 }
             }
 GQL;
@@ -118,13 +114,11 @@ GQL;
         self::assertEquals(true, $config->enableExpressSettlement);
         self::assertEquals(11.99, $config->minimumFinanceAmount);
         self::assertEquals(12.99, $config->maximumFinanceAmount);
-        self::assertEquals(13.99, $config->minRepaymentYear);
-        self::assertEquals(14.99, $config->maxRepaymentYear);
+        self::assertEquals(13, $config->minRepaymentMonth);
+        self::assertEquals(30, $config->maxRepaymentMonth);
         self::assertEquals(true, $config->forceCcaProcess);
         self::assertEquals('weekly', $config->defaultPaymentCycle);
         self::assertEquals(1, $config->version);
-        self::assertEquals('savings', $config->fpAccountType);
-        self::assertEquals('branch', $config->fpBranch);
     }
 
         /**
