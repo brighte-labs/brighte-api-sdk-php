@@ -29,6 +29,8 @@ class FinanceCorePactTest extends \PHPUnit\Framework\TestCase
 
     protected $builder;
 
+    protected $config;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -50,9 +52,26 @@ class FinanceCorePactTest extends \PHPUnit\Framework\TestCase
             ->willReturn('test-token');
 
         $this->financeCoreApi = new FinanceCoreApi($this->logger, $this->brighteApi);
+        $this->builder = new InteractionBuilder(new MockServerEnvConfig());
 
-        $config = new MockServerEnvConfig();
-        $this->builder = new InteractionBuilder($config);
+        $this->config = new FinancialProductConfig();
+        $this->config->version = 1;
+        $this->config->establishmentFee = 4.98;
+        $this->config->interestRate = 5.98;
+        $this->config->applicationFee = 6.98;
+        $this->config->annualFee = 7.98;
+        $this->config->weeklyAccountFee = 8.98;
+        $this->config->latePaymentFee = 9.98;
+        $this->config->introducerFee = 10.98;
+        $this->config->enableExpressSettlement = true;
+        $this->config->minFinanceAmount = 11.98;
+        $this->config->maxFinanceAmount = 12.98;
+        $this->config->minRepaymentMonth = 13;
+        $this->config->maxRepaymentMonth = 30;
+        $this->config->forceCcaProcess = true;
+        $this->config->defaultPaymentCycle = 'weekly';
+        $this->config->invoiceRequired = true;
+        $this->config->manualSettlementRequired = true;
     }
 
     /**
@@ -68,28 +87,9 @@ class FinanceCorePactTest extends \PHPUnit\Framework\TestCase
             ->setPath('/v2/finance/graphql')
             ->addHeader('Content-Type', self::CONTENT_TYPE);
 
-        $config = new FinancialProductConfig();
-        $config->version = 1;
-        $config->establishmentFee = 4.98;
-        $config->interestRate = 5.98;
-        $config->applicationFee = 6.98;
-        $config->annualFee = 7.98;
-        $config->weeklyAccountFee = 8.98;
-        $config->latePaymentFee = 9.98;
-        $config->introducerFee = 10.98;
-        $config->enableExpressSettlement = true;
-        $config->minFinanceAmount = 11.98;
-        $config->maxFinanceAmount = 12.98;
-        $config->minRepaymentMonth = 13;
-        $config->maxRepaymentMonth = 30;
-        $config->forceCcaProcess = true;
-        $config->defaultPaymentCycle = 'weekly';
-        $config->invoiceRequired = true;
-        $config->manualSettlementRequired = true;
-
         $body = new \stdClass();
         $body->data = new \stdClass();
-        $body->data->financialProductConfiguration = $matcher->like($config);
+        $body->data->financialProductConfiguration = $matcher->like($this->config);
 
         $response = new ProviderResponse();
         $response
@@ -128,32 +128,13 @@ class FinanceCorePactTest extends \PHPUnit\Framework\TestCase
             ->setPath('/v2/finance/graphql')
             ->addHeader('Content-Type', self::CONTENT_TYPE);
 
-        $config = new FinancialProductConfig();
-        $config->version = 1;
-        $config->establishmentFee = 4.98;
-        $config->interestRate = 5.98;
-        $config->applicationFee = 6.98;
-        $config->annualFee = 7.98;
-        $config->weeklyAccountFee = 8.98;
-        $config->latePaymentFee = 9.98;
-        $config->introducerFee = 10.98;
-        $config->enableExpressSettlement = true;
-        $config->minFinanceAmount = 11.98;
-        $config->maxFinanceAmount = 12.98;
-        $config->minRepaymentMonth = 13;
-        $config->maxRepaymentMonth = 30;
-        $config->forceCcaProcess = true;
-        $config->defaultPaymentCycle = 'weekly';
-        $config->invoiceRequired = true;
-        $config->manualSettlementRequired = true;
-
         $product = new FinancialProduct();
         $product->slug = 'GreenLoan';
         $product->name = 'test-name';
         $product->type = 'Loan';
         $product->customerType = 'Residential';
         $product->loanTypeId = 1;
-        $product->configuration = $config;
+        $product->configuration = $this->config;
         $product->categoryGroup = 'Green';
         $product->fpAccountType = 'test-account-type';
         $product->fpBranch = 'test-branch';

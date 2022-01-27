@@ -28,12 +28,33 @@ class FinanceCoreApiTest extends \PHPUnit\Framework\TestCase
     /** @var \BrighteCapital\Api\FinanceCoreApi */
     protected $financeCoreApi;
 
+    protected $expectedConfig;
+
     protected function setUp(): void
     {
         parent::setUp();
         $this->logger = $this->createMock(LoggerInterface::class);
         $this->brighteApi = $this->createMock(BrighteApi::class);
         $this->financeCoreApi = new FinanceCoreApi($this->logger, $this->brighteApi);
+        $this->expectedConfig = [
+            'establishmentFee' => 4.99,
+            'interestRate' => 5.99,
+            'applicationFee' => 6.99,
+            'annualFee' => 7.99,
+            'weeklyAccountFee' => 8.99,
+            'latePaymentFee' => 9.99,
+            'introducerFee' => 10.99,
+            'enableExpressSettlement' => true,
+            'minFinanceAmount' => 11.99,
+            'maxFinanceAmount' => 12.99,
+            'minRepaymentMonth' => 13,
+            'maxRepaymentMonth' => 30,
+            'forceCcaProcess' => true,
+            'defaultPaymentCycle' => 'weekly',
+            'invoiceRequired' => true,
+            'manualSettlementRequired' => true,
+            'version' => 1,
+        ];
     }
 
     /**
@@ -44,25 +65,7 @@ class FinanceCoreApiTest extends \PHPUnit\Framework\TestCase
     {
         $response = [
             'data' => [
-                'financialProductConfiguration' => [
-                    'establishmentFee' => 4.99,
-                    'interestRate' => 5.99,
-                    'applicationFee' => 6.99,
-                    'annualFee' => 7.99,
-                    'weeklyAccountFee' => 8.99,
-                    'latePaymentFee' => 9.99,
-                    'introducerFee' => 10.99,
-                    'enableExpressSettlement' => true,
-                    'minFinanceAmount' => 11.99,
-                    'maxFinanceAmount' => 12.99,
-                    'minRepaymentMonth' => 13,
-                    'maxRepaymentMonth' => 30,
-                    'forceCcaProcess' => true,
-                    'defaultPaymentCycle' => 'weekly',
-                    'invoiceRequired' => true,
-                    'manualSettlementRequired' => true,
-                    'version' => 1,
-                ]
+                'financialProductConfiguration' => $this->expectedConfig
             ]
         ];
 
@@ -107,21 +110,7 @@ GQL;
             ->willReturn($response);
         $config = $this->financeCoreApi->getFinancialProductConfig($slug, $vendorId, $version);
         self::assertInstanceOf(FinancialProductConfig::class, $config);
-        self::assertEquals(4.99, $config->establishmentFee);
-        self::assertEquals(5.99, $config->interestRate);
-        self::assertEquals(6.99, $config->applicationFee);
-        self::assertEquals(7.99, $config->annualFee);
-        self::assertEquals(8.99, $config->weeklyAccountFee);
-        self::assertEquals(9.99, $config->latePaymentFee);
-        self::assertEquals(10.99, $config->introducerFee);
-        self::assertEquals(true, $config->enableExpressSettlement);
-        self::assertEquals(11.99, $config->minFinanceAmount);
-        self::assertEquals(12.99, $config->maxFinanceAmount);
-        self::assertEquals(13, $config->minRepaymentMonth);
-        self::assertEquals(30, $config->maxRepaymentMonth);
-        self::assertEquals(true, $config->forceCcaProcess);
-        self::assertEquals('weekly', $config->defaultPaymentCycle);
-        self::assertEquals(1, $config->version);
+        self::assertEquals($this->expectedConfig, (array)$config);
     }
 
     /**
@@ -141,25 +130,7 @@ GQL;
                     'categoryGroup' => 'green',
                     'fpAccountType' => 'test-fp-account-type',
                     'fpBranch' => 'test-fp-branch',
-                    'configuration' => [
-                        'establishmentFee' => 4.98,
-                        'interestRate' => 5.98,
-                        'applicationFee' => 6.98,
-                        'annualFee' => 7.98,
-                        'weeklyAccountFee' => 8.98,
-                        'latePaymentFee' => 9.98,
-                        'introducerFee' => 10.98,
-                        'enableExpressSettlement' => true,
-                        'minFinanceAmount' => 11.98,
-                        'maxFinanceAmount' => 12.98,
-                        'minRepaymentMonth' => 13,
-                        'maxRepaymentMonth' => 30,
-                        'forceCcaProcess' => true,
-                        'defaultPaymentCycle' => 'weekly',
-                        'invoiceRequired' => true,
-                        'manualSettlementRequired' => true,
-                        'version' => 1,
-                    ]
+                    'configuration' => $this->expectedConfig,
                 ]
             ]
         ];
@@ -220,21 +191,7 @@ GQL;
         self::assertEquals('green', $product->categoryGroup);
         self::assertEquals('test-fp-account-type', $product->fpAccountType);
         self::assertEquals('test-fp-branch', $product->fpBranch);
-        self::assertEquals(4.98, $config->establishmentFee);
-        self::assertEquals(5.98, $config->interestRate);
-        self::assertEquals(6.98, $config->applicationFee);
-        self::assertEquals(7.98, $config->annualFee);
-        self::assertEquals(8.98, $config->weeklyAccountFee);
-        self::assertEquals(9.98, $config->latePaymentFee);
-        self::assertEquals(10.98, $config->introducerFee);
-        self::assertEquals(true, $config->enableExpressSettlement);
-        self::assertEquals(11.98, $config->minFinanceAmount);
-        self::assertEquals(12.98, $config->maxFinanceAmount);
-        self::assertEquals(13, $config->minRepaymentMonth);
-        self::assertEquals(30, $config->maxRepaymentMonth);
-        self::assertEquals(true, $config->forceCcaProcess);
-        self::assertEquals('weekly', $config->defaultPaymentCycle);
-        self::assertEquals(1, $config->version);
+        self::assertEquals($this->expectedConfig, (array)$config);
     }
 
     /**

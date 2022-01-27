@@ -37,10 +37,9 @@
               "minRepaymentMonth": 13,
               "maxRepaymentMonth": 30,
               "forceCcaProcess": true,
-              "paymentCycle": null,
+              "defaultPaymentCycle": "weekly",
               "invoiceRequired": true,
-              "manualSettlementRequired": true,
-              "defaultPaymentCycle": "weekly"
+              "manualSettlementRequired": true
             }
           }
         },
@@ -88,10 +87,9 @@
                 "minRepaymentMonth": 13,
                 "maxRepaymentMonth": 30,
                 "forceCcaProcess": true,
-                "paymentCycle": null,
+                "defaultPaymentCycle": "weekly",
                 "invoiceRequired": true,
-                "manualSettlementRequired": true,
-                "defaultPaymentCycle": "weekly"
+                "manualSettlementRequired": true
               },
               "categoryGroup": "Green",
               "fpAccountType": "test-account-type",

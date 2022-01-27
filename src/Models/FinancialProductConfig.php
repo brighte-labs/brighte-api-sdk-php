@@ -48,8 +48,8 @@ class FinancialProductConfig
     /** @var bool force CCA process */
     public $forceCcaProcess;
 
-    /** @var string payment cycle */
-    public $paymentCycle;
+    /** @var string default payment cycle */
+    public $defaultPaymentCycle;
 
     /** @var bool invoice required */
     public $invoiceRequired;
