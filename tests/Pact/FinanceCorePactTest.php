@@ -18,6 +18,8 @@ use Psr\Cache\CacheItemPoolInterface;
 
 class FinanceCorePactTest extends \PHPUnit\Framework\TestCase
 {
+    public const CONTENT_TYPE = 'application/json';
+
     protected $logger;
 
     protected $brighteApi;
@@ -64,20 +66,20 @@ class FinanceCorePactTest extends \PHPUnit\Framework\TestCase
         $request
             ->setMethod('POST')
             ->setPath('/v2/finance/graphql')
-            ->addHeader('Content-Type', 'application/json');
+            ->addHeader('Content-Type', self::CONTENT_TYPE);
 
         $config = new FinancialProductConfig();
         $config->version = 1;
-        $config->establishmentFee = 4.99;
-        $config->interestRate = 5.99;
-        $config->applicationFee = 6.99;
-        $config->annualFee = 7.99;
-        $config->weeklyAccountFee = 8.99;
-        $config->latePaymentFee = 9.99;
-        $config->introducerFee = 10.99;
+        $config->establishmentFee = 4.98;
+        $config->interestRate = 5.98;
+        $config->applicationFee = 6.98;
+        $config->annualFee = 7.98;
+        $config->weeklyAccountFee = 8.98;
+        $config->latePaymentFee = 9.98;
+        $config->introducerFee = 10.98;
         $config->enableExpressSettlement = true;
-        $config->minFinanceAmount = 11.99;
-        $config->maxFinanceAmount = 12.99;
+        $config->minFinanceAmount = 11.98;
+        $config->maxFinanceAmount = 12.98;
         $config->minRepaymentMonth = 13;
         $config->maxRepaymentMonth = 30;
         $config->forceCcaProcess = true;
@@ -92,7 +94,7 @@ class FinanceCorePactTest extends \PHPUnit\Framework\TestCase
         $response = new ProviderResponse();
         $response
             ->setStatus(200)
-            ->addHeader('Content-Type', 'application/json')
+            ->addHeader('Content-Type', self::CONTENT_TYPE)
             ->setBody($body);
 
         $this->builder
@@ -124,20 +126,20 @@ class FinanceCorePactTest extends \PHPUnit\Framework\TestCase
         $request
             ->setMethod('POST')
             ->setPath('/v2/finance/graphql')
-            ->addHeader('Content-Type', 'application/json');
+            ->addHeader('Content-Type', self::CONTENT_TYPE);
 
         $config = new FinancialProductConfig();
         $config->version = 1;
-        $config->establishmentFee = 4.99;
-        $config->interestRate = 5.99;
-        $config->applicationFee = 6.99;
-        $config->annualFee = 7.99;
-        $config->weeklyAccountFee = 8.99;
-        $config->latePaymentFee = 9.99;
-        $config->introducerFee = 10.99;
+        $config->establishmentFee = 4.98;
+        $config->interestRate = 5.98;
+        $config->applicationFee = 6.98;
+        $config->annualFee = 7.98;
+        $config->weeklyAccountFee = 8.98;
+        $config->latePaymentFee = 9.98;
+        $config->introducerFee = 10.98;
         $config->enableExpressSettlement = true;
-        $config->minFinanceAmount = 11.99;
-        $config->maxFinanceAmount = 12.99;
+        $config->minFinanceAmount = 11.98;
+        $config->maxFinanceAmount = 12.98;
         $config->minRepaymentMonth = 13;
         $config->maxRepaymentMonth = 30;
         $config->forceCcaProcess = true;
@@ -163,7 +165,7 @@ class FinanceCorePactTest extends \PHPUnit\Framework\TestCase
         $response = new ProviderResponse();
         $response
             ->setStatus(200)
-            ->addHeader('Content-Type', 'application/json')
+            ->addHeader('Content-Type', self::CONTENT_TYPE)
             ->setBody($body);
 
         $this->builder

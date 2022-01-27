@@ -17,6 +17,8 @@ use Psr\Log\LoggerInterface;
 class FinanceCoreApiTest extends \PHPUnit\Framework\TestCase
 {
 
+    public const PATH = '../v2/finance/graphql';
+
     /** @var \Psr\Log\LoggerInterface */
     protected $logger;
 
@@ -101,7 +103,7 @@ GQL;
 
         $response = new Response(200, [], json_encode($response));
         $this->brighteApi->expects(self::once())->method('post')
-            ->with('../v2/finance/graphql', json_encode($expectedBody))
+            ->with(self::PATH, json_encode($expectedBody))
             ->willReturn($response);
         $config = $this->financeCoreApi->getFinancialProductConfig($slug, $vendorId, $version);
         self::assertInstanceOf(FinancialProductConfig::class, $config);
@@ -122,7 +124,7 @@ GQL;
         self::assertEquals(1, $config->version);
     }
 
-        /**
+    /**
      * @covers ::__construct
      * @covers ::getFinancialProduct
      */
@@ -140,16 +142,16 @@ GQL;
                     'fpAccountType' => 'test-fp-account-type',
                     'fpBranch' => 'test-fp-branch',
                     'configuration' => [
-                        'establishmentFee' => 4.99,
-                        'interestRate' => 5.99,
-                        'applicationFee' => 6.99,
-                        'annualFee' => 7.99,
-                        'weeklyAccountFee' => 8.99,
-                        'latePaymentFee' => 9.99,
-                        'introducerFee' => 10.99,
+                        'establishmentFee' => 4.98,
+                        'interestRate' => 5.98,
+                        'applicationFee' => 6.98,
+                        'annualFee' => 7.98,
+                        'weeklyAccountFee' => 8.98,
+                        'latePaymentFee' => 9.98,
+                        'introducerFee' => 10.98,
                         'enableExpressSettlement' => true,
-                        'minFinanceAmount' => 11.99,
-                        'maxFinanceAmount' => 12.99,
+                        'minFinanceAmount' => 11.98,
+                        'maxFinanceAmount' => 12.98,
                         'minRepaymentMonth' => 13,
                         'maxRepaymentMonth' => 30,
                         'forceCcaProcess' => true,
@@ -205,7 +207,7 @@ GQL;
 
         $response = new Response(200, [], json_encode($response));
         $this->brighteApi->expects(self::once())->method('post')
-            ->with('../v2/finance/graphql', json_encode($expectedBody))
+            ->with(self::PATH, json_encode($expectedBody))
             ->willReturn($response);
         $product = $this->financeCoreApi->getFinancialProduct($slug);
         $config = $product->configuration;
@@ -218,16 +220,16 @@ GQL;
         self::assertEquals('green', $product->categoryGroup);
         self::assertEquals('test-fp-account-type', $product->fpAccountType);
         self::assertEquals('test-fp-branch', $product->fpBranch);
-        self::assertEquals(4.99, $config->establishmentFee);
-        self::assertEquals(5.99, $config->interestRate);
-        self::assertEquals(6.99, $config->applicationFee);
-        self::assertEquals(7.99, $config->annualFee);
-        self::assertEquals(8.99, $config->weeklyAccountFee);
-        self::assertEquals(9.99, $config->latePaymentFee);
-        self::assertEquals(10.99, $config->introducerFee);
+        self::assertEquals(4.98, $config->establishmentFee);
+        self::assertEquals(5.98, $config->interestRate);
+        self::assertEquals(6.98, $config->applicationFee);
+        self::assertEquals(7.98, $config->annualFee);
+        self::assertEquals(8.98, $config->weeklyAccountFee);
+        self::assertEquals(9.98, $config->latePaymentFee);
+        self::assertEquals(10.98, $config->introducerFee);
         self::assertEquals(true, $config->enableExpressSettlement);
-        self::assertEquals(11.99, $config->minFinanceAmount);
-        self::assertEquals(12.99, $config->maxFinanceAmount);
+        self::assertEquals(11.98, $config->minFinanceAmount);
+        self::assertEquals(12.98, $config->maxFinanceAmount);
         self::assertEquals(13, $config->minRepaymentMonth);
         self::assertEquals(30, $config->maxRepaymentMonth);
         self::assertEquals(true, $config->forceCcaProcess);
@@ -240,15 +242,32 @@ GQL;
     * @covers ::getFinancialProductConfig
     * @covers ::logResponse
     */
-    public function testgetProductConfigFail(): void
+    public function testgetFinancialProductConfigFail(): void
     {
         $response = new Response(404, [], json_encode(['message' => 'Not found']));
         $this->logger->expects(self::once())->method('warning')->with(
             'BrighteCapital\Api\AbstractApi->getFinancialProductConfig: 404: Not found'
         );
         $this->brighteApi->expects(self::once())->method('post')
-        ->with('../v2/finance/graphql')->willReturn($response);
+        ->with(self::PATH)->willReturn($response);
         $config = $this->financeCoreApi->getFinancialProductConfig('slug');
         self::assertNull($config);
+    }
+
+    /**
+    * @covers ::__construct
+    * @covers ::getFinancialProduct
+    * @covers ::logResponse
+    */
+    public function testgetFinancialProductFail(): void
+    {
+        $response = new Response(404, [], json_encode(['message' => 'Not found']));
+        $this->logger->expects(self::once())->method('warning')->with(
+            'BrighteCapital\Api\AbstractApi->getFinancialProduct: 404: Not found'
+        );
+        $this->brighteApi->expects(self::once())->method('post')
+        ->with(self::PATH)->willReturn($response);
+        $product = $this->financeCoreApi->getFinancialProduct('slug');
+        self::assertNull($product);
     }
 }
