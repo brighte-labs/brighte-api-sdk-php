@@ -10,7 +10,7 @@
       "description": "A request to get financial product configuration",
       "request": {
         "method": "POST",
-        "path": "/v2/finance/graphql",
+        "path": "/graphql",
         "headers": {
           "Content-Type": "application/json"
         }
@@ -54,7 +54,7 @@
       "description": "A request to get financial product",
       "request": {
         "method": "POST",
-        "path": "/v2/finance/graphql",
+        "path": "/graphql",
         "headers": {
           "Content-Type": "application/json"
         }

@@ -14,6 +14,7 @@ class PactTestingHttpClient implements ClientInterface
     public function sendRequest(RequestInterface $request): ResponseInterface
     {
         $client = new Client();
+        $request = $request->withUri($request->getUri()->withPath('/graphql'));
         return $client->send($request);
     }
 }

@@ -84,7 +84,7 @@ class FinanceCorePactTest extends \PHPUnit\Framework\TestCase
         $request = new ConsumerRequest();
         $request
             ->setMethod('POST')
-            ->setPath('/v2/finance/graphql')
+            ->setPath('/graphql')
             ->addHeader('Content-Type', self::CONTENT_TYPE);
 
         $body = new \stdClass();
@@ -125,7 +125,7 @@ class FinanceCorePactTest extends \PHPUnit\Framework\TestCase
         $request = new ConsumerRequest();
         $request
             ->setMethod('POST')
-            ->setPath('/v2/finance/graphql')
+            ->setPath('/graphql')
             ->addHeader('Content-Type', self::CONTENT_TYPE);
 
         $product = new FinancialProduct();
