@@ -60,6 +60,7 @@ class FinanceCoreApiTest extends \PHPUnit\Framework\TestCase
     /**
      * @covers ::__construct
      * @covers ::getFinancialProductConfig
+     * @covers ::getFinancialProductConfigFromResponse
      */
     public function testgetFinancialProductConfig(): void
     {
@@ -116,6 +117,7 @@ GQL;
     /**
      * @covers ::__construct
      * @covers ::getFinancialProduct
+     * @covers ::getFinancialProductConfigFromResponse
      */
     public function testgetFinancialProduct(): void
     {
