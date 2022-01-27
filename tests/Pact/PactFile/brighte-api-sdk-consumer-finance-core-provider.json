@@ -7,7 +7,7 @@
   },
   "interactions": [
     {
-      "description": "A request to get product configuration",
+      "description": "A request to get financial product configuration",
       "request": {
         "method": "POST",
         "path": "/v2/finance/graphql",
@@ -22,7 +22,7 @@
         },
         "body": {
           "data": {
-            "getProductConfiguration": {
+            "financialProductConfiguration": {
               "version": 1,
               "establishmentFee": 4.99,
               "interestRate": 5.99,
@@ -32,8 +32,8 @@
               "latePaymentFee": 9.99,
               "introducerFee": 10.99,
               "enableExpressSettlement": true,
-              "minimumFinanceAmount": 11.99,
-              "maximumFinanceAmount": 12.99,
+              "minFinanceAmount": 11.99,
+              "maxFinanceAmount": 12.99,
               "minRepaymentMonth": 13,
               "maxRepaymentMonth": 30,
               "forceCcaProcess": true,
@@ -45,7 +45,62 @@
           }
         },
         "matchingRules": {
-          "$.body.data.getProductConfiguration": {
+          "$.body.data.financialProductConfiguration": {
+            "match": "type"
+          }
+        }
+      }
+    },
+    {
+      "description": "A request to get financial product",
+      "request": {
+        "method": "POST",
+        "path": "/v2/finance/graphql",
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "data": {
+            "financialProduct": {
+              "slug": "GreenLoan",
+              "name": "test-name",
+              "type": "Loan",
+              "customerType": "Residential",
+              "loanTypeId": 1,
+              "configuration": {
+                "version": 1,
+                "establishmentFee": 4.99,
+                "interestRate": 5.99,
+                "applicationFee": 6.99,
+                "annualFee": 7.99,
+                "weeklyAccountFee": 8.99,
+                "latePaymentFee": 9.99,
+                "introducerFee": 10.99,
+                "enableExpressSettlement": true,
+                "minFinanceAmount": 11.99,
+                "maxFinanceAmount": 12.99,
+                "minRepaymentMonth": 13,
+                "maxRepaymentMonth": 30,
+                "forceCcaProcess": true,
+                "paymentCycle": null,
+                "invoiceRequired": true,
+                "manualSettlementRequired": true,
+                "defaultPaymentCycle": "weekly"
+              },
+              "categoryGroup": "Green",
+              "fpAccountType": "test-account-type",
+              "fpBranch": "test-branch"
+            }
+          }
+        },
+        "matchingRules": {
+          "$.body.data.financialProduct": {
             "match": "type"
           }
         }
