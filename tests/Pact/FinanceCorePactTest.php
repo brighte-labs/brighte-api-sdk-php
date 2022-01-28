@@ -15,10 +15,13 @@ use PhpPact\Standalone\MockService\MockServerEnvConfig;
 use Psr\Log\LoggerInterface;
 use BrighteCapital\Api\BrighteApi;
 use Psr\Cache\CacheItemPoolInterface;
+use stdClass;
 
 class FinanceCorePactTest extends \PHPUnit\Framework\TestCase
 {
-    public const CONTENT_TYPE = 'application/json';
+    public const REQUEST_CONTENT_TYPE = 'application/json';
+    public const RESPONSE_CONTENT_TYPE = 'application/json; charset=utf-8';
+
 
     protected $logger;
 
@@ -82,10 +85,44 @@ class FinanceCorePactTest extends \PHPUnit\Framework\TestCase
     {
         $matcher = new Matcher();
         $request = new ConsumerRequest();
+
+        $body = new \stdClass();
+        $version = 1;
+        $slug = 'GreenLoan';
+        $vendorId = 'E1234567';
+        $query = <<<GQL
+            query {
+                financialProductConfiguration(
+                version: {$version}
+                vendorId: "{$vendorId}"
+                slug: {$slug}
+                ) {
+                    interestRate
+                    establishmentFee
+                    applicationFee
+                    annualFee
+                    weeklyAccountFee
+                    latePaymentFee
+                    introducerFee
+                    enableExpressSettlement
+                    minFinanceAmount
+                    maxFinanceAmount
+                    minRepaymentMonth
+                    maxRepaymentMonth
+                    forceCcaProcess
+                    defaultPaymentCycle
+                    invoiceRequired
+                    manualSettlementRequired
+                    version
+                }
+            }
+GQL;
+        $body->query = $matcher->like($query);
         $request
             ->setMethod('POST')
             ->setPath('/graphql')
-            ->addHeader('Content-Type', self::CONTENT_TYPE);
+            ->setBody($body)
+            ->addHeader('Content-Type', self::REQUEST_CONTENT_TYPE);
 
         $body = new \stdClass();
         $body->data = new \stdClass();
@@ -94,7 +131,7 @@ class FinanceCorePactTest extends \PHPUnit\Framework\TestCase
         $response = new ProviderResponse();
         $response
             ->setStatus(200)
-            ->addHeader('Content-Type', self::CONTENT_TYPE)
+            ->addHeader('Content-Type', self::RESPONSE_CONTENT_TYPE)
             ->setBody($body);
 
         $this->builder
@@ -123,10 +160,50 @@ class FinanceCorePactTest extends \PHPUnit\Framework\TestCase
     {
         $matcher = new Matcher();
         $request = new ConsumerRequest();
+
+        $body = new \stdClass();
+        $slug = 'GreenLoan';
+        $query = <<<GQL
+            query {
+                financialProduct(
+                slug: {$slug}
+                ) {
+                    slug
+                    name
+                    type
+                    customerType
+                    loanTypeId
+                    configuration {
+                      interestRate
+                      establishmentFee
+                      applicationFee
+                      annualFee
+                      weeklyAccountFee
+                      latePaymentFee
+                      introducerFee
+                      enableExpressSettlement
+                      minFinanceAmount
+                      maxFinanceAmount
+                      minRepaymentMonth
+                      maxRepaymentMonth
+                      forceCcaProcess
+                      defaultPaymentCycle
+                      invoiceRequired
+                      manualSettlementRequired
+                      version
+                    }
+                    categoryGroup
+                    fpAccountType
+                    fpBranch
+                }
+            }
+GQL;
+        $body->query = $matcher->like($query);
         $request
             ->setMethod('POST')
             ->setPath('/graphql')
-            ->addHeader('Content-Type', self::CONTENT_TYPE);
+            ->setBody($body)
+            ->addHeader('Content-Type', self::REQUEST_CONTENT_TYPE);
 
         $product = new FinancialProduct();
         $product->slug = 'GreenLoan';
@@ -146,7 +223,7 @@ class FinanceCorePactTest extends \PHPUnit\Framework\TestCase
         $response = new ProviderResponse();
         $response
             ->setStatus(200)
-            ->addHeader('Content-Type', self::CONTENT_TYPE)
+            ->addHeader('Content-Type', self::RESPONSE_CONTENT_TYPE)
             ->setBody($body);
 
         $this->builder

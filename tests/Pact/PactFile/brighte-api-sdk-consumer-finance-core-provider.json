@@ -13,12 +13,20 @@
         "path": "/graphql",
         "headers": {
           "Content-Type": "application/json"
+        },
+        "body": {
+          "query": "            query {\n                financialProductConfiguration(\n                version: 1\n                vendorId: \"E1234567\"\n                slug: GreenLoan\n                ) {\n                    interestRate\n                    establishmentFee\n                    applicationFee\n                    annualFee\n                    weeklyAccountFee\n                    latePaymentFee\n                    introducerFee\n                    enableExpressSettlement\n                    minFinanceAmount\n                    maxFinanceAmount\n                    minRepaymentMonth\n                    maxRepaymentMonth\n                    forceCcaProcess\n                    defaultPaymentCycle\n                    invoiceRequired\n                    manualSettlementRequired\n                    version\n                }\n            }"
+        },
+        "matchingRules": {
+          "$.body.query": {
+            "match": "type"
+          }
         }
       },
       "response": {
         "status": 200,
         "headers": {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json; charset=utf-8"
         },
         "body": {
           "data": {
@@ -57,12 +65,20 @@
         "path": "/graphql",
         "headers": {
           "Content-Type": "application/json"
+        },
+        "body": {
+          "query": "            query {\n                financialProduct(\n                slug: GreenLoan\n                ) {\n                    slug\n                    name\n                    type\n                    customerType\n                    loanTypeId\n                    configuration {\n                      interestRate\n                      establishmentFee\n                      applicationFee\n                      annualFee\n                      weeklyAccountFee\n                      latePaymentFee\n                      introducerFee\n                      enableExpressSettlement\n                      minFinanceAmount\n                      maxFinanceAmount\n                      minRepaymentMonth\n                      maxRepaymentMonth\n                      forceCcaProcess\n                      defaultPaymentCycle\n                      invoiceRequired\n                      manualSettlementRequired\n                      version\n                    }\n                    categoryGroup\n                    fpAccountType\n                    fpBranch\n                }\n            }"
+        },
+        "matchingRules": {
+          "$.body.query": {
+            "match": "type"
+          }
         }
       },
       "response": {
         "status": 200,
         "headers": {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json; charset=utf-8"
         },
         "body": {
           "data": {

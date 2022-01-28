@@ -97,6 +97,7 @@ class FinanceCoreApiTest extends \PHPUnit\Framework\TestCase
                     defaultPaymentCycle
                     invoiceRequired
                     manualSettlementRequired
+                    version
                 }
             }
 GQL;
@@ -166,6 +167,7 @@ GQL;
                       defaultPaymentCycle
                       invoiceRequired
                       manualSettlementRequired
+                      version
                     }
                     categoryGroup
                     fpAccountType
