@@ -116,14 +116,13 @@ GQL;
         $body = json_decode($json);
         $data = $body->data->financialProduct;
         
-        $config = $this->getFinancialProductConfigFromResponse($data->configuration);
         $product = new FinancialProduct();
         $product->slug = $data->slug;
         $product->name = $data->name;
         $product->type = $data->type;
         $product->customerType = $data->customerType;
         $product->loanTypeId = $data->loanTypeId;
-        $product->configuration = $config;
+        $product->configuration = $this->getFinancialProductConfigFromResponse($data->configuration);
         $product->categoryGroup = $data->categoryGroup;
         $product->fpAccountType = $data->fpAccountType;
         $product->fpBranch = $data->fpBranch;

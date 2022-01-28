@@ -27,9 +27,13 @@ class FinancialProduct
     /** @var string category group */
     public $categoryGroup;
 
-    /** @var string finpower account type */
+    /** @var string finpower account type
+    * @deprecated
+    */
     public $fpAccountType;
 
-    /** @var string finpower branch */
+    /** @var string finpower branch
+    * @deprecated
+    */
     public $fpBranch;
 }
