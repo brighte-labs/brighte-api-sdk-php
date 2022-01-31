@@ -7,45 +7,114 @@
   },
   "interactions": [
     {
-      "description": "A request to get product configuration",
+      "description": "A request to get financial product configuration",
       "request": {
         "method": "POST",
-        "path": "/v2/finance/graphql",
+        "path": "/graphql",
         "headers": {
           "Content-Type": "application/json"
+        },
+        "body": {
+          "query": "            query {\n                financialProductConfiguration(\n                version: 1\n                vendorId: \"E1234567\"\n                slug: GreenLoan\n                ) {\n                    interestRate\n                    establishmentFee\n                    applicationFee\n                    annualFee\n                    weeklyAccountFee\n                    latePaymentFee\n                    introducerFee\n                    enableExpressSettlement\n                    minFinanceAmount\n                    maxFinanceAmount\n                    minRepaymentMonth\n                    maxRepaymentMonth\n                    forceCcaProcess\n                    defaultPaymentCycle\n                    invoiceRequired\n                    manualSettlementRequired\n                    version\n                }\n            }"
+        },
+        "matchingRules": {
+          "$.body.query": {
+            "match": "type"
+          }
         }
       },
       "response": {
         "status": 200,
         "headers": {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json; charset=utf-8"
         },
         "body": {
           "data": {
-            "getProductConfiguration": {
+            "financialProductConfiguration": {
               "version": 1,
-              "establishmentFee": 4.99,
-              "interestRate": 5.99,
-              "applicationFee": 6.99,
-              "annualFee": 7.99,
-              "weeklyAccountFee": 8.99,
-              "latePaymentFee": 9.99,
-              "introducerFee": 10.99,
+              "establishmentFee": 4.98,
+              "interestRate": 5.98,
+              "applicationFee": 6.98,
+              "annualFee": 7.98,
+              "weeklyAccountFee": 8.98,
+              "latePaymentFee": 9.98,
+              "introducerFee": 10.98,
               "enableExpressSettlement": true,
-              "minimumFinanceAmount": 11.99,
-              "maximumFinanceAmount": 12.99,
+              "minFinanceAmount": 11.98,
+              "maxFinanceAmount": 12.98,
               "minRepaymentMonth": 13,
               "maxRepaymentMonth": 30,
               "forceCcaProcess": true,
-              "paymentCycle": null,
+              "defaultPaymentCycle": "weekly",
               "invoiceRequired": true,
-              "manualSettlementRequired": true,
-              "defaultPaymentCycle": "weekly"
+              "manualSettlementRequired": true
             }
           }
         },
         "matchingRules": {
-          "$.body.data.getProductConfiguration": {
+          "$.body.data.financialProductConfiguration": {
+            "match": "type"
+          }
+        }
+      }
+    },
+    {
+      "description": "A request to get financial product",
+      "request": {
+        "method": "POST",
+        "path": "/graphql",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "query": "            query {\n                financialProduct(\n                slug: GreenLoan\n                ) {\n                    slug\n                    name\n                    type\n                    customerType\n                    loanTypeId\n                    configuration {\n                      interestRate\n                      establishmentFee\n                      applicationFee\n                      annualFee\n                      weeklyAccountFee\n                      latePaymentFee\n                      introducerFee\n                      enableExpressSettlement\n                      minFinanceAmount\n                      maxFinanceAmount\n                      minRepaymentMonth\n                      maxRepaymentMonth\n                      forceCcaProcess\n                      defaultPaymentCycle\n                      invoiceRequired\n                      manualSettlementRequired\n                      version\n                    }\n                    categoryGroup\n                    fpAccountType\n                    fpBranch\n                }\n            }"
+        },
+        "matchingRules": {
+          "$.body.query": {
+            "match": "type"
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json; charset=utf-8"
+        },
+        "body": {
+          "data": {
+            "financialProduct": {
+              "slug": "GreenLoan",
+              "name": "test-name",
+              "type": "Loan",
+              "customerType": "Residential",
+              "loanTypeId": 1,
+              "configuration": {
+                "version": 1,
+                "establishmentFee": 4.98,
+                "interestRate": 5.98,
+                "applicationFee": 6.98,
+                "annualFee": 7.98,
+                "weeklyAccountFee": 8.98,
+                "latePaymentFee": 9.98,
+                "introducerFee": 10.98,
+                "enableExpressSettlement": true,
+                "minFinanceAmount": 11.98,
+                "maxFinanceAmount": 12.98,
+                "minRepaymentMonth": 13,
+                "maxRepaymentMonth": 30,
+                "forceCcaProcess": true,
+                "defaultPaymentCycle": "weekly",
+                "invoiceRequired": true,
+                "manualSettlementRequired": true
+              },
+              "categoryGroup": "Green",
+              "fpAccountType": "test-account-type",
+              "fpBranch": "test-branch"
+            }
+          }
+        },
+        "matchingRules": {
+          "$.body.data.financialProduct": {
             "match": "type"
           }
         }

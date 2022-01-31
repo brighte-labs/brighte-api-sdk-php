@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace BrighteCapital\Api\Models;
 
-class ProductConfig
+class FinancialProductConfig
 {
     /** @var int version */
     public $version;
@@ -34,10 +34,10 @@ class ProductConfig
     public $enableExpressSettlement;
 
     /** @var float minimum finance amount */
-    public $minimumFinanceAmount;
+    public $minFinanceAmount;
 
     /** @var float maximum finance amount */
-    public $maximumFinanceAmount;
+    public $maxFinanceAmount;
 
     /** @var int min repayment month */
     public $minRepaymentMonth;
@@ -48,8 +48,8 @@ class ProductConfig
     /** @var bool force CCA process */
     public $forceCcaProcess;
 
-    /** @var string payment cycle */
-    public $paymentCycle;
+    /** @var string default payment cycle */
+    public $defaultPaymentCycle;
 
     /** @var bool invoice required */
     public $invoiceRequired;
