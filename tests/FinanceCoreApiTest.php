@@ -17,7 +17,7 @@ use Psr\Log\LoggerInterface;
 class FinanceCoreApiTest extends \PHPUnit\Framework\TestCase
 {
 
-    public const PATH = '../v2/finance/graphql';
+    public const PATH = '/../v2/finance/graphql';
 
     /** @var \Psr\Log\LoggerInterface */
     protected $logger;
@@ -28,14 +28,13 @@ class FinanceCoreApiTest extends \PHPUnit\Framework\TestCase
     /** @var \BrighteCapital\Api\FinanceCoreApi */
     protected $financeCoreApi;
 
-    protected $expectedConfig;
+    private $expectedConfig;
 
-    protected function setUp(): void
+    private $expectedConfigResponse;
+
+    public function __construct($name = null, array $data = [], $dataName = '')
     {
-        parent::setUp();
-        $this->logger = $this->createMock(LoggerInterface::class);
-        $this->brighteApi = $this->createMock(BrighteApi::class);
-        $this->financeCoreApi = new FinanceCoreApi($this->logger, $this->brighteApi);
+        parent::__construct($name, $data, $dataName);
         $this->expectedConfig = [
             'establishmentFee' => 4.99,
             'interestRate' => 5.99,
@@ -55,52 +54,58 @@ class FinanceCoreApiTest extends \PHPUnit\Framework\TestCase
             'manualSettlementRequired' => true,
             'version' => 1,
         ];
+
+        $this->expectedConfigResponse = [
+            'data' => [
+                'financialProductConfiguration' => $this->expectedConfig,
+            ]
+        ];
+    }
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->logger = $this->createMock(LoggerInterface::class);
+        $this->brighteApi = $this->createMock(BrighteApi::class);
+        $this->financeCoreApi = new FinanceCoreApi($this->logger, $this->brighteApi);
+    }
+
+    public function financialProductConfigProvider()
+    {
+        return [
+            [
+                ['GreenLoan', null, null],
+                $this->expectedConfigResponse,
+            ],
+            [
+                ['GreenLoan', 'test-vendor-id', null],
+                $this->expectedConfigResponse,
+            ],
+            [
+                ['GreenLoan', null, 1],
+                $this->expectedConfigResponse,
+            ],
+            [
+                ['GreenLoan', 'test-vendor-id', 1],
+                $this->expectedConfigResponse,
+            ],
+        ];
     }
 
     /**
      * @covers ::__construct
      * @covers ::getFinancialProductConfig
      * @covers ::getFinancialProductConfigFromResponse
+     * @covers ::createGetFinancialProductConfigQuery
+     * @dataProvider financialProductConfigProvider
      */
-    public function testgetFinancialProductConfig(): void
+    public function testgetFinancialProductConfig($input, $response): void
     {
-        $response = [
-            'data' => [
-                'financialProductConfiguration' => $this->expectedConfig
-            ]
-        ];
+        $slug = $input[0];
+        $vendorId = $input[1];
+        $version = $input[2];
 
-        $version = 1;
-        $slug = 'GreenLoan';
-        $vendorId = 'E1234567';
-
-        $query = <<<GQL
-            query {
-                financialProductConfiguration(
-                version: {$version}
-                vendorId: "{$vendorId}"
-                slug: {$slug}
-                ) {
-                    interestRate
-                    establishmentFee
-                    applicationFee
-                    annualFee
-                    weeklyAccountFee
-                    latePaymentFee
-                    introducerFee
-                    enableExpressSettlement
-                    minFinanceAmount
-                    maxFinanceAmount
-                    minRepaymentMonth
-                    maxRepaymentMonth
-                    forceCcaProcess
-                    defaultPaymentCycle
-                    invoiceRequired
-                    manualSettlementRequired
-                    version
-                }
-            }
-GQL;
+        $query = $this->financeCoreApi->createGetFinancialProductConfigQuery($slug, $vendorId, $version);
 
         $expectedBody = [
             'query' => $query
@@ -201,6 +206,7 @@ GQL;
     /**
     * @covers ::__construct
     * @covers ::getFinancialProductConfig
+    * @covers ::createGetFinancialProductConfigQuery
     * @covers ::logResponse
     */
     public function testgetFinancialProductConfigFail(): void

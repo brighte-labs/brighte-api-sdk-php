@@ -10,19 +10,49 @@ use Fig\Http\Message\StatusCodeInterface;
 
 class FinanceCoreApi extends \BrighteCapital\Api\AbstractApi
 {
-    public const PATH = '../v2/finance';
+    public const PATH = '/../v2/finance';
 
     public function getFinancialProductConfig(
         string $slug,
         string $vendorId = null,
         int $version = null
     ): ?FinancialProductConfig {
-        $query = <<<GQL
+        $body = [
+            'query' => $this->createGetFinancialProductConfigQuery($slug, $vendorId, $version),
+        ];
+
+        $response = $this->brighteApi->post(sprintf('%s/graphql', self::PATH), json_encode($body), '', [], true);
+
+        if ($response->getStatusCode() !== StatusCodeInterface::STATUS_OK) {
+            $this->logResponse(__FUNCTION__, $response);
+
+            return null;
+        }
+
+        $json = $response->getBody()->getContents();
+        $body = json_decode($json);
+        $data = $body->data->financialProductConfiguration;
+
+        return $this->getFinancialProductConfigFromResponse($data);
+    }
+
+    public function createGetFinancialProductConfigQuery(
+        string $slug,
+        string $vendorId = null,
+        int $version = null
+    ): string {
+        $queryParameter = "slug: {$slug}";
+        if ($vendorId) {
+            $queryParameter .= PHP_EOL . "vendorId: \"{$vendorId}\"";
+        }
+        if ($version) {
+            $queryParameter .= PHP_EOL . "version: {$version}";
+        }
+
+        return <<<GQL
             query {
                 financialProductConfiguration(
-                version: {$version}
-                vendorId: "{$vendorId}"
-                slug: {$slug}
+                {$queryParameter}
                 ) {
                     interestRate
                     establishmentFee
@@ -44,24 +74,6 @@ class FinanceCoreApi extends \BrighteCapital\Api\AbstractApi
                 }
             }
 GQL;
-
-        $body = [
-            'query' => $query
-        ];
-    
-        $response = $this->brighteApi->post(sprintf('%s/graphql', self::PATH), json_encode($body), '', [], true);
-        
-        if ($response->getStatusCode() !== StatusCodeInterface::STATUS_OK) {
-            $this->logResponse(__FUNCTION__, $response);
-
-            return null;
-        }
-        
-        $json = $response->getBody()->getContents();
-        $body = json_decode($json);
-        $data = $body->data->financialProductConfiguration;
-
-        return $this->getFinancialProductConfigFromResponse($data);
     }
 
     public function getFinancialProduct(string $slug): ?FinancialProduct

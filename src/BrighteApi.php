@@ -8,6 +8,7 @@ use Cache\Adapter\Common\CacheItem;
 use Fig\Http\Message\StatusCodeInterface;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Uri;
+use GuzzleHttp\Psr7\UriResolver;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -223,13 +224,15 @@ class BrighteApi
             $headers['Authorization'] = 'Bearer ' . $this->getToken();
         }
 
+        $path = UriResolver::removeDotSegments($this->prefix . $path);
+
         return  $this->http->sendRequest(new Request(
             $method,
             Uri::fromParts([
                 'scheme' => $this->scheme,
                 'host' => $this->host,
                 'port' => $this->port,
-                'path' => $this->prefix . $path,
+                'path' => $path,
                 'query' => $query,
             ]),
             $headers,
