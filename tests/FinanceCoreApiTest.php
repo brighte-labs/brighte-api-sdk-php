@@ -28,49 +28,39 @@ class FinanceCoreApiTest extends \PHPUnit\Framework\TestCase
     /** @var \BrighteCapital\Api\FinanceCoreApi */
     protected $financeCoreApi;
 
-    protected $expectedConfig = [
-        'establishmentFee' => 4.99,
-        'interestRate' => 5.99,
-        'applicationFee' => 6.99,
-        'annualFee' => 7.99,
-        'weeklyAccountFee' => 8.99,
-        'latePaymentFee' => 9.99,
-        'introducerFee' => 10.99,
-        'enableExpressSettlement' => true,
-        'minFinanceAmount' => 11.99,
-        'maxFinanceAmount' => 12.99,
-        'minRepaymentMonth' => 13,
-        'maxRepaymentMonth' => 30,
-        'forceCcaProcess' => true,
-        'defaultPaymentCycle' => 'weekly',
-        'invoiceRequired' => true,
-        'manualSettlementRequired' => true,
-        'version' => 1,
-    ];
+    private $expectedConfig;
 
-    private $expectedConfigResponse = [
-        'data' => [
-            'financialProductConfiguration' => [
-                'establishmentFee' => 4.99,
-                'interestRate' => 5.99,
-                'applicationFee' => 6.99,
-                'annualFee' => 7.99,
-                'weeklyAccountFee' => 8.99,
-                'latePaymentFee' => 9.99,
-                'introducerFee' => 10.99,
-                'enableExpressSettlement' => true,
-                'minFinanceAmount' => 11.99,
-                'maxFinanceAmount' => 12.99,
-                'minRepaymentMonth' => 13,
-                'maxRepaymentMonth' => 30,
-                'forceCcaProcess' => true,
-                'defaultPaymentCycle' => 'weekly',
-                'invoiceRequired' => true,
-                'manualSettlementRequired' => true,
-                'version' => 1,
-            ],
-        ]
-    ];
+    private $expectedConfigResponse;
+
+    public function __construct($name = null, array $data = [], $dataName = '')
+    {
+        parent::__construct($name, $data, $dataName);
+        $this->expectedConfig = [
+            'establishmentFee' => 4.99,
+            'interestRate' => 5.99,
+            'applicationFee' => 6.99,
+            'annualFee' => 7.99,
+            'weeklyAccountFee' => 8.99,
+            'latePaymentFee' => 9.99,
+            'introducerFee' => 10.99,
+            'enableExpressSettlement' => true,
+            'minFinanceAmount' => 11.99,
+            'maxFinanceAmount' => 12.99,
+            'minRepaymentMonth' => 13,
+            'maxRepaymentMonth' => 30,
+            'forceCcaProcess' => true,
+            'defaultPaymentCycle' => 'weekly',
+            'invoiceRequired' => true,
+            'manualSettlementRequired' => true,
+            'version' => 1,
+        ];
+
+        $this->expectedConfigResponse = [
+            'data' => [
+                'financialProductConfiguration' => $this->expectedConfig,
+            ]
+        ];
+    }
 
     protected function setUp(): void
     {
