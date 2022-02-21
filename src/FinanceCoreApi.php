@@ -41,14 +41,15 @@ class FinanceCoreApi extends \BrighteCapital\Api\AbstractApi
         string $vendorId = null,
         int $version = null
     ): string {
-        $queryParameter = "slug: {$slug}" . PHP_EOL;
+        $queryParameter = "slug: {$slug}";
         if ($vendorId) {
-            $queryParameter .= "vendorId: \"{$vendorId}\"" . PHP_EOL;
+            $queryParameter .= PHP_EOL . "vendorId: \"{$vendorId}\"";
         }
         if ($version) {
-            $queryParameter .= "version: {$version}" . PHP_EOL;
+            $queryParameter .= PHP_EOL . "version: {$version}";
         }
-        $query = <<<GQL
+
+        return <<<GQL
             query {
                 financialProductConfiguration(
                 {$queryParameter}
@@ -73,7 +74,6 @@ class FinanceCoreApi extends \BrighteCapital\Api\AbstractApi
                 }
             }
 GQL;
-        return $query;
     }
 
     public function getFinancialProduct(string $slug): ?FinancialProduct
