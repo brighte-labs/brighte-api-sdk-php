@@ -207,13 +207,30 @@ GQL;
     * @covers ::__construct
     * @covers ::getFinancialProductConfig
     * @covers ::createGetFinancialProductConfigQuery
-    * @covers ::logResponse
+    * @covers ::logGraphqlResponse
     */
-    public function testgetFinancialProductConfigFail(): void
+    public function testgetFinancialProductConfigFailWhenFinanceCoreReturnsError(): void
     {
-        $response = new Response(404, [], json_encode(['message' => 'Not found']));
+        $body = [
+            "errors" => [
+                [
+                    "message" => "Financial product configuration not found for slug 'brighte-green-loan-energy', version 1 and vendorPublicId 'E81'",
+                    "extensions" => [
+                        "code" => "404",
+                        "response" => [
+                            "statusCode" => 404,
+                            "message" => "Financial product configuration not found for slug 'brighte-green-loan-energy', version 1 and vendorPublicId 'E81'",
+                            "error" => "Not Found",
+                        ]
+                    ]
+                ]
+            ],
+            "data" => null,
+        ];
+        $response = new Response(200, [], json_encode($body));
+
         $this->logger->expects(self::once())->method('warning')->with(
-            'BrighteCapital\Api\AbstractApi->getFinancialProductConfig: 404: Not found'
+            "BrighteCapital\Api\AbstractApi->getFinancialProductConfig: 200: Financial product configuration not found for slug 'brighte-green-loan-energy', version 1 and vendorPublicId 'E81'"
         );
         $this->brighteApi->expects(self::once())->method('post')
         ->with(self::PATH)->willReturn($response);
@@ -224,13 +241,31 @@ GQL;
     /**
     * @covers ::__construct
     * @covers ::getFinancialProduct
-    * @covers ::logResponse
+    * @covers ::logGraphqlResponse
     */
     public function testgetFinancialProductFail(): void
     {
-        $response = new Response(404, [], json_encode(['message' => 'Not found']));
+        $body = [
+            "errors" => [
+                [
+                    "message" => "Product not found for slug 'brighte-green-loan-energy'",
+                    "extensions" => [
+                        "code" => "404",
+                        "response" => [
+                            "statusCode" => 404,
+                            "message" => "Product not found for slug 'brighte-green-loan-energy'",
+                            "error" => "Not Found",
+                        ]
+                    ]
+                ]
+            ],
+            "data" => null,
+        ];
+
+        $response = new Response(200, [], json_encode($body));
+
         $this->logger->expects(self::once())->method('warning')->with(
-            'BrighteCapital\Api\AbstractApi->getFinancialProduct: 404: Not found'
+            "BrighteCapital\Api\AbstractApi->getFinancialProduct: 200: Product not found for slug 'brighte-green-loan-energy'"
         );
         $this->brighteApi->expects(self::once())->method('post')
         ->with(self::PATH)->willReturn($response);

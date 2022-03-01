@@ -24,13 +24,20 @@ class FinanceCoreApi extends \BrighteCapital\Api\AbstractApi
         $response = $this->brighteApi->post(sprintf('%s/graphql', self::PATH), json_encode($body), '', [], true);
 
         if ($response->getStatusCode() !== StatusCodeInterface::STATUS_OK) {
-            $this->logResponse(__FUNCTION__, $response);
+            $this->logGraphqlResponse(__FUNCTION__, $response);
 
             return null;
         }
 
         $json = $response->getBody()->getContents();
         $body = json_decode($json);
+
+        if (array_key_exists('errors', $body)) {
+            $this->logGraphqlResponse(__FUNCTION__, $response);
+
+            return null;
+        }
+
         $data = $body->data->financialProductConfiguration;
 
         return $this->getFinancialProductConfigFromResponse($data);
@@ -121,13 +128,20 @@ GQL;
         $response = $this->brighteApi->post(sprintf('%s/graphql', self::PATH), json_encode($body), '', [], true);
         
         if ($response->getStatusCode() !== StatusCodeInterface::STATUS_OK) {
-            $this->logResponse(__FUNCTION__, $response);
+            $this->logGraphqlResponse(__FUNCTION__, $response);
 
             return null;
         }
         
         $json = $response->getBody()->getContents();
         $body = json_decode($json);
+
+        if (array_key_exists('errors', $body)) {
+            $this->logGraphqlResponse(__FUNCTION__, $response);
+
+            return null;
+        }
+
         $data = $body->data->financialProduct;
         
         $product = new FinancialProduct();

@@ -44,4 +44,17 @@ abstract class AbstractApi
         );
         $this->logger->warning($message);
     }
+
+    protected function logGraphqlResponse(string $function, ResponseInterface $response): void
+    {
+        $body = json_decode((string) $response->getBody()) ?? new stdClass();
+        $message = sprintf(
+            '%s->%s: %d: %s',
+            self::class,
+            $function,
+            $response->getStatusCode(),
+            $body->errors[0]->message ?? $response->getReasonPhrase()
+        );
+        $this->logger->warning($message);
+    }
 }
