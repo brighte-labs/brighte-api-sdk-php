@@ -214,17 +214,18 @@ GQL;
     */
     public function testgetFinancialProductConfigFailWhenFinanceCoreReturnsError(): void
     {
+        $message = "Financial product configuration not found for slug" .
+        " 'brighte-green-loan-energy', version 1 and vendorPublicId 'E81'";
+
         $body = [
             "errors" => [
                 [
-                    "message" => "Financial product configuration not found for slug" .
-                    " 'brighte-green-loan-energy', version 1 and vendorPublicId 'E81'",
+                    "message" => $message,
                     "extensions" => [
                         "code" => "404",
                         "response" => [
                             "statusCode" => 404,
-                            "message" => "Financial product configuration not found for slug" .
-                            " 'brighte-green-loan-energy', version 1 and vendorPublicId 'E81'",
+                            "message" => $message,
                             "error" => "Not Found",
                         ]
                     ]
@@ -235,9 +236,27 @@ GQL;
         $response = new Response(200, [], json_encode($body));
 
         $this->logger->expects(self::once())->method('warning')->with(
-            "BrighteCapital\Api\AbstractApi->getFinancialProductConfig: 200: " .
-            "Financial product configuration not found for slug" .
-            " 'brighte-green-loan-energy', version 1 and vendorPublicId 'E81'"
+            "BrighteCapital\Api\AbstractApi->getFinancialProductConfig: 200: " . $message
+        );
+        $this->brighteApi->expects(self::once())->method('post')
+        ->with(self::PATH)->willReturn($response);
+        $config = $this->financeCoreApi->getFinancialProductConfig('slug');
+        self::assertNull($config);
+    }
+
+    /**
+    * @covers ::__construct
+    * @covers ::getFinancialProductConfig
+    * @covers ::createGetFinancialProductConfigQuery
+    * @covers ::checkIfContainsError
+    * @covers ::logGraphqlResponse
+    */
+    public function testgetFinancialProductConfigFailWhenServerError(): void
+    {
+        $response = new Response(504, [], json_encode(['message' => 'Gateway Time-out']));
+
+        $this->logger->expects(self::once())->method('warning')->with(
+            "BrighteCapital\Api\AbstractApi->getFinancialProductConfig: 504: Gateway Time-out"
         );
         $this->brighteApi->expects(self::once())->method('post')
         ->with(self::PATH)->willReturn($response);
@@ -253,15 +272,16 @@ GQL;
     */
     public function testgetFinancialProductFail(): void
     {
+        $message = "Financial product not found for slug 'brighte-green-loan-energy'";
         $body = [
             "errors" => [
                 [
-                    "message" => "Product not found for slug 'brighte-green-loan-energy'",
+                    "message" => $message,
                     "extensions" => [
                         "code" => "404",
                         "response" => [
                             "statusCode" => 404,
-                            "message" => "Product not found for slug 'brighte-green-loan-energy'",
+                            "message" => $message,
                             "error" => "Not Found",
                         ]
                     ]
@@ -273,12 +293,30 @@ GQL;
         $response = new Response(200, [], json_encode($body));
 
         $this->logger->expects(self::once())->method('warning')->with(
-            "BrighteCapital\Api\AbstractApi->getFinancialProduct: 200: " .
-            "Product not found for slug 'brighte-green-loan-energy'"
+            "BrighteCapital\Api\AbstractApi->getFinancialProduct: 200: " . $message
         );
         $this->brighteApi->expects(self::once())->method('post')
         ->with(self::PATH)->willReturn($response);
         $product = $this->financeCoreApi->getFinancialProduct('slug');
         self::assertNull($product);
+    }
+
+    /**
+    * @covers ::__construct
+    * @covers ::getFinancialProduct
+    * @covers ::checkIfContainsError
+    * @covers ::logGraphqlResponse
+    */
+    public function testgetFinancialProductFailWhenServerError(): void
+    {
+        $response = new Response(503, [], json_encode(['message' => 'Service Unavailable']));
+
+        $this->logger->expects(self::once())->method('warning')->with(
+            "BrighteCapital\Api\AbstractApi->getFinancialProduct: 503: Service Unavailable"
+        );
+        $this->brighteApi->expects(self::once())->method('post')
+        ->with(self::PATH)->willReturn($response);
+        $config = $this->financeCoreApi->getFinancialProduct('slug');
+        self::assertNull($config);
     }
 }
