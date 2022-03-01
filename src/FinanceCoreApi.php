@@ -7,10 +7,12 @@ namespace BrighteCapital\Api;
 use BrighteCapital\Api\Models\FinancialProductConfig;
 use BrighteCapital\Api\Models\FinancialProduct;
 use Fig\Http\Message\StatusCodeInterface;
+use Psr\Http\Message\ResponseInterface;
 
 class FinanceCoreApi extends \BrighteCapital\Api\AbstractApi
 {
     public const PATH = '/../v2/finance';
+    public const ERROR_FIELD_NAME_IN_JSON = 'errors';
 
     public function getFinancialProductConfig(
         string $slug,
@@ -23,14 +25,11 @@ class FinanceCoreApi extends \BrighteCapital\Api\AbstractApi
 
         $response = $this->brighteApi->post(sprintf('%s/graphql', self::PATH), json_encode($body), '', [], true);
 
-        if ($response->getStatusCode() !== StatusCodeInterface::STATUS_OK) {
-            $this->logResponse(__FUNCTION__, $response);
-
+        $body = $this->checkIfContainsError(__FUNCTION__, $response);
+        if ($body === null) {
             return null;
         }
 
-        $json = $response->getBody()->getContents();
-        $body = json_decode($json);
         $data = $body->data->financialProductConfiguration;
 
         return $this->getFinancialProductConfigFromResponse($data);
@@ -119,15 +118,12 @@ GQL;
         ];
     
         $response = $this->brighteApi->post(sprintf('%s/graphql', self::PATH), json_encode($body), '', [], true);
-        
-        if ($response->getStatusCode() !== StatusCodeInterface::STATUS_OK) {
-            $this->logResponse(__FUNCTION__, $response);
 
+        $body = $this->checkIfContainsError(__FUNCTION__, $response);
+        if ($body === null) {
             return null;
         }
-        
-        $json = $response->getBody()->getContents();
-        $body = json_decode($json);
+
         $data = $body->data->financialProduct;
         
         $product = new FinancialProduct();
@@ -165,5 +161,24 @@ GQL;
         $config->invoiceRequired = $configuration->invoiceRequired;
         $config->manualSettlementRequired = $configuration->manualSettlementRequired;
         return $config;
+    }
+
+    private function checkIfContainsError(string $function, ResponseInterface $response)
+    {
+        if ($response->getStatusCode() !== StatusCodeInterface::STATUS_OK) {
+            $this->logGraphqlResponse($function, $response);
+
+            return null;
+        }
+
+        $json = $response->getBody()->getContents();
+        $body = json_decode($json);
+
+        if (property_exists($body, self::ERROR_FIELD_NAME_IN_JSON)) {
+            $this->logGraphqlResponse($function, $response);
+
+            return null;
+        }
+        return $body;
     }
 }
