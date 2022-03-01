@@ -97,6 +97,7 @@ class FinanceCoreApiTest extends \PHPUnit\Framework\TestCase
      * @covers ::getFinancialProductConfig
      * @covers ::getFinancialProductConfigFromResponse
      * @covers ::createGetFinancialProductConfigQuery
+     * @covers ::checkIfContainsError
      * @dataProvider financialProductConfigProvider
      */
     public function testgetFinancialProductConfig($input, $response): void
@@ -123,6 +124,7 @@ class FinanceCoreApiTest extends \PHPUnit\Framework\TestCase
     /**
      * @covers ::__construct
      * @covers ::getFinancialProduct
+     * @covers ::checkIfContainsError
      * @covers ::getFinancialProductConfigFromResponse
      */
     public function testgetFinancialProduct(): void
@@ -207,6 +209,7 @@ GQL;
     * @covers ::__construct
     * @covers ::getFinancialProductConfig
     * @covers ::createGetFinancialProductConfigQuery
+    * @covers ::checkIfContainsError
     * @covers ::logGraphqlResponse
     */
     public function testgetFinancialProductConfigFailWhenFinanceCoreReturnsError(): void
@@ -214,12 +217,14 @@ GQL;
         $body = [
             "errors" => [
                 [
-                    "message" => "Financial product configuration not found for slug 'brighte-green-loan-energy', version 1 and vendorPublicId 'E81'",
+                    "message" => "Financial product configuration not found for slug" .
+                    " 'brighte-green-loan-energy', version 1 and vendorPublicId 'E81'",
                     "extensions" => [
                         "code" => "404",
                         "response" => [
                             "statusCode" => 404,
-                            "message" => "Financial product configuration not found for slug 'brighte-green-loan-energy', version 1 and vendorPublicId 'E81'",
+                            "message" => "Financial product configuration not found for slug" .
+                            " 'brighte-green-loan-energy', version 1 and vendorPublicId 'E81'",
                             "error" => "Not Found",
                         ]
                     ]
@@ -230,7 +235,9 @@ GQL;
         $response = new Response(200, [], json_encode($body));
 
         $this->logger->expects(self::once())->method('warning')->with(
-            "BrighteCapital\Api\AbstractApi->getFinancialProductConfig: 200: Financial product configuration not found for slug 'brighte-green-loan-energy', version 1 and vendorPublicId 'E81'"
+            "BrighteCapital\Api\AbstractApi->getFinancialProductConfig: 200: " .
+            "Financial product configuration not found for slug" .
+            " 'brighte-green-loan-energy', version 1 and vendorPublicId 'E81'"
         );
         $this->brighteApi->expects(self::once())->method('post')
         ->with(self::PATH)->willReturn($response);
@@ -241,6 +248,7 @@ GQL;
     /**
     * @covers ::__construct
     * @covers ::getFinancialProduct
+    * @covers ::checkIfContainsError
     * @covers ::logGraphqlResponse
     */
     public function testgetFinancialProductFail(): void
@@ -265,7 +273,8 @@ GQL;
         $response = new Response(200, [], json_encode($body));
 
         $this->logger->expects(self::once())->method('warning')->with(
-            "BrighteCapital\Api\AbstractApi->getFinancialProduct: 200: Product not found for slug 'brighte-green-loan-energy'"
+            "BrighteCapital\Api\AbstractApi->getFinancialProduct: 200: " .
+            "Product not found for slug 'brighte-green-loan-energy'"
         );
         $this->brighteApi->expects(self::once())->method('post')
         ->with(self::PATH)->willReturn($response);
