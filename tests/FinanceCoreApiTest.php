@@ -216,24 +216,7 @@ GQL;
     {
         $message = "Financial product configuration not found for slug" .
         " 'brighte-green-loan-energy', version 1 and vendorPublicId 'E81'";
-
-        $body = [
-            "errors" => [
-                [
-                    "message" => $message,
-                    "extensions" => [
-                        "code" => "404",
-                        "response" => [
-                            "statusCode" => 404,
-                            "message" => $message,
-                            "error" => "Not Found",
-                        ]
-                    ]
-                ]
-            ],
-            "data" => null,
-        ];
-        $response = new Response(200, [], json_encode($body));
+        $response = $this->createGraphqlErrorResponse($message);
 
         $this->logger->expects(self::once())->method('warning')->with(
             "BrighteCapital\Api\AbstractApi->getFinancialProductConfig: 200: " . $message
@@ -273,24 +256,7 @@ GQL;
     public function testgetFinancialProductFail(): void
     {
         $message = "Financial product not found for slug 'brighte-green-loan-energy'";
-        $body = [
-            "errors" => [
-                [
-                    "message" => $message,
-                    "extensions" => [
-                        "code" => "404",
-                        "response" => [
-                            "statusCode" => 404,
-                            "message" => $message,
-                            "error" => "Not Found",
-                        ]
-                    ]
-                ]
-            ],
-            "data" => null,
-        ];
-
-        $response = new Response(200, [], json_encode($body));
+        $response = $this->createGraphqlErrorResponse($message);
 
         $this->logger->expects(self::once())->method('warning')->with(
             "BrighteCapital\Api\AbstractApi->getFinancialProduct: 200: " . $message
@@ -318,5 +284,27 @@ GQL;
         ->with(self::PATH)->willReturn($response);
         $config = $this->financeCoreApi->getFinancialProduct('slug');
         self::assertNull($config);
+    }
+
+    private function createGraphqlErrorResponse(string $message)
+    {
+        $body = [
+            "errors" => [
+                [
+                    "message" => $message,
+                    "extensions" => [
+                        "code" => "404",
+                        "response" => [
+                            "statusCode" => 404,
+                            "message" => $message,
+                            "error" => "Not Found",
+                        ]
+                    ]
+                ]
+            ],
+            "data" => null,
+        ];
+
+        return new Response(200, [], json_encode($body));
     }
 }
