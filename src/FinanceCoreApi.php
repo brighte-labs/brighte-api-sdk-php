@@ -8,29 +8,43 @@ use BrighteCapital\Api\Models\FinancialProductConfig;
 use BrighteCapital\Api\Models\FinancialProduct;
 use Fig\Http\Message\StatusCodeInterface;
 use Psr\Http\Message\ResponseInterface;
+use Cache\Adapter\Common\CacheItem;
+use Psr\Cache\CacheItemPoolInterface;
+use Psr\Log\LoggerInterface;
 
 class FinanceCoreApi extends \BrighteCapital\Api\AbstractApi
 {
     public const PATH = '/../v2/finance';
     public const ERROR_FIELD_NAME_IN_JSON = 'errors';
 
+    /** @var CacheItemPoolInterface|null */
+    protected $cacheItemPool;
+
+    /**
+     * @param \Psr\Log\LoggerInterface $logger
+     * @param \BrighteCapital\Api\BrighteApi $brighteApi
+     * @param CacheItemPoolInterface $cache
+     */
+    public function __construct(LoggerInterface $logger, BrighteApi $brighteApi, CacheItemPoolInterface $cache)
+    {
+        parent::__construct($logger, $brighteApi);
+        $this->cacheItemPool = $cache;
+    }
+
     public function getFinancialProductConfig(
         string $slug,
         string $vendorId = null,
         int $version = null
     ): ?FinancialProductConfig {
-        $body = [
+        $requestBody = [
             'query' => $this->createGetFinancialProductConfigQuery($slug, $vendorId, $version),
         ];
 
-        $response = $this->brighteApi->post(sprintf('%s/graphql', self::PATH), json_encode($body), '', [], true);
-
-        $body = $this->checkIfContainsError(__FUNCTION__, $response);
-        if ($body === null) {
+        $responseBody = $this->getCached(__FUNCTION__, func_get_args(), $requestBody);
+        if ($responseBody == null) {
             return null;
         }
-
-        $data = $body->data->financialProductConfiguration;
+        $data = $responseBody->data->financialProductConfiguration;
 
         return $this->getFinancialProductConfigFromResponse($data);
     }
@@ -113,18 +127,15 @@ GQL;
             }
 GQL;
 
-        $body = [
+        $requestBody = [
             'query' => $query
         ];
     
-        $response = $this->brighteApi->post(sprintf('%s/graphql', self::PATH), json_encode($body), '', [], true);
-
-        $body = $this->checkIfContainsError(__FUNCTION__, $response);
-        if ($body === null) {
+        $responseBody = $this->getCached(__FUNCTION__, func_get_args(), $requestBody);
+        if ($responseBody == null) {
             return null;
         }
-
-        $data = $body->data->financialProduct;
+        $data = $responseBody->data->financialProduct;
         
         $product = new FinancialProduct();
         $product->slug = $data->slug;
@@ -180,5 +191,27 @@ GQL;
             return null;
         }
         return $body;
+    }
+
+    private function getCached(string $functionName, array $parameters, array $body)
+    {
+        $key = implode('_', [$functionName, implode('_', $parameters)]);
+        if ($cachedItem = $this->cacheItemPool->getItem($key)) {
+            return $cachedItem->get();
+        }
+
+        $response = $this->brighteApi->post(sprintf('%s/graphql', self::PATH), json_encode($body), '', [], true);
+
+        $responseBody = $this->checkIfContainsError($functionName, $response);
+        if ($responseBody === null) {
+            return null;
+        }
+
+        $item = new CacheItem($key, true, $responseBody);
+        $expires = new \DateInterval('PT' . strtoupper("15m"));
+        $item->expiresAfter($expires);
+        $this->cacheItemPool->save($item);
+
+        return $responseBody;
     }
 }

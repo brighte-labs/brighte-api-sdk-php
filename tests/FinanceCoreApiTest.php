@@ -10,6 +10,8 @@ use BrighteCapital\Api\Models\FinancialProduct;
 use BrighteCapital\Api\FinanceCoreApi;
 use GuzzleHttp\Psr7\Response;
 use Psr\Log\LoggerInterface;
+use Psr\Cache\CacheItemInterface;
+use Psr\Cache\CacheItemPoolInterface;
 
 /**
  * @coversDefaultClass \BrighteCapital\Api\FinanceCoreApi
@@ -31,6 +33,9 @@ class FinanceCoreApiTest extends \PHPUnit\Framework\TestCase
     private $expectedConfig;
 
     private $expectedConfigResponse;
+
+    /** @var \PHPUnit\Framework\MockObject\MockObject|CacheItemPoolInterface */
+    protected $cache;
 
     public function __construct($name = null, array $data = [], $dataName = '')
     {
@@ -67,7 +72,8 @@ class FinanceCoreApiTest extends \PHPUnit\Framework\TestCase
         parent::setUp();
         $this->logger = $this->createMock(LoggerInterface::class);
         $this->brighteApi = $this->createMock(BrighteApi::class);
-        $this->financeCoreApi = new FinanceCoreApi($this->logger, $this->brighteApi);
+        $this->cache = $this->createMock(CacheItemPoolInterface::class);
+        $this->financeCoreApi = new FinanceCoreApi($this->logger, $this->brighteApi, $this->cache);
     }
 
     public function financialProductConfigProvider()
@@ -94,10 +100,12 @@ class FinanceCoreApiTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::__construct
+     * @covers \BrighteCapital\Api\AbstractApi::__construct
      * @covers ::getFinancialProductConfig
      * @covers ::getFinancialProductConfigFromResponse
      * @covers ::createGetFinancialProductConfigQuery
      * @covers ::checkIfContainsError
+     * @covers ::getCached
      * @dataProvider financialProductConfigProvider
      */
     public function testgetFinancialProductConfig($input, $response): void
@@ -116,6 +124,7 @@ class FinanceCoreApiTest extends \PHPUnit\Framework\TestCase
         $this->brighteApi->expects(self::once())->method('post')
             ->with(self::PATH, json_encode($expectedBody))
             ->willReturn($response);
+        $this->cache->expects(self::once())->method('save');
         $config = $this->financeCoreApi->getFinancialProductConfig($slug, $vendorId, $version);
         self::assertInstanceOf(FinancialProductConfig::class, $config);
         self::assertEquals($this->expectedConfig, (array)$config);
@@ -123,8 +132,10 @@ class FinanceCoreApiTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::__construct
+     * @covers \BrighteCapital\Api\AbstractApi::__construct
      * @covers ::getFinancialProduct
      * @covers ::checkIfContainsError
+     * @covers ::getCached
      * @covers ::getFinancialProductConfigFromResponse
      */
     public function testgetFinancialProduct(): void
@@ -191,6 +202,7 @@ GQL;
         $this->brighteApi->expects(self::once())->method('post')
             ->with(self::PATH, json_encode($expectedBody))
             ->willReturn($response);
+        $this->cache->expects(self::once())->method('save');
         $product = $this->financeCoreApi->getFinancialProduct($slug);
         $config = $product->configuration;
         self::assertInstanceOf(FinancialProduct::class, $product);
@@ -207,10 +219,12 @@ GQL;
 
     /**
     * @covers ::__construct
+    * @covers \BrighteCapital\Api\AbstractApi::__construct
     * @covers ::getFinancialProductConfig
     * @covers ::createGetFinancialProductConfigQuery
     * @covers ::checkIfContainsError
     * @covers ::logGraphqlResponse
+    * @covers ::getCached
     */
     public function testgetFinancialProductConfigFailWhenFinanceCoreReturnsError(): void
     {
@@ -229,10 +243,12 @@ GQL;
 
     /**
     * @covers ::__construct
+    * @covers \BrighteCapital\Api\AbstractApi::__construct
     * @covers ::getFinancialProductConfig
     * @covers ::createGetFinancialProductConfigQuery
     * @covers ::checkIfContainsError
     * @covers ::logGraphqlResponse
+    * @covers ::getCached
     */
     public function testgetFinancialProductConfigFailWhenServerError(): void
     {
@@ -249,9 +265,11 @@ GQL;
 
     /**
     * @covers ::__construct
+    * @covers \BrighteCapital\Api\AbstractApi::__construct
     * @covers ::getFinancialProduct
     * @covers ::checkIfContainsError
     * @covers ::logGraphqlResponse
+    * @covers ::getCached
     */
     public function testgetFinancialProductFail(): void
     {
@@ -269,9 +287,11 @@ GQL;
 
     /**
     * @covers ::__construct
+    * @covers \BrighteCapital\Api\AbstractApi::__construct
     * @covers ::getFinancialProduct
     * @covers ::checkIfContainsError
     * @covers ::logGraphqlResponse
+    * @covers ::getCached
     */
     public function testgetFinancialProductFailWhenServerError(): void
     {
@@ -306,5 +326,31 @@ GQL;
         ];
 
         return new Response(200, [], json_encode($body));
+    }
+
+    /**
+     * @covers ::__construct
+     * @covers \BrighteCapital\Api\AbstractApi::__construct
+     * @covers ::getFinancialProductConfig
+     * @covers ::getFinancialProductConfigFromResponse
+     * @covers ::createGetFinancialProductConfigQuery
+     * @covers ::checkIfContainsError
+     * @covers ::getCached
+     * @dataProvider financialProductConfigProvider
+     */
+    public function testGetFinancialProductConfigCache($input, $response): void
+    {
+        $slug = $input[0];
+        $vendorId = $input[1];
+        $version = $input[2];
+        $functionName = 'getFinancialProductConfig';
+
+        $key = implode('_', [$functionName, implode('_', [$slug, $vendorId, $version])]);
+        $item = $this->createMock(CacheItemInterface::class);
+        $item->expects(self::once())->method('get')->willReturn(json_decode(json_encode($response)));
+        $this->cache->expects(self::once())->method('getItem')->with($key)->willReturn($item);
+        $config = $this->financeCoreApi->getFinancialProductConfig($slug, $vendorId, $version);
+        self::assertInstanceOf(FinancialProductConfig::class, $config);
+        self::assertEquals($this->expectedConfig, (array)$config);
     }
 }
