@@ -348,6 +348,7 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
      * @covers ::doRequest
      * @covers ::authenticate
      * @covers ::getToken
+     * @covers ::post
     */
     public function testCachedPostWhenCacheMiss(): void
     {
@@ -373,6 +374,7 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
      * @covers ::doRequest
      * @covers ::authenticate
      * @covers ::getToken
+     * @covers ::post
     */
     public function testCachedPostWhenReturnError(): void
     {
@@ -402,6 +404,7 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
      * @covers ::doRequest
      * @covers ::authenticate
      * @covers ::getToken
+     * @covers ::post
     */
     public function testCachedPostWhenServerError(): void
     {
