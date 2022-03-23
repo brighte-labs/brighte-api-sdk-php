@@ -54,7 +54,7 @@ class FinanceCorePactTest extends \PHPUnit\Framework\TestCase
         $this->brighteApi->method('getToken')->withAnyParameters()
             ->willReturn('test-token');
 
-        $this->financeCoreApi = new FinanceCoreApi($this->logger, $this->brighteApi, $this->cache);
+        $this->financeCoreApi = new FinanceCoreApi($this->logger, $this->brighteApi);
         $this->builder = new InteractionBuilder(new MockServerEnvConfig());
 
         $this->config = new FinancialProductConfig();

@@ -6,30 +6,10 @@ namespace BrighteCapital\Api;
 
 use BrighteCapital\Api\Models\FinancialProductConfig;
 use BrighteCapital\Api\Models\FinancialProduct;
-use Fig\Http\Message\StatusCodeInterface;
-use Psr\Http\Message\ResponseInterface;
-use Cache\Adapter\Common\CacheItem;
-use Psr\Cache\CacheItemPoolInterface;
-use Psr\Log\LoggerInterface;
 
 class FinanceCoreApi extends \BrighteCapital\Api\AbstractApi
 {
     public const PATH = '/../v2/finance';
-    public const ERROR_FIELD_NAME_IN_JSON = 'errors';
-
-    /** @var CacheItemPoolInterface|null */
-    protected $cacheItemPool;
-
-    /**
-     * @param \Psr\Log\LoggerInterface $logger
-     * @param \BrighteCapital\Api\BrighteApi $brighteApi
-     * @param CacheItemPoolInterface $cache
-     */
-    public function __construct(LoggerInterface $logger, BrighteApi $brighteApi, CacheItemPoolInterface $cache)
-    {
-        parent::__construct($logger, $brighteApi);
-        $this->cacheItemPool = $cache;
-    }
 
     public function getFinancialProductConfig(
         string $slug,
@@ -40,7 +20,16 @@ class FinanceCoreApi extends \BrighteCapital\Api\AbstractApi
             'query' => $this->createGetFinancialProductConfigQuery($slug, $vendorId, $version),
         ];
 
-        $responseBody = $this->getCached(__FUNCTION__, func_get_args(), $requestBody);
+        $responseBody = $this->brighteApi->cachedPost(
+            __FUNCTION__,
+            func_get_args(),
+            sprintf('%s/graphql', self::PATH),
+            json_encode($requestBody),
+            '',
+            [],
+            true
+        );
+
         if ($responseBody == null) {
             return null;
         }
@@ -131,7 +120,16 @@ GQL;
             'query' => $query
         ];
     
-        $responseBody = $this->getCached(__FUNCTION__, func_get_args(), $requestBody);
+        $responseBody = $this->brighteApi->cachedPost(
+            __FUNCTION__,
+            func_get_args(),
+            sprintf('%s/graphql', self::PATH),
+            json_encode($requestBody),
+            '',
+            [],
+            true
+        );
+
         if ($responseBody == null) {
             return null;
         }
@@ -172,46 +170,5 @@ GQL;
         $config->invoiceRequired = $configuration->invoiceRequired;
         $config->manualSettlementRequired = $configuration->manualSettlementRequired;
         return $config;
-    }
-
-    private function checkIfContainsError(string $function, ResponseInterface $response)
-    {
-        if ($response->getStatusCode() !== StatusCodeInterface::STATUS_OK) {
-            $this->logGraphqlResponse($function, $response);
-
-            return null;
-        }
-
-        $json = $response->getBody()->getContents();
-        $body = json_decode($json);
-
-        if (property_exists($body, self::ERROR_FIELD_NAME_IN_JSON)) {
-            $this->logGraphqlResponse($function, $response);
-
-            return null;
-        }
-        return $body;
-    }
-
-    private function getCached(string $functionName, array $parameters, array $body)
-    {
-        $key = implode('_', [$functionName, implode('_', $parameters)]);
-        if ($cachedItem = $this->cacheItemPool->getItem($key)) {
-            return $cachedItem->get();
-        }
-
-        $response = $this->brighteApi->post(sprintf('%s/graphql', self::PATH), json_encode($body), '', [], true);
-
-        $responseBody = $this->checkIfContainsError($functionName, $response);
-        if ($responseBody === null) {
-            return null;
-        }
-
-        $item = new CacheItem($key, true, $responseBody);
-        $expires = new \DateInterval('PT' . strtoupper("15m"));
-        $item->expiresAfter($expires);
-        $this->cacheItemPool->save($item);
-
-        return $responseBody;
     }
 }

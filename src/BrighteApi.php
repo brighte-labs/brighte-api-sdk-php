@@ -13,9 +13,11 @@ use Psr\Cache\CacheItemPoolInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
+use stdClass;
 
 class BrighteApi
 {
+    public const ERROR_FIELD_NAME_IN_JSON = 'errors';
 
     /** @var string|null */
     public $clientId;
@@ -193,6 +195,56 @@ class BrighteApi
         return $this->doRequest('POST', $path, $query, $body, $headers, $auth);
     }
 
+    public function cachedPost(
+        string $functionName,
+        array $parameters,
+        string $path,
+        string $body,
+        string $query = '',
+        array $headers = [],
+        bool $auth = true
+    ) {
+        $key = implode('_', [$functionName, implode('_', $parameters)]);
+        if ($this->cacheItemPool && $cachedItem = $this->cacheItemPool->getItem($key)) {
+            return $cachedItem->get();
+        }
+
+        $response = $this->doRequest('POST', $path, $query, $body, $headers, $auth);
+
+        $responseBody = $this->checkIfContainsError($functionName, $response);
+        if ($responseBody === null) {
+            return null;
+        }
+
+        if ($this->cacheItemPool) {
+            $item = new CacheItem($key, true, $responseBody);
+            $expires = new \DateInterval('PT' . strtoupper("15m"));
+            $item->expiresAfter($expires);
+            $this->cacheItemPool->save($item);
+        }
+
+        return $responseBody;
+    }
+
+    private function checkIfContainsError(string $function, ResponseInterface $response)
+    {
+        if ($response->getStatusCode() !== StatusCodeInterface::STATUS_OK) {
+            $this->logGraphqlResponse($function, $response);
+
+            return null;
+        }
+
+        $json = $response->getBody()->getContents();
+        $body = json_decode($json);
+
+        if (property_exists($body, self::ERROR_FIELD_NAME_IN_JSON)) {
+            $this->logGraphqlResponse($function, $response);
+
+            return null;
+        }
+        return $body;
+    }
+
     /**
      * @param string $method
      * @param string $path
@@ -263,5 +315,18 @@ class BrighteApi
         $tokenPayload = explode(".", $token)[1];
 
         return json_decode(base64_decode($tokenPayload));
+    }
+
+    protected function logGraphqlResponse(string $function, ResponseInterface $response): void
+    {
+        $body = json_decode((string) $response->getBody()) ?? new stdClass();
+        $message = sprintf(
+            '%s->%s: %d: %s',
+            self::class,
+            $function,
+            $response->getStatusCode(),
+            $body->errors[0]->message ?? $response->getReasonPhrase()
+        );
+        $this->logger->warning($message);
     }
 }
