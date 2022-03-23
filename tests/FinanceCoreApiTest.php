@@ -114,7 +114,6 @@ class FinanceCoreApiTest extends \PHPUnit\Framework\TestCase
             'query' => $query
         ];
 
-        // $response = new Response(200, [], json_encode($response));
         $this->brighteApi->expects(self::once())->method('cachedPost')
             ->with('getFinancialProductConfig', $input, self::PATH, json_encode($expectedBody))
             ->willReturn(json_decode(json_encode($response)));

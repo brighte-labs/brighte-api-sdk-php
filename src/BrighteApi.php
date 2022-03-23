@@ -317,7 +317,7 @@ class BrighteApi
         return json_decode(base64_decode($tokenPayload));
     }
 
-    protected function logGraphqlResponse(string $function, ResponseInterface $response): void
+    private function logGraphqlResponse(string $function, ResponseInterface $response): void
     {
         $body = json_decode((string) $response->getBody()) ?? new stdClass();
         $message = sprintf(
