@@ -6,31 +6,34 @@ namespace BrighteCapital\Api;
 
 use BrighteCapital\Api\Models\FinancialProductConfig;
 use BrighteCapital\Api\Models\FinancialProduct;
-use Fig\Http\Message\StatusCodeInterface;
-use Psr\Http\Message\ResponseInterface;
 
 class FinanceCoreApi extends \BrighteCapital\Api\AbstractApi
 {
     public const PATH = '/../v2/finance';
-    public const ERROR_FIELD_NAME_IN_JSON = 'errors';
 
     public function getFinancialProductConfig(
         string $slug,
         string $vendorId = null,
         int $version = null
     ): ?FinancialProductConfig {
-        $body = [
+        $requestBody = [
             'query' => $this->createGetFinancialProductConfigQuery($slug, $vendorId, $version),
         ];
 
-        $response = $this->brighteApi->post(sprintf('%s/graphql', self::PATH), json_encode($body), '', [], true);
+        $responseBody = $this->brighteApi->cachedPost(
+            __FUNCTION__,
+            func_get_args(),
+            sprintf('%s/graphql', self::PATH),
+            json_encode($requestBody),
+            '',
+            [],
+            true
+        );
 
-        $body = $this->checkIfContainsError(__FUNCTION__, $response);
-        if ($body === null) {
+        if ($responseBody == null) {
             return null;
         }
-
-        $data = $body->data->financialProductConfiguration;
+        $data = $responseBody->data->financialProductConfiguration;
 
         return $this->getFinancialProductConfigFromResponse($data);
     }
@@ -113,18 +116,24 @@ GQL;
             }
 GQL;
 
-        $body = [
+        $requestBody = [
             'query' => $query
         ];
     
-        $response = $this->brighteApi->post(sprintf('%s/graphql', self::PATH), json_encode($body), '', [], true);
+        $responseBody = $this->brighteApi->cachedPost(
+            __FUNCTION__,
+            func_get_args(),
+            sprintf('%s/graphql', self::PATH),
+            json_encode($requestBody),
+            '',
+            [],
+            true
+        );
 
-        $body = $this->checkIfContainsError(__FUNCTION__, $response);
-        if ($body === null) {
+        if ($responseBody == null) {
             return null;
         }
-
-        $data = $body->data->financialProduct;
+        $data = $responseBody->data->financialProduct;
         
         $product = new FinancialProduct();
         $product->slug = $data->slug;
@@ -161,24 +170,5 @@ GQL;
         $config->invoiceRequired = $configuration->invoiceRequired;
         $config->manualSettlementRequired = $configuration->manualSettlementRequired;
         return $config;
-    }
-
-    private function checkIfContainsError(string $function, ResponseInterface $response)
-    {
-        if ($response->getStatusCode() !== StatusCodeInterface::STATUS_OK) {
-            $this->logGraphqlResponse($function, $response);
-
-            return null;
-        }
-
-        $json = $response->getBody()->getContents();
-        $body = json_decode($json);
-
-        if (property_exists($body, self::ERROR_FIELD_NAME_IN_JSON)) {
-            $this->logGraphqlResponse($function, $response);
-
-            return null;
-        }
-        return $body;
     }
 }
