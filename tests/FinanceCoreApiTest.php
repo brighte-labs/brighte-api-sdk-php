@@ -203,4 +203,33 @@ GQL;
         self::assertEquals('test-fp-branch', $product->fpBranch);
         self::assertEquals($this->expectedConfig, (array)$config);
     }
+
+    /**
+     * @covers ::__construct
+     * @covers ::getFinancialProductConfig
+     * @covers ::getFinancialProductConfigFromResponse
+     * @covers ::createGetFinancialProductConfigQuery
+     */
+    public function testgetFinancialProductConfigWhenReturnsNull(): void
+    {
+        $this->brighteApi
+            ->expects(self::once())->method('cachedPost')
+            ->willReturn(null);
+        $config = $this->financeCoreApi->getFinancialProductConfig('GreenLoan');
+        self::assertNull($config);
+    }
+
+    /**
+     * @covers ::__construct
+     * @covers ::getFinancialProduct
+     * @covers ::getFinancialProductConfigFromResponse
+     */
+    public function testgetFinancialProductWhenReturnsNull(): void
+    {
+        $this->brighteApi
+            ->expects(self::once())->method('cachedPost')
+            ->willReturn(null);
+        $config = $this->financeCoreApi->getFinancialProduct('GreenLoan');
+        self::assertNull($config);
+    }
 }
