@@ -205,8 +205,8 @@ class BrighteApi
         bool $auth = true
     ) {
         $key = implode('_', [$functionName, implode('_', $parameters)]);
-        if ($this->cacheItemPool && $cachedItem = $this->cacheItemPool->getItem($key)) {
-            return $cachedItem->get();
+        if ($this->cacheItemPool && $this->cacheItemPool->hasItem($key)) {
+            return $this->cacheItemPool->getItem($key)->get();
         }
 
         $response = $this->doRequest('POST', $path, $query, $body, $headers, $auth);

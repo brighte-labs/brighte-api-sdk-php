@@ -335,6 +335,7 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
         $item = $this->createMock(CacheItemInterface::class);
         $item->expects(self::once())->method('get')->willReturn($expected);
         $this->cache->expects(self::once())->method('getItem')->willReturn($item);
+        $this->cache->expects(self::once())->method('hasItem')->willReturn(true);
         $this->cache->expects(self::never())->method('save');
         $actual = $this->api->cachedPost($functionName, $parameters, self::URL_CHIPMONKS, 'body');
         self::assertEquals($actual, (array)$expected);
@@ -355,13 +356,17 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
         $authResponse = new Response(200, [], json_encode(['access_token' => $this->accessToken]));
         $expected = ['key' => 'value'];
         $apiResponse = new Response(200, [], json_encode($expected));
+
         $functionName = 'getFinancialProductConfig';
         $parameters = ['p1', 'p2'];
+
         $this->http->expects(self::exactly(2))->method('sendRequest')
             ->with(self::isInstanceOf(Request::class))
             ->willReturnOnConsecutiveCalls($authResponse, $apiResponse);
+        $this->assertCacheMiss();
         $this->cache->expects(self::exactly(2))->method('save');
         $actual = $this->api->cachedPost($functionName, $parameters, self::URL_CHIPMONKS, 'body');
+        $this->assertIsObject($actual);
         self::assertEquals((array)$actual, $expected);
     }
 
@@ -389,6 +394,8 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
         $this->http->expects(self::exactly(2))->method('sendRequest')
         ->with(self::isInstanceOf(Request::class))
         ->willReturnOnConsecutiveCalls($authResponse, $apiResponse);
+
+        $this->assertCacheMiss();
         $this->cache->expects(self::once())->method('save');
         $functionName = 'getFinancialProductConfig';
         $parameters = ['p1', 'p2'];
@@ -417,11 +424,21 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
         $this->http->expects(self::exactly(2))->method('sendRequest')
         ->with(self::isInstanceOf(Request::class))
         ->willReturnOnConsecutiveCalls($authResponse, $apiResponse);
+
+        $this->assertCacheMiss();
         $this->cache->expects(self::once())->method('save');
         $functionName = 'getFinancialProductConfig';
         $parameters = ['p1', 'p2'];
         $actual = $this->api->cachedPost($functionName, $parameters, self::URL_CHIPMONKS, 'body');
         self::assertNull($actual);
+    }
+
+    private function assertCacheMiss(): void
+    {
+        $item = $this->createMock(CacheItemInterface::class);
+        $item->expects(self::once())->method('get')->willReturn(null);
+        $this->cache->expects(self::once())->method('hasItem')->willReturn(false);
+        $this->cache->expects(self::once())->method('getItem')->willReturn($item);
     }
 
     private function createGraphqlErrorResponse(string $message)
