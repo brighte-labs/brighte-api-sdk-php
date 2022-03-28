@@ -335,6 +335,7 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
         $item = $this->createMock(CacheItemInterface::class);
         $item->expects(self::once())->method('get')->willReturn($expected);
         $this->cache->expects(self::once())->method('getItem')->willReturn($item);
+        $this->cache->expects(self::once())->method('hasItem')->willReturn(true);
         $this->cache->expects(self::never())->method('save');
         $actual = $this->api->cachedPost($functionName, $parameters, self::URL_CHIPMONKS, 'body');
         self::assertEquals($actual, (array)$expected);
@@ -355,13 +356,17 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
         $authResponse = new Response(200, [], json_encode(['access_token' => $this->accessToken]));
         $expected = ['key' => 'value'];
         $apiResponse = new Response(200, [], json_encode($expected));
+
         $functionName = 'getFinancialProductConfig';
         $parameters = ['p1', 'p2'];
+
         $this->http->expects(self::exactly(2))->method('sendRequest')
             ->with(self::isInstanceOf(Request::class))
             ->willReturnOnConsecutiveCalls($authResponse, $apiResponse);
+        $this->cache->expects(self::once())->method('hasItem')->willReturn(false);
         $this->cache->expects(self::exactly(2))->method('save');
         $actual = $this->api->cachedPost($functionName, $parameters, self::URL_CHIPMONKS, 'body');
+        $this->assertIsObject($actual);
         self::assertEquals((array)$actual, $expected);
     }
 
@@ -375,48 +380,18 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
      * @covers ::authenticate
      * @covers ::getToken
      * @covers ::post
+     * @dataProvider cachedPostResponseProvider
     */
-    public function testCachedPostWhenReturnError(): void
+    public function testCachedPostWhenGraphqlError($authResponse, $apiResponse, $message): void
     {
-        $message = "Financial product configuration not found for slug" .
-        " 'brighte-green-loan-energy', version 1 and vendorPublicId 'E81'";
-        $authResponse = new Response(200, [], json_encode(['access_token' => $this->accessToken]));
-        $apiResponse = $this->createGraphqlErrorResponse($message);
-
         $this->logger->expects(self::once())->method('warning')->with(
-            "BrighteCapital\Api\BrighteApi->getFinancialProductConfig: 200: " . $message
+            "BrighteCapital\Api\BrighteApi->getFinancialProductConfig: " . $message
         );
         $this->http->expects(self::exactly(2))->method('sendRequest')
         ->with(self::isInstanceOf(Request::class))
         ->willReturnOnConsecutiveCalls($authResponse, $apiResponse);
-        $this->cache->expects(self::once())->method('save');
-        $functionName = 'getFinancialProductConfig';
-        $parameters = ['p1', 'p2'];
-        $actual = $this->api->cachedPost($functionName, $parameters, self::URL_CHIPMONKS, 'body');
-        self::assertNull($actual);
-    }
 
-    /**
-     * @covers ::__construct
-     * @covers ::cachedPost
-     * @covers ::checkIfContainsError
-     * @covers ::logGraphqlResponse
-     * @covers ::doRequest
-     * @covers ::authenticate
-     * @covers ::getToken
-     * @covers ::post
-    */
-    public function testCachedPostWhenServerError(): void
-    {
-        $authResponse = new Response(200, [], json_encode(['access_token' => $this->accessToken]));
-        $apiResponse = new Response(504, [], json_encode(['message' => 'Gateway Time-out']));
-
-        $this->logger->expects(self::once())->method('warning')->with(
-            "BrighteCapital\Api\BrighteApi->getFinancialProductConfig: 504: Gateway Time-out"
-        );
-        $this->http->expects(self::exactly(2))->method('sendRequest')
-        ->with(self::isInstanceOf(Request::class))
-        ->willReturnOnConsecutiveCalls($authResponse, $apiResponse);
+        $this->cache->expects(self::once())->method('hasItem')->willReturn(false);
         $this->cache->expects(self::once())->method('save');
         $functionName = 'getFinancialProductConfig';
         $parameters = ['p1', 'p2'];
@@ -444,5 +419,26 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
         ];
 
         return new Response(200, [], json_encode($body));
+    }
+
+    public function cachedPostResponseProvider()
+    {
+        $authResponse = new Response(200, [], json_encode(['access_token' => 'token']));
+        $notFoundMessage = "Financial product configuration not found for slug" .
+        " 'brighte-green-loan-energy', version 1 and vendorPublicId 'E81'";
+        $networkErrorMessage = 'Gateway Time-out';
+
+        return [
+            [
+                $authResponse,
+                $this->createGraphqlErrorResponse($notFoundMessage),
+                "200: " . $notFoundMessage
+            ],
+            [
+                $authResponse,
+                new Response(504, [], json_encode(['message' => $networkErrorMessage])),
+                "504: Gateway Time-out"
+            ]
+        ];
     }
 }
