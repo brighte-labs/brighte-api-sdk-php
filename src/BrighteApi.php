@@ -18,6 +18,7 @@ use stdClass;
 class BrighteApi
 {
     public const ERROR_FIELD_NAME_IN_JSON = 'errors';
+    public const JWT_SERVICE_CACHE_KEY = 'service_jwt';
 
     /** @var string|null */
     public $clientId;
@@ -58,6 +59,9 @@ class BrighteApi
     /** @var CacheItemPoolInterface|null */
     protected $cacheItemPool;
 
+    /** @var string accessToken */
+    protected $jwtCacheKey;
+
     /**
      * @param \Psr\Http\Client\ClientInterface $http HTTP client
      * @param \Psr\Log\LoggerInterface $log Logger
@@ -82,6 +86,7 @@ class BrighteApi
         $this->http = $http;
         $this->logger = $log;
         $this->cacheItemPool = $cache;
+        $this->jwtCacheKey = $this->clientId . '_' . self::JWT_SERVICE_CACHE_KEY;
     }
 
     public function getToken(): string
@@ -91,7 +96,7 @@ class BrighteApi
                 return $this->accessToken;
             }
 
-            $this->cacheItemPool->deleteItem('service_jwt');
+            $this->cacheItemPool->deleteItem($this->jwtCacheKey);
         }
 
         $this->authenticate();
@@ -101,7 +106,7 @@ class BrighteApi
 
     protected function authenticate(): void
     {
-        if ($this->cacheItemPool && $accessToken = $this->cacheItemPool->getItem('service_jwt')) {
+        if ($this->cacheItemPool && $accessToken = $this->cacheItemPool->getItem($this->jwtCacheKey)) {
             $this->accessToken = $accessToken->get();
             if ($this->accessToken) {
                 $this->logger->debug("Fetched Service JWT from cache");
@@ -132,7 +137,7 @@ class BrighteApi
         $this->accessToken = $body->access_token ?? $body->accessToken;
 
         if ($this->cacheItemPool) {
-            $item = new CacheItem('service_jwt', true, $this->accessToken);
+            $item = new CacheItem($this->jwtCacheKey, true, $this->accessToken);
             $expires = $body->expires_in ?? null;
             $expires = (int) $expires ?: new \DateInterval('PT' . strtoupper($expires ?: "15m"));
             $item->expiresAfter($expires);

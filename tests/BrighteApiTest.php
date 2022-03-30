@@ -294,7 +294,7 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
         );
         $item = $this->createMock(CacheItemInterface::class);
         $item->expects(self::once())->method('get')->willReturn($this->accessToken);
-        $this->cache->expects(self::once())->method('getItem')->with('service_jwt')->willReturn($item);
+        $this->cache->expects(self::once())->method('getItem')->with('test-client_service_jwt')->willReturn($item);
         $this->http->expects(self::exactly(1))->method('sendRequest')->with($expectApiRequest);
         $this->api->get(self::URL_CHIPMONKS);
     }
