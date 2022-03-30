@@ -210,6 +210,9 @@ class BrighteApi
         bool $auth = true
     ) {
         $key = implode('_', [$functionName, implode('_', $parameters)]);
+        if (array_key_exists($key, $this->cache)) {
+            return $this->cache[$key];
+        }
         if ($this->cacheItemPool && $this->cacheItemPool->hasItem($key)) {
             return $this->cacheItemPool->getItem($key)->get();
         }
@@ -221,6 +224,7 @@ class BrighteApi
             return null;
         }
 
+        $this->cache[$key] = $responseBody;
         if ($this->cacheItemPool) {
             $item = new CacheItem($key, true, $responseBody);
             $expires = new \DateInterval('PT' . strtoupper("15m"));
