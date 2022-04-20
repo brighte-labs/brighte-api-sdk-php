@@ -38,12 +38,14 @@
     "autoload": {
         "psr-4": {
             "BrighteCapital\\Api\\": "src"
-        },
-        "files": ["load.environment.php"]
+        }
     },
     "autoload-dev": {
         "psr-4": {
             "BrighteCapital\\Api\\Tests\\": "tests"
-        }
+        },
+        "files": [
+            "load.environment.php"
+        ]
     }
 }
