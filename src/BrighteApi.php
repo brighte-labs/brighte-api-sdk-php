@@ -210,6 +210,8 @@ class BrighteApi
         bool $auth = true
     ) {
         $key = implode('_', [$functionName, implode('_', $parameters)]);
+        $this->logger->debug('cache key:' . $key);
+        $this->logger->debug('body:' . $body);
         if ($this->cacheItemPool && $this->cacheItemPool->hasItem($key)) {
             return $this->cacheItemPool->getItem($key)->get();
         }
