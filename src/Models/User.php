@@ -30,4 +30,7 @@ class User
 
     /** @var string Salesforce Contact ID */
     public $sfContactId;
+
+    /** @var string Universal ID */
+    public $uid;
 }
