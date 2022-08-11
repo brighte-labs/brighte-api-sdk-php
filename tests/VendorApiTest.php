@@ -6,6 +6,7 @@ namespace BrighteCapital\Tests\Api;
 
 use BrighteCapital\Api\BrighteApi;
 use BrighteCapital\Api\Models\Category;
+use BrighteCapital\Api\Models\Manufacturer;
 use BrighteCapital\Api\Models\PromoCode;
 use BrighteCapital\Api\Models\Vendor;
 use BrighteCapital\Api\Models\VendorFlag;
@@ -251,6 +252,47 @@ class VendorApiTest extends \PHPUnit\Framework\TestCase
         $this->brighteApi->method('get')->willReturn($response);
         $category = $this->vendorApi->getCategory(1);
         self::assertNull($category);
+    }
+
+    /**
+     * @covers ::__construct
+     * @covers ::getManufacturers
+     */
+    public function testGetManufacturers(): void
+    {
+        $providedVendor = [
+            'id' => 1,
+            'name' => 'Brighte Solar',
+            'description' => 'Brighte Solar',
+            'icon' => 'brighte.jpg',
+            'slug' => 'brighte-solar',
+            'premium' => true,
+        ];
+        $response = new Response(200, [], json_encode([$providedVendor]));
+        $this->brighteApi->expects(self::once())->method('get')->with('/manufacturers/1')->willReturn($response);
+        $manufacturers = $this->vendorApi->getManufacturers(1);
+        self::assertCount(1, $manufacturers);
+        self::assertInstanceOf(Manufacturer::class, $manufacturers[1]);
+        self::assertEquals(1, $manufacturers[1]->id);
+        self::assertEquals('Brighte Solar', $manufacturers[1]->name);
+        self::assertEquals('brighte-solar', $manufacturers[1]->slug);
+        self::assertEquals(true, $manufacturers[1]->premium);
+    }
+
+    /**
+     * @covers ::__construct
+     * @covers ::getManufacturers
+     * @covers ::logResponse
+     */
+    public function testGetManufacturersFail(): void
+    {
+        $response = new Response(404, [], json_encode(['message' => 'Not found']));
+        $this->logger->expects(self::once())->method('warning')->with(
+            'BrighteCapital\Api\AbstractApi->getManufacturers: 404: Not found'
+        );
+        $this->brighteApi->method('get')->willReturn($response);
+        $manufacturers = $this->vendorApi->getManufacturers(1);
+        self::assertCount(0, $manufacturers);
     }
 
     /**

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BrighteCapital\Api;
 
 use BrighteCapital\Api\Models\Category;
+use BrighteCapital\Api\Models\Manufacturer;
 use BrighteCapital\Api\Models\PromoCode;
 use BrighteCapital\Api\Models\Vendor;
 use BrighteCapital\Api\Models\VendorFlag;
@@ -159,6 +160,37 @@ class VendorApi extends \BrighteCapital\Api\AbstractApi
         $category->group = $result->group ?? null;
 
         return $category;
+    }
+
+    /**
+     * @param int $vendorId
+     * @return \BrighteCapital\Api\Models\Manufacturer[]
+     */
+    public function getManufacturers(int $categoryId): array
+    {
+        $response = $this->brighteApi->get("/manufacturers/" . (string) $categoryId);
+
+        if ($response->getStatusCode() !== StatusCodeInterface::STATUS_OK) {
+            $this->logResponse(__FUNCTION__, $response);
+
+            return [];
+        }
+
+        $results = json_decode((string) $response->getBody());
+        $manufacturers = [];
+
+        foreach ($results as $result) {
+            $manufacturer = new Manufacturer();
+            $manufacturer->id = $result->id;
+            $manufacturer->name = $result->name;
+            $manufacturer->description = $result->description;
+            $manufacturer->icon = $result->icon;
+            $manufacturer->slug = $result->slug;
+            $manufacturer->premium = $result->premium;
+            $manufacturers[$manufacturer->id] = $manufacturer;
+        }
+
+        return $manufacturers;
     }
 
     /**
