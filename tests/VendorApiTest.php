@@ -256,7 +256,35 @@ class VendorApiTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::__construct
+     * @covers ::getManufacturerById
+     */
+    public function testGetManufacturerById(): void
+    {
+        $providedVendor = [
+            'id' => 1,
+            'name' => 'Brighte Solar',
+            'description' => 'Brighte Solar',
+            'icon' => 'brighte.jpg',
+            'slug' => 'brighte-solar',
+            'premium' => true,
+        ];
+        
+        $response = new Response(200, [], json_encode($providedVendor));
+        $this->brighteApi->expects(self::once())->method('get')->with(
+            '/manufacturers/' . $providedVendor['id']
+        )->willReturn($response);
+        $manufacturer = $this->vendorApi->getManufacturerById($providedVendor['id']);
+        self::assertInstanceOf(Manufacturer::class, $manufacturer);
+        self::assertEquals(1, $manufacturer->id);
+        self::assertEquals('Brighte Solar', $manufacturer->name);
+        self::assertEquals('brighte-solar', $manufacturer->slug);
+        self::assertEquals(true, $manufacturer->premium);
+    }
+
+    /**
+     * @covers ::__construct
      * @covers ::getManufacturers
+     * @covers ::retrieveManufacturers
      */
     public function testGetManufacturers(): void
     {
@@ -269,8 +297,36 @@ class VendorApiTest extends \PHPUnit\Framework\TestCase
             'premium' => true,
         ];
         $response = new Response(200, [], json_encode([$providedVendor]));
-        $this->brighteApi->expects(self::once())->method('get')->with('/manufacturers/1')->willReturn($response);
+        $this->brighteApi->expects(self::once())->method('get')->with('/manufacturers')->willReturn($response);
         $manufacturers = $this->vendorApi->getManufacturers(1);
+        self::assertCount(1, $manufacturers);
+        self::assertInstanceOf(Manufacturer::class, $manufacturers[1]);
+        self::assertEquals(1, $manufacturers[1]->id);
+        self::assertEquals('Brighte Solar', $manufacturers[1]->name);
+        self::assertEquals('brighte-solar', $manufacturers[1]->slug);
+        self::assertEquals(true, $manufacturers[1]->premium);
+    }
+
+    /**
+     * @covers ::__construct
+     * @covers ::getManufacturersByCategory
+     * @covers ::retrieveManufacturers
+     */
+    public function testGetManufacturersByCategory(): void
+    {
+        $providedVendor = [
+            'id' => 1,
+            'name' => 'Brighte Solar',
+            'description' => 'Brighte Solar',
+            'icon' => 'brighte.jpg',
+            'slug' => 'brighte-solar',
+            'premium' => true,
+        ];
+        $response = new Response(200, [], json_encode([$providedVendor]));
+        $this->brighteApi->expects(self::once())->method('get')->with(
+            '/manufacturers?category=' . $providedVendor['slug']
+        )->willReturn($response);
+        $manufacturers = $this->vendorApi->getManufacturersByCategory($providedVendor['slug']);
         self::assertCount(1, $manufacturers);
         self::assertInstanceOf(Manufacturer::class, $manufacturers[1]);
         self::assertEquals(1, $manufacturers[1]->id);
@@ -283,6 +339,7 @@ class VendorApiTest extends \PHPUnit\Framework\TestCase
      * @covers ::__construct
      * @covers ::getManufacturers
      * @covers ::logResponse
+     * @covers ::retrieveManufacturers
      */
     public function testGetManufacturersFail(): void
     {
@@ -291,8 +348,24 @@ class VendorApiTest extends \PHPUnit\Framework\TestCase
             'BrighteCapital\Api\AbstractApi->getManufacturers: 404: Not found'
         );
         $this->brighteApi->method('get')->willReturn($response);
-        $manufacturers = $this->vendorApi->getManufacturers(1);
+        $manufacturers = $this->vendorApi->getManufacturers();
         self::assertCount(0, $manufacturers);
+    }
+
+    /**
+     * @covers ::__construct
+     * @covers ::getManufacturerById
+     * @covers ::logResponse
+     */
+    public function testGetManufacturerByIdFail(): void
+    {
+        $response = new Response(404, [], json_encode(['message' => 'Not found']));
+        $this->logger->expects(self::once())->method('warning')->with(
+            'BrighteCapital\Api\AbstractApi->getManufacturerById: 404: Not found'
+        );
+        $this->brighteApi->method('get')->willReturn($response);
+        $manufacturer = $this->vendorApi->getManufacturerById(1);
+        self::assertNull($manufacturer);
     }
 
     /**

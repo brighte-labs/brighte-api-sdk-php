@@ -163,15 +163,58 @@ class VendorApi extends \BrighteCapital\Api\AbstractApi
     }
 
     /**
-     * @param int $vendorId
-     * @return \BrighteCapital\Api\Models\Manufacturer[]
+     * @param int $manufacturerId
+     * @return \BrighteCapital\Api\Models\Manufacturer
      */
-    public function getManufacturers(int $categoryId): array
+    public function getManufacturerById(int $manufacturerId): ?Manufacturer
     {
-        $response = $this->brighteApi->get("/manufacturers/" . (string) $categoryId);
+        $response = $this->brighteApi->get("/manufacturers/" . (string) $manufacturerId);
 
         if ($response->getStatusCode() !== StatusCodeInterface::STATUS_OK) {
             $this->logResponse(__FUNCTION__, $response);
+
+            return null;
+        }
+
+        $result = json_decode((string) $response->getBody());
+        $manufacturer = new Manufacturer();
+        $manufacturer->id = $result->id;
+        $manufacturer->name = $result->name;
+        $manufacturer->description = $result->description;
+        $manufacturer->icon = $result->icon;
+        $manufacturer->slug = $result->slug;
+        $manufacturer->premium = $result->premium;
+
+        return $manufacturer;
+    }
+
+    /**
+     * @param string $categorySlug
+     * @return \BrighteCapital\Api\Models\Manufacturer[]
+     */
+    public function getManufacturersByCategory(string $categorySlug): array
+    {
+        return $this->retrieveManufacturers("/manufacturers?category=" . $categorySlug);
+    }
+    
+    /**
+     * @return \BrighteCapital\Api\Models\Manufacturer[]
+     */
+    public function getManufacturers(): array
+    {
+        return $this->retrieveManufacturers("/manufacturers");
+    }
+
+    /**
+     * @param string $queryPath
+     * @return \BrighteCapital\Api\Models\Manufacturer[]
+     */
+    private function retrieveManufacturers(string $queryPath): array
+    {
+        $response = $this->brighteApi->get($queryPath);
+
+        if ($response->getStatusCode() !== StatusCodeInterface::STATUS_OK) {
+            $this->logResponse(debug_backtrace()[1]['function'], $response);
 
             return [];
         }
