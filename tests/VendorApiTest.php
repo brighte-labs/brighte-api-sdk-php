@@ -354,6 +354,22 @@ class VendorApiTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::__construct
+     * @covers ::getManufacturerById
+     * @covers ::logResponse
+     */
+    public function testGetManufacturerByIdFail(): void
+    {
+        $response = new Response(404, [], json_encode(['message' => 'Not found']));
+        $this->logger->expects(self::once())->method('warning')->with(
+            'BrighteCapital\Api\AbstractApi->getManufacturerById: 404: Not found'
+        );
+        $this->brighteApi->method('get')->willReturn($response);
+        $manufacturer = $this->vendorApi->getManufacturerById(1);
+        self::assertNull($manufacturer);
+    }
+
+    /**
+     * @covers ::__construct
      * @covers ::getVendorPromos
      */
     public function testGetVendorPromos(): void

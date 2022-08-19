@@ -166,7 +166,7 @@ class VendorApi extends \BrighteCapital\Api\AbstractApi
      * @param int $manufacturerId
      * @return \BrighteCapital\Api\Models\Manufacturer
      */
-    public function getManufacturerById(int $manufacturerId): Manufacturer
+    public function getManufacturerById(int $manufacturerId): ?Manufacturer
     {
         $response = $this->brighteApi->get("/manufacturers/" . (string) $manufacturerId);
 
