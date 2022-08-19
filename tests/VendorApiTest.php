@@ -284,6 +284,7 @@ class VendorApiTest extends \PHPUnit\Framework\TestCase
     /**
      * @covers ::__construct
      * @covers ::getManufacturers
+     * @covers ::retrieveManufacturers
      */
     public function testGetManufacturers(): void
     {
@@ -309,6 +310,7 @@ class VendorApiTest extends \PHPUnit\Framework\TestCase
     /**
      * @covers ::__construct
      * @covers ::getManufacturersByCategory
+     * @covers ::retrieveManufacturers
      */
     public function testGetManufacturersByCategory(): void
     {
@@ -337,6 +339,7 @@ class VendorApiTest extends \PHPUnit\Framework\TestCase
      * @covers ::__construct
      * @covers ::getManufacturers
      * @covers ::logResponse
+     * @covers ::retrieveManufacturers
      */
     public function testGetManufacturersFail(): void
     {
