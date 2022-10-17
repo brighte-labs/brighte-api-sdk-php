@@ -8,11 +8,10 @@ use BrighteCapital\Api\Models\FinanceCore\Vendor as FinanceCoreVendor;
 use BrighteCapital\Api\Models\FinanceCore\VendorRebate;
 use BrighteCapital\Api\Models\FinancialProductConfig;
 use BrighteCapital\Api\Models\FinancialProduct;
-use BrighteCapital\Api\Models\Vendor;
 
 class FinanceCoreApi extends \BrighteCapital\Api\AbstractApi
 {
-    public const PATH = '/../v2/finance';
+    public const PATH = '/../v2/finance/graphql';
 
     public function getVendor(
         string $vendorId
@@ -24,7 +23,7 @@ class FinanceCoreApi extends \BrighteCapital\Api\AbstractApi
         $responseBody = $this->brighteApi->cachedPost(
             __FUNCTION__,
             func_get_args(),
-            sprintf('%s/graphql', self::PATH),
+            self::PATH,
             json_encode($requestBody),
             '',
             [],
@@ -94,7 +93,7 @@ GQL;
         $responseBody = $this->brighteApi->cachedPost(
             __FUNCTION__,
             func_get_args(),
-            sprintf('%s/graphql', self::PATH),
+            self::PATH,
             json_encode($requestBody),
             '',
             [],
@@ -194,7 +193,7 @@ GQL;
         $responseBody = $this->brighteApi->cachedPost(
             __FUNCTION__,
             func_get_args(),
-            sprintf('%s/graphql', self::PATH),
+            self::PATH,
             json_encode($requestBody),
             '',
             [],
