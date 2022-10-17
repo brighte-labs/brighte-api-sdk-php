@@ -8,6 +8,8 @@ use BrighteCapital\Api\BrighteApi;
 use BrighteCapital\Api\Models\FinancialProductConfig;
 use BrighteCapital\Api\Models\FinancialProduct;
 use BrighteCapital\Api\FinanceCoreApi;
+use BrighteCapital\Api\Models\FinanceCore\Vendor as FinanceCoreVendor;
+use BrighteCapital\Api\Models\FinanceCore\VendorRebate;
 use Psr\Log\LoggerInterface;
 use Psr\Cache\CacheItemPoolInterface;
 
@@ -61,6 +63,26 @@ class FinanceCoreApiTest extends \PHPUnit\Framework\TestCase
         $this->expectedConfigResponse = [
             'data' => [
                 'financialProductConfiguration' => $this->expectedConfig,
+            ]
+        ];
+
+        $this->expectedVendor = [
+            'legacyId' => 1,
+            'publicId' => 'E1',
+            'tradingName' => 'Test Company',
+            'sfAccountId' => 'fakeTestAccount',
+            'slug' => 'test-company',
+            'activeRebate' => new VendorRebate([
+                'startDate' => '2022-10-04T23:22:34.000Z',
+                'finishDate' => '2025-10-04T23:22:34.000Z',
+                'dollar' => 500,
+                'percentage' => null,
+            ])
+        ];
+
+        $this->expectedVendorResponse = [
+            'data' => [
+                'vendor' => $this->expectedVendor,
             ]
         ];
     }
@@ -231,5 +253,29 @@ GQL;
             ->willReturn(null);
         $config = $this->financeCoreApi->getFinancialProduct('GreenLoan');
         self::assertNull($config);
+    }
+
+        /**
+     * @covers ::__construct
+     * @covers ::getVendor
+     * @covers ::getVendorFromResponse
+     * @covers ::createGetVendorQuery
+     */
+    public function testGetVendor(): void
+    {
+        $vendorId = $this->expectedVendor['publicId'];
+        $response = $this->expectedVendorResponse;
+        $query = $this->financeCoreApi->createGetVendorQuery($vendorId);
+
+        $expectedBody = [
+            'query' => $query
+        ];
+
+        $this->brighteApi->expects(self::once())->method('cachedPost')
+            ->with('getVendor', [$vendorId], self::PATH, json_encode($expectedBody))
+            ->willReturn(json_decode(json_encode($response)));
+        $vendor = $this->financeCoreApi->getVendor($vendorId);
+        self::assertInstanceOf(FinanceCoreVendor::class, $vendor);
+        self::assertEquals($this->expectedVendor, (array)$vendor);
     }
 }
