@@ -278,4 +278,20 @@ GQL;
         self::assertInstanceOf(FinanceCoreVendor::class, $vendor);
         self::assertEquals($this->expectedVendor, (array)$vendor);
     }
+
+    /**
+     * @covers ::__construct
+     * @covers ::getVendor
+     * @covers ::getVendorFromResponse
+     * @covers ::createGetVendorQuery
+     */
+    public function testGetVendorWhenReturnsNull(): void
+    {
+        $vendorId = $this->expectedVendor['publicId'];
+        $this->brighteApi
+            ->expects(self::once())->method('cachedPost')
+            ->willReturn(null);
+        $vendor = $this->financeCoreApi->getVendor($vendorId);
+        self::assertNull($vendor);
+    }
 }
