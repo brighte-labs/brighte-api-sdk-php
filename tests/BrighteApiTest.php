@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace BrighteCapital\Tests\Api;
 
 use BrighteCapital\Api\BrighteApi;
-use Cache\Adapter\Common\CacheItem;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\Uri;
@@ -324,7 +323,40 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
      * @covers ::cachedPost
      * @covers ::checkIfContainsError
      * @covers ::logGraphqlResponse
-    */
+     * @covers ::doRequest
+     * @covers ::authenticate
+     * @covers ::getToken
+     */
+    public function testCachedPostWhenLocalCacheHits(): void
+    {
+        $expected = ['key' => 'value'];
+        $apiResponse = new Response(200, [], json_encode($expected));
+
+        $functionName = 'getFinancialProductConfig';
+        $parameters = ['p1', 'p2'];
+
+        $cachedToken = $this->createMock(CacheItemInterface::class);
+        $cachedToken->expects(self::once())->method('get')->willReturn($this->accessToken);
+
+        $this->http->expects(self::exactly(1))->method('sendRequest')
+            ->with(self::isInstanceOf(Request::class))->willReturn($apiResponse);
+
+        $this->cache->expects(self::once())->method('getItem')->with('test-client_service_jwt')
+            ->willReturn($cachedToken);
+        $this->cache->expects(self::once())->method('save'); // saves the value to the cache pool
+
+        $this->api->cachedPost($functionName, $parameters, self::URL_CHIPMONKS, 'body');
+        // Post a second time, local cache should respond.
+        $actual = $this->api->cachedPost($functionName, $parameters, self::URL_CHIPMONKS, 'body');
+        self::assertEquals((object) $expected, $actual);
+    }
+
+    /**
+     * @covers ::__construct
+     * @covers ::cachedPost
+     * @covers ::checkIfContainsError
+     * @covers ::logGraphqlResponse
+     */
     public function testCachedPostWhenCacheHits(): void
     {
         $functionName = 'getFinancialProductConfig';
@@ -338,7 +370,7 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
         $this->cache->expects(self::once())->method('hasItem')->willReturn(true);
         $this->cache->expects(self::never())->method('save');
         $actual = $this->api->cachedPost($functionName, $parameters, self::URL_CHIPMONKS, 'body');
-        self::assertEquals($actual, (array)$expected);
+        self::assertEquals((array)$expected, $actual);
     }
 
     /**
@@ -350,7 +382,7 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
      * @covers ::authenticate
      * @covers ::getToken
      * @covers ::post
-    */
+     */
     public function testCachedPostWhenCacheMiss(): void
     {
         $authResponse = new Response(200, [], json_encode(['access_token' => $this->accessToken]));
@@ -381,15 +413,15 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
      * @covers ::getToken
      * @covers ::post
      * @dataProvider cachedPostResponseProvider
-    */
+     */
     public function testCachedPostWhenGraphqlError($authResponse, $apiResponse, $message): void
     {
         $this->logger->expects(self::once())->method('warning')->with(
             "BrighteCapital\Api\BrighteApi->getFinancialProductConfig: " . $message
         );
         $this->http->expects(self::exactly(2))->method('sendRequest')
-        ->with(self::isInstanceOf(Request::class))
-        ->willReturnOnConsecutiveCalls($authResponse, $apiResponse);
+            ->with(self::isInstanceOf(Request::class))
+            ->willReturnOnConsecutiveCalls($authResponse, $apiResponse);
 
         $this->cache->expects(self::once())->method('hasItem')->willReturn(false);
         $this->cache->expects(self::once())->method('save');
@@ -425,7 +457,7 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
     {
         $authResponse = new Response(200, [], json_encode(['access_token' => 'token']));
         $notFoundMessage = "Financial product configuration not found for slug" .
-        " 'brighte-green-loan-energy', version 1 and vendorPublicId 'E81'";
+            " 'brighte-green-loan-energy', version 1 and vendorPublicId 'E81'";
         $networkErrorMessage = 'Gateway Time-out';
 
         return [

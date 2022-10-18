@@ -35,6 +35,7 @@ class IdentityApi extends \BrighteCapital\Api\AbstractApi
         $user->email = $result->email ?? null;
         $user->phone = $result->phone ?? null;
         $user->sfContactId = $result->sfContactId ?? null;
+        $user->uid = $result->uid ?? null;
 
         return $user;
     }

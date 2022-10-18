@@ -51,6 +51,7 @@ class IdentityApiTest extends \PHPUnit\Framework\TestCase
             'phone' => '0412312412',
             'role' => 'CONSUMER',
             'sfContactId' => 'salesforce-contact-id',
+            'uid' => 'universal-id',
         ];
         $response = new Response(200, [], json_encode($providedUser));
         $this->brighteApi->expects(self::once())->method('get')
@@ -65,6 +66,7 @@ class IdentityApiTest extends \PHPUnit\Framework\TestCase
         self::assertEquals('0412312412', $user->phone);
         self::assertEquals('CONSUMER', $user->role);
         self::assertEquals('salesforce-contact-id', $user->sfContactId);
+        self::assertEquals('universal-id', $user->uid);
     }
 
     /**

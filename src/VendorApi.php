@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BrighteCapital\Api;
 
 use BrighteCapital\Api\Models\Category;
+use BrighteCapital\Api\Models\Manufacturer;
 use BrighteCapital\Api\Models\PromoCode;
 use BrighteCapital\Api\Models\Vendor;
 use BrighteCapital\Api\Models\VendorFlag;
@@ -159,6 +160,80 @@ class VendorApi extends \BrighteCapital\Api\AbstractApi
         $category->group = $result->group ?? null;
 
         return $category;
+    }
+
+    /**
+     * @param int $manufacturerId
+     * @return \BrighteCapital\Api\Models\Manufacturer
+     */
+    public function getManufacturerById(int $manufacturerId): ?Manufacturer
+    {
+        $response = $this->brighteApi->get("/manufacturers/" . (string) $manufacturerId);
+
+        if ($response->getStatusCode() !== StatusCodeInterface::STATUS_OK) {
+            $this->logResponse(__FUNCTION__, $response);
+
+            return null;
+        }
+
+        $result = json_decode((string) $response->getBody());
+        $manufacturer = new Manufacturer();
+        $manufacturer->id = $result->id;
+        $manufacturer->name = $result->name;
+        $manufacturer->description = $result->description;
+        $manufacturer->icon = $result->icon;
+        $manufacturer->slug = $result->slug;
+        $manufacturer->premium = $result->premium;
+
+        return $manufacturer;
+    }
+
+    /**
+     * @param string $categorySlug
+     * @return \BrighteCapital\Api\Models\Manufacturer[]
+     */
+    public function getManufacturersByCategory(string $categorySlug): array
+    {
+        return $this->retrieveManufacturers("/manufacturers?category=" . $categorySlug);
+    }
+    
+    /**
+     * @return \BrighteCapital\Api\Models\Manufacturer[]
+     */
+    public function getManufacturers(): array
+    {
+        return $this->retrieveManufacturers("/manufacturers");
+    }
+
+    /**
+     * @param string $queryPath
+     * @return \BrighteCapital\Api\Models\Manufacturer[]
+     */
+    private function retrieveManufacturers(string $queryPath): array
+    {
+        $response = $this->brighteApi->get($queryPath);
+
+        if ($response->getStatusCode() !== StatusCodeInterface::STATUS_OK) {
+            $this->logResponse(debug_backtrace()[1]['function'], $response);
+
+            return [];
+        }
+
+        $results = json_decode((string) $response->getBody());
+        $manufacturers = [];
+
+        foreach ($results as $result) {
+            $manufacturer = new Manufacturer();
+            $manufacturer->id = $result->id;
+            $manufacturer->name = $result->name;
+            $manufacturer->description = $result->description;
+            $manufacturer->icon = $result->icon;
+            $manufacturer->slug = $result->slug;
+            $manufacturer->premium = $result->premium;
+            $manufacturers[$manufacturer->id] = $manufacturer;
+        }
+
+        return $manufacturers;
     }
 
     /**
