@@ -14,10 +14,14 @@ class FinanceCoreApi extends \BrighteCapital\Api\AbstractApi
     public const PATH = '/../v2/finance/graphql';
 
     public function getVendor(
-        string $vendorId
+        array $filter = []
     ): ?FinanceCoreVendor {
+        if (!$filter) {
+            return null;
+        }
+
         $requestBody = [
-            'query' => $this->createGetVendorQuery($vendorId),
+            'query' => $this->createGetVendorQuery($filter),
         ];
 
         $responseBody = $this->brighteApi->cachedPost(
@@ -39,10 +43,12 @@ class FinanceCoreApi extends \BrighteCapital\Api\AbstractApi
     }
 
     public function createGetVendorQuery(
-        string $vendorId
+        array $filter
     ): string {
-        $queryParameter = "publicId: \"{$vendorId}\"";
-
+        $field = array_key_first($filter);
+        $value = $filter[$field];
+        $queryParameter = "{$field}: \"{$value}\"";
+        
         return <<<GQL
         query {
             vendor (filter: { $queryParameter }) {

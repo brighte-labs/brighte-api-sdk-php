@@ -263,18 +263,20 @@ GQL;
      */
     public function testGetVendor(): void
     {
-        $vendorId = $this->expectedVendor['publicId'];
+        $filter = [
+            'publicId' => $this->expectedVendor['publicId']
+        ];
         $response = $this->expectedVendorResponse;
-        $query = $this->financeCoreApi->createGetVendorQuery($vendorId);
+        $query = $this->financeCoreApi->createGetVendorQuery($filter);
 
         $expectedBody = [
             'query' => $query
         ];
 
         $this->brighteApi->expects(self::once())->method('cachedPost')
-            ->with('getVendor', [$vendorId], self::PATH, json_encode($expectedBody))
+            ->with('getVendor', [$filter], self::PATH, json_encode($expectedBody))
             ->willReturn(json_decode(json_encode($response)));
-        $vendor = $this->financeCoreApi->getVendor($vendorId);
+        $vendor = $this->financeCoreApi->getVendor($filter);
         self::assertInstanceOf(FinanceCoreVendor::class, $vendor);
         self::assertEquals($this->expectedVendor, (array)$vendor);
     }
@@ -287,11 +289,18 @@ GQL;
      */
     public function testGetVendorWhenReturnsNull(): void
     {
-        $vendorId = $this->expectedVendor['publicId'];
+        $filter = [
+            'publicId' => $this->expectedVendor['publicId']
+        ];
         $this->brighteApi
             ->expects(self::once())->method('cachedPost')
             ->willReturn(null);
-        $vendor = $this->financeCoreApi->getVendor($vendorId);
+        $vendor = $this->financeCoreApi->getVendor($filter);
+        self::assertNull($vendor);
+
+        $this->brighteApi
+            ->expects(self::never())->method('cachedPost');
+        $vendor = $this->financeCoreApi->getVendor();
         self::assertNull($vendor);
     }
 }
