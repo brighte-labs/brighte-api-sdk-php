@@ -45,7 +45,8 @@ class FinanceCoreApi extends \BrighteCapital\Api\AbstractApi
     public function createGetVendorQuery(
         array $filter
     ): string {
-        $field = array_key_first($filter);
+        reset($filter);
+        $field = key($filter);
         $value = $filter[$field];
         $queryParameter = "{$field}: \"{$value}\"";
         
