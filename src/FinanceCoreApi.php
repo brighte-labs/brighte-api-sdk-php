@@ -47,8 +47,9 @@ class FinanceCoreApi extends \BrighteCapital\Api\AbstractApi
     ): string {
         reset($filter);
         $field = key($filter);
-        $value = $filter[$field];
-        $queryParameter = "{$field}: \"{$value}\"";
+        $value = is_string($filter[$field]) ? "\"{$filter[$field]}\"" : $filter[$field];
+
+        $queryParameter = "{$field}: {$value}";
         
         return <<<GQL
         query {

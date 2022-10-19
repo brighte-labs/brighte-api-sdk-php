@@ -290,7 +290,7 @@ GQL;
     public function testGetVendorWhenReturnsNull(): void
     {
         $filter = [
-            'publicId' => $this->expectedVendor['publicId']
+            'legacyId' => $this->expectedVendor['legacyId']
         ];
         $this->brighteApi
             ->expects(self::once())->method('cachedPost')
