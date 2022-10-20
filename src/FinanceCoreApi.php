@@ -16,8 +16,9 @@ class FinanceCoreApi extends \BrighteCapital\Api\AbstractApi
     public function getVendor(
         string $vendorId
     ): ?FinanceCoreVendor {
+        $queryParameter = "publicId: \"{$vendorId}\"";
         $requestBody = [
-            'query' => $this->createGetVendorQuery($vendorId),
+            'query' => $this->createGetVendorQuery($queryParameter),
         ];
 
         $responseBody = $this->brighteApi->cachedPost(
@@ -38,11 +39,35 @@ class FinanceCoreApi extends \BrighteCapital\Api\AbstractApi
         return $this->getVendorFromResponse($data);
     }
 
-    public function createGetVendorQuery(
-        string $vendorId
-    ): string {
-        $queryParameter = "publicId: \"{$vendorId}\"";
+    public function getVendorByLegacyId(
+        int $vendorLegacyId
+    ): ?FinanceCoreVendor {
+        $queryParameter = "legacyId: {$vendorLegacyId}";
+        $requestBody = [
+            'query' => $this->createGetVendorQuery($queryParameter),
+        ];
+        
+        $responseBody = $this->brighteApi->cachedPost(
+            __FUNCTION__,
+            func_get_args(),
+            self::PATH,
+            json_encode($requestBody),
+            '',
+            [],
+            true
+        );
 
+        if ($responseBody == null) {
+            return null;
+        }
+        $data = $responseBody->data->vendor;
+
+        return $this->getVendorFromResponse($data);
+    }
+
+    public function createGetVendorQuery(
+        string $queryParameter
+    ): string {
         return <<<GQL
         query {
             vendor (filter: { $queryParameter }) {

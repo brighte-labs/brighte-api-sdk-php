@@ -255,7 +255,7 @@ GQL;
         self::assertNull($config);
     }
 
-        /**
+    /**
      * @covers ::__construct
      * @covers ::getVendor
      * @covers ::getVendorFromResponse
@@ -265,7 +265,8 @@ GQL;
     {
         $vendorId = $this->expectedVendor['publicId'];
         $response = $this->expectedVendorResponse;
-        $query = $this->financeCoreApi->createGetVendorQuery($vendorId);
+        $queryParameter = "publicId: \"{$vendorId}\"";
+        $query = $this->financeCoreApi->createGetVendorQuery($queryParameter);
 
         $expectedBody = [
             'query' => $query
@@ -292,6 +293,47 @@ GQL;
             ->expects(self::once())->method('cachedPost')
             ->willReturn(null);
         $vendor = $this->financeCoreApi->getVendor($vendorId);
+        self::assertNull($vendor);
+    }
+
+    /**
+     * @covers ::__construct
+     * @covers ::getVendorByLegacyId
+     * @covers ::getVendorFromResponse
+     * @covers ::createGetVendorQuery
+     */
+    public function testGetVendorByLegacyId(): void
+    {
+        $vendorLegacyId = $this->expectedVendor['legacyId'];
+        $response = $this->expectedVendorResponse;
+        $queryParameter = "legacyId: {$vendorLegacyId}";
+        $query = $this->financeCoreApi->createGetVendorQuery($queryParameter);
+
+        $expectedBody = [
+            'query' => $query
+        ];
+
+        $this->brighteApi->expects(self::once())->method('cachedPost')
+            ->with('getVendorByLegacyId', [$vendorLegacyId], self::PATH, json_encode($expectedBody))
+            ->willReturn(json_decode(json_encode($response)));
+        $vendor = $this->financeCoreApi->getVendorByLegacyId($vendorLegacyId);
+        self::assertInstanceOf(FinanceCoreVendor::class, $vendor);
+        self::assertEquals($this->expectedVendor, (array)$vendor);
+    }
+
+    /**
+     * @covers ::__construct
+     * @covers ::getVendorByLegacyId
+     * @covers ::getVendorFromResponse
+     * @covers ::createGetVendorQuery
+     */
+    public function testGetVendorByLegacyIdWhenReturnsNull(): void
+    {
+        $legacyId = $this->expectedVendor['legacyId'];
+        $this->brighteApi
+            ->expects(self::once())->method('cachedPost')
+            ->willReturn(null);
+        $vendor = $this->financeCoreApi->getVendorByLegacyId($legacyId);
         self::assertNull($vendor);
     }
 }
