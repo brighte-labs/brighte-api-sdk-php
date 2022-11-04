@@ -18,4 +18,7 @@ class VendorRebate
 
     /** @var float Percentage */
     public $percentage;
+
+    /** @var string Rebate Type */
+    public $rebateType;
 }

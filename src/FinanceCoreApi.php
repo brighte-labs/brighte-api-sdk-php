@@ -81,6 +81,7 @@ class FinanceCoreApi extends \BrighteCapital\Api\AbstractApi
                 finishDate
                 dollar
                 percentage
+                rebateType
               }
             }
           }
@@ -101,6 +102,7 @@ GQL;
             $vendor->activeRebate->finishDate = $data->activeRebate->finishDate;
             $vendor->activeRebate->dollar = $data->activeRebate->dollar;
             $vendor->activeRebate->percentage = $data->activeRebate->percentage;
+            $vendor->activeRebate->rebateType = $data->activeRebate->rebateType;
         }
         
         return $vendor;
