@@ -372,11 +372,10 @@ GQL;
     public function testGetFinanceAccount(): void
     {
         $id = $this->expectedFinanceAccount['id'];
-        $queryParameter = "id: \"{$id}\"";
         $query = <<<GQL
             query {
                 financeAccount(
-                {$queryParameter}
+                id: "{$id}"
                 ) {
                     id
                     vendorId

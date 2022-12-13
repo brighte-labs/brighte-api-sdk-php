@@ -272,11 +272,10 @@ GQL;
 
     public function getFinanceAccount(string $id): ?Account
     {
-        $queryParameter = "id: \"{$id}\"";
         $query = <<<GQL
             query {
                 financeAccount(
-                {$queryParameter}
+                id: "{$id}"
                 ) {
                     id
                     vendorId
