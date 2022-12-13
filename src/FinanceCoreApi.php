@@ -275,7 +275,7 @@ GQL;
         $query = <<<GQL
             query {
                 financeAccount(
-                id: {$id}
+                id: "{$id}"
                 ) {
                     id
                     vendorId

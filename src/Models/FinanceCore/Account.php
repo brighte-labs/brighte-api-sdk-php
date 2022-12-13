@@ -19,7 +19,6 @@ class Account
     /** @var string Status */
     public $status;
 
-    /** @var VendorRebate[]  Rebates */
+    /** @var VendorRebate[] Rebates */
     public $rebates;
-
 }
