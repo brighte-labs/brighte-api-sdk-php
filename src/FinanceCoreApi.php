@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BrighteCapital\Api;
 
+use BrighteCapital\Api\Models\FinanceCore\Account;
 use BrighteCapital\Api\Models\FinanceCore\Vendor as FinanceCoreVendor;
 use BrighteCapital\Api\Models\FinanceCore\VendorRebate;
 use BrighteCapital\Api\Models\FinancialProductConfig;
@@ -267,5 +268,71 @@ GQL;
         $config->invoiceRequired = $configuration->invoiceRequired;
         $config->manualSettlementRequired = $configuration->manualSettlementRequired;
         return $config;
+    }
+
+    public function getFinanceAccount(string $id): ?Account
+    {
+        $query = <<<GQL
+            query {
+                financeAccount(
+                id: {$id}
+                ) {
+                    id
+                    vendorId
+                    loanTypeId
+                    status
+                    rebates {
+                        startDate
+                        finishDate
+                        dollar
+                        percentage
+                        rebateType
+                    }
+                }
+            }
+GQL;
+
+        $requestBody = [
+            'query' => $query
+        ];
+    
+        $responseBody = $this->brighteApi->cachedPost(
+            __FUNCTION__,
+            func_get_args(),
+            self::PATH,
+            json_encode($requestBody),
+            '',
+            [],
+            true
+        );
+
+        if ($responseBody == null) {
+            return null;
+        }
+        $data = $responseBody->data->financeAccount;
+        
+        return $this->getFinanceAccountFromResponse($data);
+    }
+
+    private function getFinanceAccountFromResponse($data): Account
+    {
+        $account = new Account();
+        $account->id = $data->id;
+        $account->vendorId = $data->vendorId;
+        $account->loanTypeId = $data->loanTypeId;
+        $account->status = $data->status;
+        if (count($data->rebates) > 0) {
+            foreach ($data->rebates as $rebate) {
+                $rebateData = new VendorRebate();
+                $rebateData->startDate = $rebate->startDate;
+                $rebateData->finishDate = $rebate->finishDate;
+                $rebateData->dollar = $rebate->dollar;
+                $rebateData->percentage = $rebate->percentage;
+                $rebateData->rebateType = $rebate->rebateType;
+                $account->rebates[] = $rebateData;
+            }
+        }
+        
+        return $account;
     }
 }

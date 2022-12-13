@@ -8,6 +8,7 @@ use BrighteCapital\Api\BrighteApi;
 use BrighteCapital\Api\Models\FinancialProductConfig;
 use BrighteCapital\Api\Models\FinancialProduct;
 use BrighteCapital\Api\FinanceCoreApi;
+use BrighteCapital\Api\Models\FinanceCore\Account;
 use BrighteCapital\Api\Models\FinanceCore\Vendor as FinanceCoreVendor;
 use BrighteCapital\Api\Models\FinanceCore\VendorRebate;
 use Psr\Log\LoggerInterface;
@@ -33,6 +34,10 @@ class FinanceCoreApiTest extends \PHPUnit\Framework\TestCase
     private $expectedConfig;
 
     private $expectedConfigResponse;
+
+    private $expectedFinanceAccount;
+
+    private $expectedFinanceAccountResponse;
 
     /** @var \PHPUnit\Framework\MockObject\MockObject|CacheItemPoolInterface */
     protected $cache;
@@ -83,6 +88,28 @@ class FinanceCoreApiTest extends \PHPUnit\Framework\TestCase
         $this->expectedVendorResponse = [
             'data' => [
                 'vendor' => $this->expectedVendor,
+            ]
+        ];
+
+        $this->expectedFinanceAccount = [
+            'id' => '1234',
+            'vendorId' => 1,
+            'loanTypeId' => 1,
+            'status' => 'PENDING',
+            'rebates' => [
+                [
+                    'startDate' => '2022-10-04T23:22:34.000Z',
+                    'finishDate' => '2025-10-04T23:22:34.000Z',
+                    'dollar' => 500,
+                    'percentage' => null,
+                    'rebateType' => 'PRICE'
+                ]
+            ]
+        ];
+
+        $this->expectedFinanceAccountResponse = [
+            'data' => [
+                'financeAccount' => $this->expectedFinanceAccount,
             ]
         ];
     }
@@ -335,5 +362,62 @@ GQL;
             ->willReturn(null);
         $vendor = $this->financeCoreApi->getVendorByLegacyId($legacyId);
         self::assertNull($vendor);
+    }
+
+    /**
+     * @covers ::__construct
+     * @covers ::getFinanceAccount
+     * @covers ::getFinanceAccountFromResponse
+     */
+    public function testGetFinanceAccount(): void
+    {
+        $id = $this->expectedFinanceAccount['id'];
+        $query = <<<GQL
+            query {
+                financeAccount(
+                id: {$id}
+                ) {
+                    id
+                    vendorId
+                    loanTypeId
+                    status
+                    rebates {
+                        startDate
+                        finishDate
+                        dollar
+                        percentage
+                        rebateType
+                    }
+                }
+            }
+GQL;
+
+        $expectedBody = [
+            'query' => $query
+        ];
+
+        $expectedResponse = json_decode(json_encode($this->expectedFinanceAccountResponse));
+        $this->brighteApi->expects(self::once())->method('cachedPost')
+            ->with('getFinanceAccount', [$id], self::PATH, json_encode($expectedBody))
+            ->willReturn($expectedResponse);
+        $account = $this->financeCoreApi->getFinanceAccount($id);
+        self::assertInstanceOf(Account::class, $account);
+        self::assertInstanceOf(VendorRebate::class, $account->rebates[0]);
+        self::assertEquals('PRICE', $account->rebates[0]->rebateType);
+    }
+
+    /**
+     * @covers ::__construct
+     * @covers ::getFinanceAccount
+     * @covers ::getFinanceAccountFromResponse
+     */
+    public function testGetFinanceAccountWhenReturnsNull(): void
+    {
+        $id = $this->expectedFinanceAccount['id'];
+        $this->brighteApi
+            ->expects(self::once())->method('cachedPost')
+            ->willReturn(null);
+        $account = $this->financeCoreApi->getFinanceAccount($id);
+        self::assertNull($account);
     }
 }
