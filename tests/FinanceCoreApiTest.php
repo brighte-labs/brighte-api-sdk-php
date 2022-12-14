@@ -93,8 +93,6 @@ class FinanceCoreApiTest extends \PHPUnit\Framework\TestCase
 
         $this->expectedFinanceAccount = [
             'id' => '1234',
-            'vendorId' => 1,
-            'loanTypeId' => 1,
             'status' => 'PENDING',
             'rebates' => [
                 [
@@ -378,8 +376,6 @@ GQL;
                 id: "{$id}"
                 ) {
                     id
-                    vendorId
-                    loanTypeId
                     status
                     rebates {
                         startDate
