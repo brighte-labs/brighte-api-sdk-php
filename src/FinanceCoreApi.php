@@ -278,8 +278,6 @@ GQL;
                 id: "{$id}"
                 ) {
                     id
-                    vendorId
-                    loanTypeId
                     status
                     rebates {
                         startDate
@@ -318,8 +316,6 @@ GQL;
     {
         $account = new Account();
         $account->id = $data->id;
-        $account->vendorId = $data->vendorId;
-        $account->loanTypeId = $data->loanTypeId;
         $account->status = $data->status;
         if (count($data->rebates) > 0) {
             foreach ($data->rebates as $rebate) {

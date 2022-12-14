@@ -10,12 +10,6 @@ class Account
     /** @var string Account ID */
     public $id;
 
-    /** @var int Loan Type Id */
-    public $loanTypeId;
-
-    /** @var int Vendor Id */
-    public $vendorId;
-
     /** @var string Status */
     public $status;
 
