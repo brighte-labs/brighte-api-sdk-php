@@ -138,9 +138,9 @@ class BrighteApi
         $this->accessToken = $body->access_token ?? $body->accessToken;
 
         if ($this->cacheItemPool) {
-            $item = new CacheItem();//$this->jwtCacheKey, true, $this->accessToken
+            $item = $cache->getItem($this->jwtCacheKey); //$this->jwtCacheKey, true, $this->accessToken
             $item->set($this->accessToken);
-            dd($item->getKey());
+            $cache->save();
             $expires = $body->expires_in ?? null;
             $expires = (int) $expires ?: new \DateInterval('PT' . strtoupper($expires ?: "15m"));
             $item->expiresAfter($expires);
@@ -229,7 +229,10 @@ class BrighteApi
 
         $this->cache[$key] = $responseBody;
         if ($this->cacheItemPool) {
-            $item = new CacheItem($key, true, $responseBody);
+            $item = $cache->getItem($key);
+            // $item = new CacheItem($key, true, $responseBody);
+            $item->set($responseBody);
+            $cache->save();
             $expires = new \DateInterval('PT' . strtoupper("15m"));
             $item->expiresAfter($expires);
             $this->cacheItemPool->save($item);
