@@ -39,7 +39,7 @@ class PromotionApiTest extends TestCase
      * @covers \BrighteCapital\Api\Promotion\Models\Application::__construct
      * @covers \BrighteCapital\Api\Promotion\Models\Application::__construct
      */
-    protected function setUp()
+    protected function setUp() : void
     {
         parent::setUp();
         $this->apiClient = $this->createMock(BrighteApi::class);
@@ -237,7 +237,7 @@ class PromotionApiTest extends TestCase
 
 
         $this->response->expects($this->once())
-            ->method('getBody')->willReturn(new \stdClass());
+            ->method('getBody')->willReturn('');
 
         $this->expectException(PromotionException::class);
         $this->api->getPromotion(10);

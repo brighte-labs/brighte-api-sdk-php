@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace BrighteCapital\Api;
 
-use Cache\Adapter\Common\CacheItem;
+//use Cache\Adapter\Common\CacheItem;
+use Symfony\Component\Cache\CacheItem;
 use Fig\Http\Message\StatusCodeInterface;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Uri;
@@ -137,7 +138,9 @@ class BrighteApi
         $this->accessToken = $body->access_token ?? $body->accessToken;
 
         if ($this->cacheItemPool) {
-            $item = new CacheItem($this->jwtCacheKey, true, $this->accessToken);
+            $item = new CacheItem();//$this->jwtCacheKey, true, $this->accessToken
+            $item->set($this->accessToken);
+            dd($item->getKey());
             $expires = $body->expires_in ?? null;
             $expires = (int) $expires ?: new \DateInterval('PT' . strtoupper($expires ?: "15m"));
             $item->expiresAfter($expires);

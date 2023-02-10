@@ -51,7 +51,7 @@ class PromotionApi extends AbstractApi
         }
 
         try {
-            $response = json_decode($response->getBody(), true);
+            $response = json_decode((string)$response->getBody(), true);
 
             return new Application(
                 $response['id'],
@@ -83,6 +83,7 @@ class PromotionApi extends AbstractApi
 
         try {
             $this->jsonMapper->bStrictNullTypes = false;
+
             return $this->jsonMapper->map(json_decode($response->getBody()), new Promotion());
         } catch (\Exception $e) {
             throw new PromotionException(
