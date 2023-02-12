@@ -179,9 +179,9 @@ GQL;
     public function getFinancialProduct(string $id): ?FinancialProduct
     {
         $query = <<<GQL
-            query {
+            query FinancialProduct(\$id: String!) {
                 financialProduct(
-                id: {$id}
+                id: \$id
                 ) {
                     id
                     name
@@ -215,7 +215,10 @@ GQL;
 GQL;
 
         $requestBody = [
-            'query' => $query
+            'query' => $query,
+            'variables' => [
+                'id' => $id
+            ]
         ];
     
         $responseBody = $this->brighteApi->cachedPost(

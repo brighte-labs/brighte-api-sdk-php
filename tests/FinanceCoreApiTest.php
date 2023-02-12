@@ -195,9 +195,9 @@ class FinanceCoreApiTest extends \PHPUnit\Framework\TestCase
         $financialProductId = 'brighte-green-loan';
 
         $query = <<<GQL
-            query {
+            query FinancialProduct(\$id: String!) {
                 financialProduct(
-                id: {$financialProductId}
+                id: \$id
                 ) {
                     id
                     name
@@ -231,7 +231,8 @@ class FinanceCoreApiTest extends \PHPUnit\Framework\TestCase
 GQL;
 
         $expectedBody = [
-            'query' => $query
+            'query' => $query,
+            'variables' => ["id" => "brighte-green-loan"],
         ];
 
         $this->brighteApi->expects(self::once())->method('cachedPost')
