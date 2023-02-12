@@ -137,11 +137,11 @@ GQL;
     }
 
     public function createGetFinancialProductConfigQuery(
-        string $slug,
+        string $financialProductId,
         string $vendorId = null,
         int $version = null
     ): string {
-        $queryParameter = "slug: {$slug}";
+        $queryParameter = "financialProductId: {$financialProductId}";
         if ($vendorId) {
             $queryParameter .= PHP_EOL . "vendorId: \"{$vendorId}\"";
         }
@@ -176,14 +176,14 @@ GQL;
 GQL;
     }
 
-    public function getFinancialProduct(string $slug): ?FinancialProduct
+    public function getFinancialProduct(string $id): ?FinancialProduct
     {
         $query = <<<GQL
             query {
                 financialProduct(
-                slug: {$slug}
+                id: {$id}
                 ) {
-                    slug
+                    id
                     name
                     type
                     customerType
@@ -234,7 +234,7 @@ GQL;
         $data = $responseBody->data->financialProduct;
         
         $product = new FinancialProduct();
-        $product->slug = $data->slug;
+        $product->id = $data->id;
         $product->name = $data->name;
         $product->type = $data->type;
         $product->customerType = $data->customerType;
