@@ -127,6 +127,8 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
             ]
         );
 
+        $blankCache = $this->createMock(CacheItemInterface::class);
+        $this->cache->method('getItem')->willReturn($blankCache);
         $this->cache->expects(self::once())->method('save');
 
         $authResponse = new Response(200, [], json_encode(['access_token' => $this->accessToken, 'expires_in' => 900]));
@@ -192,6 +194,8 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
             $uriData
         );
 
+        $blankCache = $this->createMock(CacheItemInterface::class);
+        $this->cache->method('getItem')->willReturn($blankCache);
         $this->cache->expects(self::exactly(2))->method('save');
         $authResponseExpired = new Response(
             200,
@@ -307,6 +311,9 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
      */
     public function testPost(): void
     {
+
+        $blankCache = $this->createMock(CacheItemInterface::class);
+        $this->cache->method('getItem')->willReturn($blankCache);
         $authResponse = new Response(200, [], json_encode(['access_token' => $this->accessToken]));
         $apiResponse = new Response(200, [], self::SAMPLE_RESPONSE);
         $this->http->expects(self::exactly(2))->method('sendRequest')
@@ -341,8 +348,10 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
         $this->http->expects(self::exactly(1))->method('sendRequest')
             ->with(self::isInstanceOf(Request::class))->willReturn($apiResponse);
 
-        $this->cache->expects(self::once())->method('getItem')->with('test-client_service_jwt')
-            ->willReturn($cachedToken);
+        $this->cache->expects(self::exactly(2))->method('getItem')->withConsecutive(
+            ['test-client_service_jwt'],
+            ['getFinancialProductConfig_p1_p2']
+        )->willReturn($cachedToken);
         $this->cache->expects(self::once())->method('save'); // saves the value to the cache pool
 
         $this->api->cachedPost($functionName, $parameters, self::URL_CHIPMONKS, 'body');
@@ -391,6 +400,8 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
 
         $functionName = 'getFinancialProductConfig';
         $parameters = ['p1', 'p2'];
+        $blankCache = $this->createMock(CacheItemInterface::class);
+        $this->cache->method('getItem')->willReturn($blankCache);
 
         $this->http->expects(self::exactly(2))->method('sendRequest')
             ->with(self::isInstanceOf(Request::class))
@@ -419,6 +430,9 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
         $this->logger->expects(self::once())->method('warning')->with(
             "BrighteCapital\Api\BrighteApi->getFinancialProductConfig: " . $message
         );
+
+        $blankCache = $this->createMock(CacheItemInterface::class);
+        $this->cache->method('getItem')->willReturn($blankCache);
         $this->http->expects(self::exactly(2))->method('sendRequest')
             ->with(self::isInstanceOf(Request::class))
             ->willReturnOnConsecutiveCalls($authResponse, $apiResponse);

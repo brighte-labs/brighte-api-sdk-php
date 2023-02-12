@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace BrighteCapital\Api;
 
-use Cache\Adapter\Common\CacheItem;
 use Fig\Http\Message\StatusCodeInterface;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Uri;
@@ -137,7 +136,8 @@ class BrighteApi
         $this->accessToken = $body->access_token ?? $body->accessToken;
 
         if ($this->cacheItemPool) {
-            $item = new CacheItem($this->jwtCacheKey, true, $this->accessToken);
+            $item = $this->cacheItemPool->getItem($this->jwtCacheKey);
+            $item->set($this->accessToken);
             $expires = $body->expires_in ?? null;
             $expires = (int) $expires ?: new \DateInterval('PT' . strtoupper($expires ?: "15m"));
             $item->expiresAfter($expires);
@@ -226,7 +226,8 @@ class BrighteApi
 
         $this->cache[$key] = $responseBody;
         if ($this->cacheItemPool) {
-            $item = new CacheItem($key, true, $responseBody);
+            $item = $this->cacheItemPool->getItem($key);
+            $item->set($responseBody);
             $expires = new \DateInterval('PT' . strtoupper("15m"));
             $item->expiresAfter($expires);
             $this->cacheItemPool->save($item);
