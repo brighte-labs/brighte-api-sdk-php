@@ -124,19 +124,19 @@ class FinanceCoreApiTest extends \PHPUnit\Framework\TestCase
     {
         return [
             [
-                ['GreenLoan', null, null],
+                ['brighte-green-loan', null, null],
                 $this->expectedConfigResponse,
             ],
             [
-                ['GreenLoan', 'test-vendor-id', null],
+                ['brighte-green-loan', 'test-vendor-id', null],
                 $this->expectedConfigResponse,
             ],
             [
-                ['GreenLoan', null, 1],
+                ['brighte-green-loan', null, 1],
                 $this->expectedConfigResponse,
             ],
             [
-                ['GreenLoan', 'test-vendor-id', 1],
+                ['brighte-green-loan', 'test-vendor-id', 1],
                 $this->expectedConfigResponse,
             ],
         ];
@@ -174,12 +174,12 @@ class FinanceCoreApiTest extends \PHPUnit\Framework\TestCase
      * @covers ::getFinancialProduct
      * @covers ::getFinancialProductConfigFromResponse
      */
-    public function testgetFinancialProduct(): void
+    public function testGetFinancialProduct(): void
     {
         $response = [
             'data' => [
                 'financialProduct' => [
-                    'slug' => 'GreenLoan',
+                    'id' => 'brighte-green-loan',
                     'name' => 'test-product',
                     'type' => 'loan',
                     'customerType' => 'residential',
@@ -192,14 +192,14 @@ class FinanceCoreApiTest extends \PHPUnit\Framework\TestCase
             ]
         ];
 
-        $slug = 'GreenLoan';
+        $financialProductId = 'brighte-green-loan';
 
         $query = <<<GQL
-            query {
+            query FinancialProduct(\$id: String!) {
                 financialProduct(
-                slug: {$slug}
+                id: \$id
                 ) {
-                    slug
+                    id
                     name
                     type
                     customerType
@@ -231,16 +231,17 @@ class FinanceCoreApiTest extends \PHPUnit\Framework\TestCase
 GQL;
 
         $expectedBody = [
-            'query' => $query
+            'query' => $query,
+            'variables' => ["id" => "brighte-green-loan"],
         ];
 
         $this->brighteApi->expects(self::once())->method('cachedPost')
-            ->with('getFinancialProduct', [$slug], self::PATH, json_encode($expectedBody))
+            ->with('getFinancialProduct', [$financialProductId], self::PATH, json_encode($expectedBody))
             ->willReturn(json_decode(json_encode($response)));
-        $product = $this->financeCoreApi->getFinancialProduct($slug);
+        $product = $this->financeCoreApi->getFinancialProduct($financialProductId);
         $config = $product->configuration;
         self::assertInstanceOf(FinancialProduct::class, $product);
-        self::assertEquals('GreenLoan', $product->slug);
+        self::assertEquals('brighte-green-loan', $product->id);
         self::assertEquals('test-product', $product->name);
         self::assertEquals('loan', $product->type);
         self::assertEquals('residential', $product->customerType);
