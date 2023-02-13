@@ -176,10 +176,10 @@ GQL;
 GQL;
     }
 
-    public function getFinancialProduct(string $id): ?FinancialProduct
+    public function getFinancialProduct(string $id, string $promotionCode = null): ?FinancialProduct
     {
         $query = <<<GQL
-            query FinancialProduct(\$id: String!) {
+            query FinancialProduct(\$id: String!, \$promotionCode: String) {
                 financialProduct(
                 id: \$id
                 ) {
@@ -188,7 +188,7 @@ GQL;
                     type
                     customerType
                     loanTypeId
-                    configuration {
+                    configuration(promotionCode: \$promotionCode) {
                       interestRate
                       establishmentFee
                       applicationFee
@@ -217,7 +217,8 @@ GQL;
         $requestBody = [
             'query' => $query,
             'variables' => [
-                'id' => $id
+                'id' => $id,
+                'promotionCode' => $promotionCode,
             ]
         ];
     

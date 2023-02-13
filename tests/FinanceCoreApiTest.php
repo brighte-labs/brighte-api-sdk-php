@@ -195,7 +195,7 @@ class FinanceCoreApiTest extends \PHPUnit\Framework\TestCase
         $financialProductId = 'brighte-green-loan';
 
         $query = <<<GQL
-            query FinancialProduct(\$id: String!) {
+            query FinancialProduct(\$id: String!, \$promotionCode: String) {
                 financialProduct(
                 id: \$id
                 ) {
@@ -204,7 +204,7 @@ class FinanceCoreApiTest extends \PHPUnit\Framework\TestCase
                     type
                     customerType
                     loanTypeId
-                    configuration {
+                    configuration(promotionCode: \$promotionCode) {
                       interestRate
                       establishmentFee
                       applicationFee
@@ -232,13 +232,13 @@ GQL;
 
         $expectedBody = [
             'query' => $query,
-            'variables' => ["id" => "brighte-green-loan"],
+            'variables' => ["id" => "brighte-green-loan", "promotionCode" => "test-promotion-code"],
         ];
 
         $this->brighteApi->expects(self::once())->method('cachedPost')
-            ->with('getFinancialProduct', [$financialProductId], self::PATH, json_encode($expectedBody))
+            ->with('getFinancialProduct', [$financialProductId, 'test-promotion-code'], self::PATH, json_encode($expectedBody))
             ->willReturn(json_decode(json_encode($response)));
-        $product = $this->financeCoreApi->getFinancialProduct($financialProductId);
+        $product = $this->financeCoreApi->getFinancialProduct($financialProductId, 'test-promotion-code');
         $config = $product->configuration;
         self::assertInstanceOf(FinancialProduct::class, $product);
         self::assertEquals('brighte-green-loan', $product->id);
