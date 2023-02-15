@@ -124,21 +124,25 @@ class FinanceCoreApiTest extends \PHPUnit\Framework\TestCase
     {
         return [
             [
-                ['brighte-green-loan', null, null],
+                ['brighte-green-loan', null, null, null],
                 $this->expectedConfigResponse,
             ],
             [
-                ['brighte-green-loan', 'test-vendor-id', null],
+                ['brighte-green-loan', 'test-vendor-id', null, null],
                 $this->expectedConfigResponse,
             ],
             [
-                ['brighte-green-loan', null, 1],
+                ['brighte-green-loan', null, 1, null],
                 $this->expectedConfigResponse,
             ],
             [
-                ['brighte-green-loan', 'test-vendor-id', 1],
+                ['brighte-green-loan', 'test-vendor-id', 1, null],
                 $this->expectedConfigResponse,
             ],
+            [
+                ['brighte-green-loan', null, null, 'test-promo-code'],
+                $this->expectedConfigResponse,
+            ]
         ];
     }
 
@@ -146,27 +150,124 @@ class FinanceCoreApiTest extends \PHPUnit\Framework\TestCase
      * @covers ::__construct
      * @covers ::getFinancialProductConfig
      * @covers ::getFinancialProductConfigFromResponse
-     * @covers ::createGetFinancialProductConfigQuery
      * @dataProvider financialProductConfigProvider
      */
-    public function testgetFinancialProductConfig($input, $response): void
+    public function testGetFinancialProductConfig($input, $response): void
     {
         $slug = $input[0];
         $vendorId = $input[1];
         $version = $input[2];
+        $promoCode = $input[3];
 
-        $query = $this->financeCoreApi->createGetFinancialProductConfigQuery($slug, $vendorId, $version);
+        $query = <<<GQL
+            query {
+                financialProductConfiguration(
+                    financialProductId: \$financialProductId,
+                    vendorId: \$vendorId,
+                    version: \$version,
+                    promoCode: \$promoCode
+                ) {
+                    interestRate
+                    establishmentFee
+                    applicationFee
+                    annualFee
+                    weeklyAccountFee
+                    latePaymentFee
+                    introducerFee
+                    enableExpressSettlement
+                    minFinanceAmount
+                    maxFinanceAmount
+                    minRepaymentMonth
+                    maxRepaymentMonth
+                    forceCcaProcess
+                    defaultPaymentCycle
+                    invoiceRequired
+                    manualSettlementRequired
+                    version
+                }
+            }
+GQL;
 
         $expectedBody = [
-            'query' => $query
+            'query' => $query,
+            'variables' => [
+                "financialProductId" => $slug,
+                "vendorId" => $vendorId,
+                "version" => $version,
+                "promoCode" => $promoCode,
+            ],
         ];
 
         $this->brighteApi->expects(self::once())->method('cachedPost')
             ->with('getFinancialProductConfig', $input, self::PATH, json_encode($expectedBody))
             ->willReturn(json_decode(json_encode($response)));
-        $config = $this->financeCoreApi->getFinancialProductConfig($slug, $vendorId, $version);
+        $config = $this->financeCoreApi->getFinancialProductConfig($slug, $vendorId, $version, $promoCode);
         self::assertInstanceOf(FinancialProductConfig::class, $config);
         self::assertEquals($this->expectedConfig, (array)$config);
+    }
+
+    /**
+     * @covers ::__construct
+     * @covers ::getFinancialProductConfig
+     * @covers ::getFinancialProductConfigFromResponse
+     */
+    public function testGetFinancialProductConfigWhenPromotionDoesNotExists(): void
+    {
+        $slug = 'brighte-green-loan';
+        $vendorId = null;
+        $version = null;
+        $promoCode = 'non-existent-promo-code';
+
+        $input = [ 
+            $slug = 'brighte-green-loan', $vendorId = null, $version = null, $promoCode = 'non-existent-promo-code' 
+        ];
+
+        $query = <<<GQL
+            query {
+                financialProductConfiguration(
+                    financialProductId: \$financialProductId,
+                    vendorId: \$vendorId,
+                    version: \$version,
+                    promoCode: \$promoCode
+                ) {
+                    interestRate
+                    establishmentFee
+                    applicationFee
+                    annualFee
+                    weeklyAccountFee
+                    latePaymentFee
+                    introducerFee
+                    enableExpressSettlement
+                    minFinanceAmount
+                    maxFinanceAmount
+                    minRepaymentMonth
+                    maxRepaymentMonth
+                    forceCcaProcess
+                    defaultPaymentCycle
+                    invoiceRequired
+                    manualSettlementRequired
+                    version
+                }
+            }
+GQL;
+
+        $expectedBody = [
+            'query' => $query,
+            'variables' => [
+                "financialProductId" => $slug,
+                "vendorId" => $vendorId,
+                "version" => $version,
+                "promoCode" => $promoCode,
+            ],
+        ];
+
+        $expectedResponse = null;
+
+        $this->brighteApi->expects(self::once())->method('cachedPost')
+            ->with('getFinancialProductConfig', $input, self::PATH, json_encode($expectedBody))
+            ->willReturn(json_decode(json_encode($expectedResponse)));
+        $config = $this->financeCoreApi->getFinancialProductConfig($slug, $vendorId, $version, $promoCode);
+        self::assertNull($config);
     }
 
     /**
@@ -256,7 +357,6 @@ GQL;
      * @covers ::__construct
      * @covers ::getFinancialProductConfig
      * @covers ::getFinancialProductConfigFromResponse
-     * @covers ::createGetFinancialProductConfigQuery
      */
     public function testgetFinancialProductConfigWhenReturnsNull(): void
     {
