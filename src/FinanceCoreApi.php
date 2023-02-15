@@ -141,7 +141,7 @@ GQL;
         string $vendorId = null,
         int $version = null
     ): string {
-        $queryParameter = "financialProductId: {$financialProductId}";
+        $queryParameter = "financialProductId: \"{$financialProductId}\"";
         if ($vendorId) {
             $queryParameter .= PHP_EOL . "vendorId: \"{$vendorId}\"";
         }
