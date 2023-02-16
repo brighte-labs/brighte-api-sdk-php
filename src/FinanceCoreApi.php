@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BrighteCapital\Api;
 
+use BrighteCapital\Api\Models\Category;
 use BrighteCapital\Api\Models\FinanceCore\Account;
 use BrighteCapital\Api\Models\FinanceCore\Vendor as FinanceCoreVendor;
 use BrighteCapital\Api\Models\FinanceCore\VendorRebate;
@@ -337,5 +338,55 @@ GQL;
         }
         
         return $account;
+    }
+
+    /**
+     * getCategoryById
+     *
+     * @param  int $categoryId
+     * @return Category|null
+     */
+    public function getCategoryById(int $categoryId): ?Category
+    {
+        $query = <<<GQL
+            query GetCategory($categoryId: Int!) {
+                category(id: $categoryId) {
+                    id
+                    slug
+                    name
+                    group
+                }
+            }
+GQL;
+        $requestBody = [
+            'query' => $query,
+            'variables' => [
+                'categoryId' => $categoryId
+            ]
+        ];
+
+        $responseBody = $this->brighteApi->cachedPost(
+            __FUNCTION__,
+            func_get_args(),
+            self::PATH,
+            json_encode($requestBody),
+            '',
+            [],
+            true
+        );
+
+        if ($responseBody == null) {
+            return null;
+        }
+
+        $data = $responseBody->data->category;
+
+        $category = new Category();
+        $category->id = $data->id;
+        $category->name = $data->name;
+        $category->slug = $data->slug;
+        $category->group = $data->group;
+
+        return $category;
     }
 }

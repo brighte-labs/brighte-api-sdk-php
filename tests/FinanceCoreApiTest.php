@@ -8,6 +8,7 @@ use BrighteCapital\Api\BrighteApi;
 use BrighteCapital\Api\Models\FinancialProductConfig;
 use BrighteCapital\Api\Models\FinancialProduct;
 use BrighteCapital\Api\FinanceCoreApi;
+use BrighteCapital\Api\Models\Category;
 use BrighteCapital\Api\Models\FinanceCore\Account;
 use BrighteCapital\Api\Models\FinanceCore\Vendor as FinanceCoreVendor;
 use BrighteCapital\Api\Models\FinanceCore\VendorRebate;
@@ -38,6 +39,8 @@ class FinanceCoreApiTest extends \PHPUnit\Framework\TestCase
     private $expectedFinanceAccount;
 
     private $expectedFinanceAccountResponse;
+
+    private $expectedCategoryByIdResponse;
 
     /** @var \PHPUnit\Framework\MockObject\MockObject|CacheItemPoolInterface */
     protected $cache;
@@ -109,6 +112,17 @@ class FinanceCoreApiTest extends \PHPUnit\Framework\TestCase
         $this->expectedFinanceAccountResponse = [
             'data' => [
                 'financeAccount' => $this->expectedFinanceAccount,
+            ]
+        ];
+
+        $this->expectedCategoryByIdResponse = [
+            'data' => [
+                'category' => [
+                    'id' => 1,
+                    'slug' => 'solar-system',
+                    'name' => 'Solar System',
+                    'group' => 'Green',
+                ]
             ]
         ];
     }
@@ -528,5 +542,61 @@ GQL;
             ->willReturn(null);
         $account = $this->financeCoreApi->getFinanceAccount($id);
         self::assertNull($account);
+    }
+    
+    /**
+     * @covers ::__construct
+     * @covers ::getCategoryById
+     */
+    public function testGetCategoryById(): void
+    {
+        $categoryId = 1;
+
+        $query = <<<GQL
+            query GetCategory($categoryId: Int!) {
+                category(id: $categoryId) {
+                    id
+                    slug
+                    name
+                    group
+                }
+            }
+GQL;
+        $expectedBody = [
+            'query' => $query,
+            'variables' => [
+                'categoryId' => $categoryId
+            ]
+        ];
+
+        $this->brighteApi->expects(self::once())->method('cachedPost')
+            ->with(
+                'getCategoryById',
+                [$categoryId],
+                self::PATH,
+                json_encode($expectedBody)
+            )
+            ->willReturn(json_decode(json_encode($this->expectedCategoryByIdResponse)));
+
+        $category = $this->financeCoreApi->getCategoryById($categoryId);
+        self::assertInstanceOf(Category::class, $category);
+        self::assertEquals($this->expectedCategoryByIdResponse['data']['category']['id'], $category->id);
+        self::assertEquals($this->expectedCategoryByIdResponse['data']['category']['slug'], $category->slug);
+        self::assertEquals($this->expectedCategoryByIdResponse['data']['category']['name'], $category->name);
+        self::assertEquals($this->expectedCategoryByIdResponse['data']['category']['group'], $category->group);
+    }
+
+    /**
+     * @covers ::__construct
+     * @covers ::getCategoryById
+     */
+    public function testGetCategoryByIdReturnsNull(): void
+    {
+        $categoryId = 100;
+        $this->brighteApi
+            ->expects(self::once())->method('cachedPost')
+            ->willReturn(null);
+        $category = $this->financeCoreApi->getCategoryById($categoryId);
+        self::assertNull($category);
     }
 }
