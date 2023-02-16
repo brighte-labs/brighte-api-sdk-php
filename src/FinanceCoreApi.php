@@ -112,47 +112,17 @@ GQL;
     public function getFinancialProductConfig(
         string $slug,
         string $vendorId = null,
-        int $version = null
+        int $version = null,
+        string $promoCode = null
     ): ?FinancialProductConfig {
-        $requestBody = [
-            'query' => $this->createGetFinancialProductConfigQuery($slug, $vendorId, $version),
-        ];
 
-        $responseBody = $this->brighteApi->cachedPost(
-            __FUNCTION__,
-            func_get_args(),
-            self::PATH,
-            json_encode($requestBody),
-            '',
-            [],
-            true
-        );
-
-        if ($responseBody == null) {
-            return null;
-        }
-        $data = $responseBody->data->financialProductConfiguration;
-
-        return $this->getFinancialProductConfigFromResponse($data);
-    }
-
-    public function createGetFinancialProductConfigQuery(
-        string $financialProductId,
-        string $vendorId = null,
-        int $version = null
-    ): string {
-        $queryParameter = "financialProductId: \"{$financialProductId}\"";
-        if ($vendorId) {
-            $queryParameter .= PHP_EOL . "vendorId: \"{$vendorId}\"";
-        }
-        if ($version) {
-            $queryParameter .= PHP_EOL . "version: {$version}";
-        }
-
-        return <<<GQL
+        $query = <<<GQL
             query {
                 financialProductConfiguration(
-                {$queryParameter}
+                    financialProductId: \$financialProductId,
+                    vendorId: \$vendorId,
+                    version: \$version,
+                    promoCode: \$promoCode
                 ) {
                     interestRate
                     establishmentFee
@@ -174,6 +144,33 @@ GQL;
                 }
             }
 GQL;
+
+        $requestBody = [
+            'query' => $query,
+            'variables' => [
+                'financialProductId' => $slug,
+                'vendorId' => $vendorId,
+                'version' => $version,
+                'promoCode' => $promoCode
+            ]
+        ];
+
+        $responseBody = $this->brighteApi->cachedPost(
+            __FUNCTION__,
+            func_get_args(),
+            self::PATH,
+            json_encode($requestBody),
+            '',
+            [],
+            true
+        );
+
+        if ($responseBody == null) {
+            return null;
+        }
+        $data = $responseBody->data->financialProductConfiguration;
+
+        return $this->getFinancialProductConfigFromResponse($data);
     }
 
     public function getFinancialProduct(string $id): ?FinancialProduct
