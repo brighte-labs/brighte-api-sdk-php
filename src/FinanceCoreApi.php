@@ -117,32 +117,36 @@ GQL;
     ): ?FinancialProductConfig {
 
         $query = <<<GQL
-            query {
-                financialProductConfiguration(
-                    financialProductId: \$financialProductId,
-                    vendorId: \$vendorId,
-                    version: \$version,
-                    promoCode: \$promoCode
-                ) {
-                    interestRate
-                    establishmentFee
-                    applicationFee
-                    annualFee
-                    weeklyAccountFee
-                    latePaymentFee
-                    introducerFee
-                    enableExpressSettlement
-                    minFinanceAmount
-                    maxFinanceAmount
-                    minRepaymentMonth
-                    maxRepaymentMonth
-                    forceCcaProcess
-                    defaultPaymentCycle
-                    invoiceRequired
-                    manualSettlementRequired
-                    version
-                }
+        query FinancialProductConfiguration(
+            \$financialProductId: String, 
+            \$version: Int, 
+            \$vendorId: String, 
+            \$promoCode: String) {
+            financialProductConfiguration(
+            financialProductId: \$financialProductId,
+            version: \$version,
+            vendorId: \$vendorId,
+            promoCode: \$promoCode
+            ) {
+            establishmentFee
+            interestRate
+            applicationFee
+            annualFee
+            weeklyAccountFee
+            latePaymentFee
+            introducerFee
+            enableExpressSettlement
+            minFinanceAmount
+            maxFinanceAmount
+            minRepaymentMonth
+            maxRepaymentMonth
+            forceCcaProcess
+            defaultPaymentCycle
+            invoiceRequired
+            manualSettlementRequired
+            version
             }
+        }
 GQL;
 
         $requestBody = [

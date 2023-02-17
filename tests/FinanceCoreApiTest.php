@@ -160,32 +160,36 @@ class FinanceCoreApiTest extends \PHPUnit\Framework\TestCase
         $promoCode = $input[3];
 
         $query = <<<GQL
-            query {
-                financialProductConfiguration(
-                    financialProductId: \$financialProductId,
-                    vendorId: \$vendorId,
-                    version: \$version,
-                    promoCode: \$promoCode
-                ) {
-                    interestRate
-                    establishmentFee
-                    applicationFee
-                    annualFee
-                    weeklyAccountFee
-                    latePaymentFee
-                    introducerFee
-                    enableExpressSettlement
-                    minFinanceAmount
-                    maxFinanceAmount
-                    minRepaymentMonth
-                    maxRepaymentMonth
-                    forceCcaProcess
-                    defaultPaymentCycle
-                    invoiceRequired
-                    manualSettlementRequired
-                    version
-                }
+        query FinancialProductConfiguration(
+            \$financialProductId: String, 
+            \$version: Int, 
+            \$vendorId: String, 
+            \$promoCode: String) {
+            financialProductConfiguration(
+            financialProductId: \$financialProductId,
+            version: \$version,
+            vendorId: \$vendorId,
+            promoCode: \$promoCode
+            ) {
+            establishmentFee
+            interestRate
+            applicationFee
+            annualFee
+            weeklyAccountFee
+            latePaymentFee
+            introducerFee
+            enableExpressSettlement
+            minFinanceAmount
+            maxFinanceAmount
+            minRepaymentMonth
+            maxRepaymentMonth
+            forceCcaProcess
+            defaultPaymentCycle
+            invoiceRequired
+            manualSettlementRequired
+            version
             }
+        }
 GQL;
 
         $expectedBody = [
@@ -218,37 +222,41 @@ GQL;
         $version = null;
         $promoCode = 'non-existent-promo-code';
 
-        $input = [ 
-            $slug = 'brighte-green-loan', $vendorId = null, $version = null, $promoCode = 'non-existent-promo-code' 
+        $input = [
+            $slug = 'brighte-green-loan', $vendorId = null, $version = null, $promoCode = 'non-existent-promo-code'
         ];
 
         $query = <<<GQL
-            query {
-                financialProductConfiguration(
-                    financialProductId: \$financialProductId,
-                    vendorId: \$vendorId,
-                    version: \$version,
-                    promoCode: \$promoCode
-                ) {
-                    interestRate
-                    establishmentFee
-                    applicationFee
-                    annualFee
-                    weeklyAccountFee
-                    latePaymentFee
-                    introducerFee
-                    enableExpressSettlement
-                    minFinanceAmount
-                    maxFinanceAmount
-                    minRepaymentMonth
-                    maxRepaymentMonth
-                    forceCcaProcess
-                    defaultPaymentCycle
-                    invoiceRequired
-                    manualSettlementRequired
-                    version
-                }
+        query FinancialProductConfiguration(
+            \$financialProductId: String, 
+            \$version: Int, 
+            \$vendorId: String, 
+            \$promoCode: String) {
+            financialProductConfiguration(
+            financialProductId: \$financialProductId,
+            version: \$version,
+            vendorId: \$vendorId,
+            promoCode: \$promoCode
+            ) {
+            establishmentFee
+            interestRate
+            applicationFee
+            annualFee
+            weeklyAccountFee
+            latePaymentFee
+            introducerFee
+            enableExpressSettlement
+            minFinanceAmount
+            maxFinanceAmount
+            minRepaymentMonth
+            maxRepaymentMonth
+            forceCcaProcess
+            defaultPaymentCycle
+            invoiceRequired
+            manualSettlementRequired
+            version
             }
+        }
 GQL;
 
         $expectedBody = [
