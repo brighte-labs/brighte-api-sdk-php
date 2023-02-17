@@ -56,4 +56,7 @@ class FinancialProductConfig
     
     /** @var bool manual settlement required */
     public $manualSettlementRequired;
+
+    /** @var bool risk based pricing enabled */
+    public $riskBasedPricing;
 }

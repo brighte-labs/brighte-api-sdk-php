@@ -113,6 +113,7 @@ class FinanceCorePactTest extends \PHPUnit\Framework\TestCase
                     defaultPaymentCycle
                     invoiceRequired
                     manualSettlementRequired
+                    riskBasedPricing
                     version
                 }
             }
@@ -190,6 +191,7 @@ GQL;
                       defaultPaymentCycle
                       invoiceRequired
                       manualSettlementRequired
+                      riskBasedPricing
                       version
                     }
                     categoryGroup

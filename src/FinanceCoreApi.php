@@ -144,6 +144,7 @@ GQL;
             defaultPaymentCycle
             invoiceRequired
             manualSettlementRequired
+            riskBasedPricing
             version
             }
         }
@@ -206,6 +207,7 @@ GQL;
                       defaultPaymentCycle
                       invoiceRequired
                       manualSettlementRequired
+                      riskBasedPricing
                       version
                     }
                     categoryGroup
@@ -271,6 +273,7 @@ GQL;
         $config->defaultPaymentCycle = $configuration->defaultPaymentCycle;
         $config->invoiceRequired = $configuration->invoiceRequired;
         $config->manualSettlementRequired = $configuration->manualSettlementRequired;
+        $config->riskBasedPricing = $configuration->riskBasedPricing;
         return $config;
     }
 

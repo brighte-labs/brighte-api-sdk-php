@@ -62,6 +62,7 @@ class FinanceCoreApiTest extends \PHPUnit\Framework\TestCase
             'defaultPaymentCycle' => 'weekly',
             'invoiceRequired' => true,
             'manualSettlementRequired' => true,
+            'riskBasedPricing' => true,
             'version' => 1,
         ];
 
@@ -187,6 +188,7 @@ class FinanceCoreApiTest extends \PHPUnit\Framework\TestCase
             defaultPaymentCycle
             invoiceRequired
             manualSettlementRequired
+            riskBasedPricing
             version
             }
         }
@@ -254,6 +256,7 @@ GQL;
             defaultPaymentCycle
             invoiceRequired
             manualSettlementRequired
+            riskBasedPricing
             version
             }
         }
@@ -330,6 +333,7 @@ GQL;
                       defaultPaymentCycle
                       invoiceRequired
                       manualSettlementRequired
+                      riskBasedPricing
                       version
                     }
                     categoryGroup
