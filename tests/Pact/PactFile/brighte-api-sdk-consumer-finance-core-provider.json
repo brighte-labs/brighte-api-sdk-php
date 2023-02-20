@@ -47,7 +47,8 @@
               "forceCcaProcess": true,
               "defaultPaymentCycle": "weekly",
               "invoiceRequired": true,
-              "manualSettlementRequired": true
+              "manualSettlementRequired": true,
+              "riskBasedPricing": true
             }
           }
         },
