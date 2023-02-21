@@ -6,7 +6,6 @@ namespace BrighteCapital\Api\Models;
 
 class Category
 {
-
     /** @var int Entity ID */
     public $id;
 
