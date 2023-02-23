@@ -349,8 +349,8 @@ GQL;
     public function getCategoryById(int $categoryId): ?Category
     {
         $query = <<<GQL
-            query GetCategory($categoryId: Int!) {
-                category(id: $categoryId) {
+            query GetCategory(\$categoryId: Int) {
+                category(id: \$categoryId) {
                     id
                     slug
                     name
