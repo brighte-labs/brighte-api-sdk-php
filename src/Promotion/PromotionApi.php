@@ -52,6 +52,11 @@ class PromotionApi extends AbstractApi
 
         try {
             $response = json_decode($response->getBody(), true);
+            if (!array_key_exists('id', $response)) {
+                throw new PromotionException(
+                    'Failed to parse response after promo application - no id found in response'
+                );
+            }
 
             return new Application(
                 $response['id'],

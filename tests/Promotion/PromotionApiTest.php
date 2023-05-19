@@ -39,7 +39,7 @@ class PromotionApiTest extends TestCase
      * @covers \BrighteCapital\Api\Promotion\Models\Application::__construct
      * @covers \BrighteCapital\Api\Promotion\Models\Application::__construct
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->apiClient = $this->createMock(BrighteApi::class);
@@ -97,7 +97,6 @@ class PromotionApiTest extends TestCase
      * @covers \BrighteCapital\Api\Promotion\Models\Application::toArray
      * @covers \BrighteCapital\Api\Promotion\Models\Application::__construct
      * @covers \BrighteCapital\Api\Exceptions\BadRequestException::__construct
-     * @covers \BrighteCapital\Api\Promotion\Exceptions\PromotionException::__construct
      */
     public function testApplyPromotionThrowsPromotionException()
     {
@@ -153,7 +152,6 @@ class PromotionApiTest extends TestCase
      * @covers \BrighteCapital\Api\AbstractApi::__construct
      * @covers \BrighteCapital\Api\Promotion\Models\Application::toArray
      * @covers \BrighteCapital\Api\Promotion\Models\Application::__construct
-     * @covers \BrighteCapital\Api\Promotion\Exceptions\PromotionException::__construct
      */
     public function testApplyPromotionThrowsExceptionWhenMappingJsonResponseToPromotionEntity()
     {
@@ -169,7 +167,7 @@ class PromotionApiTest extends TestCase
 
         $this->response->expects($this->exactly(1))
             ->method('getBody')
-            ->willReturn([]);
+            ->willReturn('[]');
 
         $this->expectException(PromotionException::class);
         $this->api->applyPromotion($this->application);
@@ -224,7 +222,6 @@ class PromotionApiTest extends TestCase
      * @covers \BrighteCapital\Api\Promotion\PromotionApi::getPromotion
      * @covers \BrighteCapital\Api\AbstractApi::__construct
      * @covers \BrighteCapital\Api\Promotion\Models\Application::__construct
-     * @covers \BrighteCapital\Api\Promotion\Exceptions\PromotionException::__construct
      */
     public function testGetPromotionThrowsPromotionException()
     {
@@ -237,7 +234,7 @@ class PromotionApiTest extends TestCase
 
 
         $this->response->expects($this->once())
-            ->method('getBody')->willReturn(new \stdClass());
+            ->method('getBody')->willReturn('');
 
         $this->expectException(PromotionException::class);
         $this->api->getPromotion(10);
@@ -288,7 +285,6 @@ class PromotionApiTest extends TestCase
 
     /**
      * @covers   \BrighteCapital\Api\Promotion\PromotionApi::getPromotions
-     * @covers   \BrighteCapital\Api\Promotion\Exceptions\PromotionException::__construct
      * @uses     \BrighteCapital\Api\Promotion\Models\Application::__construct
      * @uses     \BrighteCapital\Api\AbstractApi::__construct
      * @uses     \BrighteCapital\Api\BrighteApi::get
