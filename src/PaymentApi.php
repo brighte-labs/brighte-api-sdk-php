@@ -11,11 +11,12 @@ class PaymentApi extends \BrighteCapital\Api\AbstractApi
 {
 
     public const PATH = '/payment';
+    public const AUDIENCE = '/payments';
 
     public function getMethod(string $methodId, int $userId): ?PaymentMethod
     {
         $params = http_build_query(compact('userId'));
-        $response = $this->brighteApi->get(sprintf('%s-methods/%s', self::PATH, $methodId), $params);
+        $response = $this->brighteApi->get(sprintf('%s-methods/%s', self::PATH, $methodId), $params, [], self::AUDIENCE);
         
         if ($response->getStatusCode() !== StatusCodeInterface::STATUS_OK) {
             $this->logResponse(__FUNCTION__, $response);

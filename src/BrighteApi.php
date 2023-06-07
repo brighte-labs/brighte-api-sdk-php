@@ -48,6 +48,9 @@ class BrighteApi
     /** @var string accessToken */
     protected $accessToken;
 
+    /** @var string brighteUri */
+    protected $brighteUri;
+
     /** @var string[] accessTokens */
     protected $accessTokens = [];
 
@@ -79,8 +82,6 @@ class BrighteApi
         array $config,
         ?CacheItemPoolInterface $cache
     ) {
-        $this->setUri($config['uri'], self::BRIGHTE_API);
-        $this->setUri('https://' . $config['auth0_domain'], self::AUTH0);
         $this->clientId = $config['client_id'] ?? null;
         $this->clientSecret = $config['client_secret'] ?? null;
         $this->apiKey = $config['key'] ?? null;
@@ -88,6 +89,9 @@ class BrighteApi
         $this->logger = $log;
         $this->cacheItemPool = $cache;
         $this->jwtCacheKey = $this->clientId . '_' . self::JWT_SERVICE_CACHE_KEY;
+        $this->brighteUri = $config['uri'];
+        $this->setUri($this->brighteUri, self::BRIGHTE_API);
+        $this->setUri('https://' . $config['auth0_domain'], self::AUTH0);
     }
 
     public function getToken(string $audience): string
@@ -124,7 +128,7 @@ class BrighteApi
                 'client_id' => $this->clientId,
                 'client_secret' => $this->clientSecret,
                 'grant_type' => 'client_credentials',
-                'audience' => $audience,
+                'audience' => $this->brighteUri . UriResolver::removeDotSegments($this->prefix[self::BRIGHTE_API] . $audience),
             ];
             $authBody = \json_encode($options);
             $response = $this->post($authPath, $authBody, '', [], null, self::AUTH0);
