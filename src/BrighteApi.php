@@ -48,9 +48,6 @@ class BrighteApi
     /** @var string accessToken */
     protected $accessToken;
 
-    /** @var string brighteUri */
-    protected $brighteUri;
-
     /** @var string[] accessTokens */
     protected $accessTokens = [];
 
@@ -89,8 +86,7 @@ class BrighteApi
         $this->logger = $log;
         $this->cacheItemPool = $cache;
         $this->jwtCacheKey = $this->clientId . '_' . self::JWT_SERVICE_CACHE_KEY;
-        $this->brighteUri = $config['uri'];
-        $this->setUri($this->brighteUri, self::BRIGHTE_API);
+        $this->setUri($config['uri'], self::BRIGHTE_API);
         $this->setUri('https://' . $config['auth0_domain'], self::AUTH0);
     }
 
@@ -128,14 +124,14 @@ class BrighteApi
                 'client_id' => $this->clientId,
                 'client_secret' => $this->clientSecret,
                 'grant_type' => 'client_credentials',
-                'audience' => $this->brighteUri . UriResolver::removeDotSegments($this->prefix[self::BRIGHTE_API] . $audience),
+                'audience' => $this->buildAudience($audience),
             ];
             $authBody = \json_encode($options);
             $response = $this->post($authPath, $authBody, '', [], null, self::AUTH0);
         } else {
             $authPath = '/identity/authenticate';
             $authBody = json_encode(['apiKey' => $this->apiKey]);
-            $response = $this->post($authPath, $authBody, '', [], null, self::BRIGHTE_API);
+            $response = $this->post($authPath, $authBody, '', [], null);
         }
 
         $body = json_decode((string) $response->getBody());
@@ -362,6 +358,16 @@ class BrighteApi
     }
 
     /**
+     * @param string $audience
+     * @return string
+     */
+    private function buildAudience($audience): string
+    {
+        $path = UriResolver::removeDotSegments($this->prefix[self::BRIGHTE_API] . $audience);
+        return $this->scheme[self::BRIGHTE_API] . '://' . $this->host[self::BRIGHTE_API] . $path;
+    }
+
+    /**
      * Remove any invalid characters for cache key
      * message: key contains one or more characters reserved for future extension: {}()/\\@:
      * @param string $audience
@@ -372,7 +378,12 @@ class BrighteApi
         return str_replace(['https://', '/'], ['', '_'], $audience);
     }
 
-    private function setUri($uri, $service): void
+    /**
+     * @param string $uri
+     * @param string $service
+     * @return void
+     */
+    private function setUri(string $uri, string $service): void
     {
         $uri = new Uri($uri);
         $this->scheme[$service] = $uri->getScheme();
