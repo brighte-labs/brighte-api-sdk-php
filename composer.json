@@ -25,7 +25,9 @@
         "psr/http-factory": "^1.0",
         "fig/http-message-util": "^1.1",
         "guzzlehttp/psr7": "^1.6",
-        "netresearch/jsonmapper": "^3.1"
+        "netresearch/jsonmapper": "^3.1",
+        "auth0/auth0-php": "^8.6",
+        "http-interop/http-factory-guzzle": "^1.2"
     },
     "scripts": {
         "cs": "phpcs -p",

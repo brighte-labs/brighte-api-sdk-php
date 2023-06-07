@@ -12,6 +12,7 @@ use Psr\Cache\CacheItemPoolInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
+use Auth0\SDK\Auth0;
 use stdClass;
 
 class BrighteApi
@@ -46,6 +47,9 @@ class BrighteApi
     /** @var string accessToken */
     protected $accessToken;
 
+    /** @var string[] accessTokens */
+    protected $accessTokens = [];
+
     /** @var \Psr\Http\Client\ClientInterface HTTP client */
     protected $http;
 
@@ -58,8 +62,11 @@ class BrighteApi
     /** @var CacheItemPoolInterface|null */
     protected $cacheItemPool;
 
-    /** @var string accessToken */
+    /** @var string jwtCacheKey */
     protected $jwtCacheKey;
+
+    /** @var \Auth0\SDK\Auth0 auth0 */
+    protected $auth0;
 
     /**
      * @param \Psr\Http\Client\ClientInterface $http HTTP client
@@ -86,28 +93,35 @@ class BrighteApi
         $this->logger = $log;
         $this->cacheItemPool = $cache;
         $this->jwtCacheKey = $this->clientId . '_' . self::JWT_SERVICE_CACHE_KEY;
+        $this->auth0 = new Auth0([
+            'domain' => $config['auth0_domain'],
+            'clientId' => $this->clientId,
+            'clientSecret' => $this->clientSecret,
+        ]);
     }
 
-    public function getToken(): string
+    public function getToken(string $audience): string
     {
+        $this->accessToken = $this->accessTokens[$audience] ?? null;
         if ($this->accessToken) {
-            if (!$this->isTokenExpired($this->accessToken)) {
+            if (!self::isTokenExpired($this->accessToken)) {
                 return $this->accessToken;
             }
 
-            $this->cacheItemPool->deleteItem($this->jwtCacheKey);
+            $this->cacheItemPool->deleteItem($this->jwtCacheKey . '_' . self::cleanAudience($audience));
         }
 
-        $this->authenticate();
+        $this->authenticate($audience);
 
         return $this->accessToken;
     }
 
-    protected function authenticate(): void
+    protected function authenticate(string $audience): void
     {
-        if ($this->cacheItemPool && $accessToken = $this->cacheItemPool->getItem($this->jwtCacheKey)) {
-            $this->accessToken = $accessToken->get();
-            if ($this->accessToken) {
+
+        if ($this->cacheItemPool && $accessToken = $this->cacheItemPool->getItem($this->jwtCacheKey . '_' . self::cleanAudience($audience))) {
+            $this->accessTokens[$audience] = $accessToken->get();
+            if ($this->accessTokens[$audience]) {
                 $this->logger->debug("Fetched Service JWT from cache");
                 return;
             }
@@ -115,18 +129,15 @@ class BrighteApi
 
         $this->logger->info("Not authenticated with Brighte APIs, authenticating");
         if ($this->clientId && $this->clientSecret) {
-            $authPath = '/identity/token';
-            $options = [
-                'client_id' => $this->clientId,
-                'client_secret' => $this->clientSecret,
-                'grant_type' => 'client_credentials',
-            ];
-            $authBody = \json_encode($options);
+            $response = $this->auth0->authentication()->clientCredentials([
+                'audience' => $audience,
+            ]);
         } else {
             $authPath = '/identity/authenticate';
             $authBody = json_encode(['apiKey' => $this->apiKey]);
+            $response = $this->post($authPath, $authBody, '', [], null);
         }
-        $response = $this->post($authPath, $authBody, '', [], false);
+
         $body = json_decode((string) $response->getBody());
 
         if ($response->getStatusCode() !== StatusCodeInterface::STATUS_OK) {
@@ -136,7 +147,7 @@ class BrighteApi
         $this->accessToken = $body->access_token ?? $body->accessToken;
 
         if ($this->cacheItemPool) {
-            $item = $this->cacheItemPool->getItem($this->jwtCacheKey);
+            $item = $this->cacheItemPool->getItem($this->jwtCacheKey . '_' . self::cleanAudience($audience));
             $item->set($this->accessToken);
             $expires = $body->expires_in ?? null;
             $expires = (int) $expires ?: new \DateInterval('PT' . strtoupper($expires ?: "15m"));
@@ -150,15 +161,19 @@ class BrighteApi
      * @param string $path
      * @param string $query
      * @param string[] $headers
-     * @param bool $auth use authentication?
+     * @param string|null $audience
      * @return \Psr\Http\Message\ResponseInterface
      **/
-    public function get(string $path, string $query = '', array $headers = [], bool $auth = true): ResponseInterface
-    {
+    public function get(
+        string $path,
+        string $query = '',
+        array $headers = [],
+        string $audience = null
+    ): ResponseInterface {
         return $this->getCached(
             $path . '?' . $query,
             [$this, 'doRequest'],
-            ['GET', $path, $query, null, $headers, $auth]
+            ['GET', $path, $query, null, $headers, $audience]
         );
     }
 
@@ -187,7 +202,7 @@ class BrighteApi
      * @param string $body
      * @param string $query
      * @param string[] $headers
-     * @param bool $auth use authentication?
+     * @param string|null $audience
      * @return \Psr\Http\Message\ResponseInterface
      **/
     public function post(
@@ -195,9 +210,9 @@ class BrighteApi
         string $body,
         string $query = '',
         array $headers = [],
-        bool $auth = true
+        string $audience = null
     ): ResponseInterface {
-        return $this->doRequest('POST', $path, $query, $body, $headers, $auth);
+        return $this->doRequest('POST', $path, $query, $body, $headers, $audience);
     }
 
     public function cachedPost(
@@ -207,7 +222,7 @@ class BrighteApi
         string $body,
         string $query = '',
         array $headers = [],
-        bool $auth = true
+        string $audience = null
     ) {
         $key = implode('_', [$functionName, implode('_', $parameters)]);
         if (array_key_exists($key, $this->cache)) {
@@ -217,7 +232,7 @@ class BrighteApi
             return $this->cacheItemPool->getItem($key)->get();
         }
 
-        $response = $this->doRequest('POST', $path, $query, $body, $headers, $auth);
+        $response = $this->doRequest('POST', $path, $query, $body, $headers, $audience);
 
         $responseBody = $this->checkIfContainsError($functionName, $response);
         if ($responseBody === null) {
@@ -261,7 +276,7 @@ class BrighteApi
      * @param string $query
      * @param string|null $body
      * @param string[] $headers
-     * @param bool $auth use authentication?
+     * @param string|null $audience
      * @return \Psr\Http\Message\ResponseInterface
      **/
     protected function doRequest(
@@ -270,7 +285,7 @@ class BrighteApi
         string $query,
         ?string $body,
         array $headers,
-        bool $auth = true
+        string $audience = null
     ): ResponseInterface {
         $this->logger->debug(
             'BrighteApi->' . __FUNCTION__,
@@ -282,8 +297,8 @@ class BrighteApi
             'accept' => 'application/json',
         ], $headers);
 
-        if ($auth) {
-            $headers['Authorization'] = 'Bearer ' . $this->getToken();
+        if ($audience) {
+            $headers['Authorization'] = 'Bearer ' . $this->getToken($audience);
         }
 
         $path = UriResolver::removeDotSegments($this->prefix . $path);
@@ -306,12 +321,12 @@ class BrighteApi
      * @param string $token
      * @return bool
      */
-    private function isTokenExpired(string $token): bool
+    private static function isTokenExpired(string $token): bool
     {
         $bufferInSeconds = 3;
 
         $currentTimestamp = time();
-        $decoded = $this->decodeToken($token);
+        $decoded = self::decodeToken($token);
 
         return $currentTimestamp > ($decoded->exp - $bufferInSeconds);
     }
@@ -320,7 +335,7 @@ class BrighteApi
      * @param string $token
      * @return \stdClass
      */
-    private function decodeToken(string $token): \stdClass
+    private static function decodeToken(string $token): \stdClass
     {
         $tokenPayload = explode(".", $token)[1];
 
@@ -338,5 +353,16 @@ class BrighteApi
             $body->errors[0]->message ?? $response->getReasonPhrase()
         );
         $this->logger->warning($message);
+    }
+
+    /**
+     * Remove any invalid characters for cache key
+     * message: key contains one or more characters reserved for future extension: {}()/\\@:
+     * @param string $audience
+     * @return string
+     */
+    private static function cleanAudience(string $audience): string
+    {
+        return str_replace(['https://', '/'], ['', '_'], $audience);
     }
 }
