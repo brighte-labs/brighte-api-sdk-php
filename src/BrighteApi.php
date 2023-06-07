@@ -79,16 +79,8 @@ class BrighteApi
         array $config,
         ?CacheItemPoolInterface $cache
     ) {
-        $uri = new Uri($config['uri']);
-        $uriAuth0 = new Uri('https://' . $config['auth0_domain']);
-        $this->scheme[self::BRIGHTE_API] = $uri->getScheme();
-        $this->host[self::BRIGHTE_API] = $uri->getHost();
-        $this->prefix[self::BRIGHTE_API] = $uri->getPath();
-        $this->port[self::BRIGHTE_API] = $uri->getPort();
-        $this->scheme[self::AUTH0] = $uriAuth0->getScheme();
-        $this->host[self::AUTH0] = $uriAuth0->getHost();
-        $this->prefix[self::AUTH0] = $uriAuth0->getPath();
-        $this->port[self::AUTH0] = $uriAuth0->getPort();
+        $this->setUri($config['uri'], self::BRIGHTE_API);
+        $this->setUri('https://' . $config['auth0_domain'], self::AUTH0);
         $this->clientId = $config['client_id'] ?? null;
         $this->clientSecret = $config['client_secret'] ?? null;
         $this->apiKey = $config['key'] ?? null;
@@ -311,7 +303,7 @@ class BrighteApi
             $headers['Authorization'] = 'Bearer ' . $this->getToken($audience);
         }
 
-        $path = UriResolver::removeDotSegments($this->prefix . $path);
+        $path = UriResolver::removeDotSegments($this->prefix[$service] . $path);
 
         return  $this->http->sendRequest(new Request(
             $method,
@@ -374,5 +366,14 @@ class BrighteApi
     private static function cleanAudience(string $audience): string
     {
         return str_replace(['https://', '/'], ['', '_'], $audience);
+    }
+
+    private function setUri($uri, $service): void
+    {
+        $uri = new Uri($uri);
+        $this->scheme[$service] = $uri->getScheme();
+        $this->host[$service] = $uri->getHost();
+        $this->prefix[$service] = $uri->getPath();
+        $this->port[$service] = $uri->getPort();
     }
 }
