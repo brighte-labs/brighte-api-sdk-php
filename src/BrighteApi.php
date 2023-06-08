@@ -291,7 +291,7 @@ class BrighteApi
         ?string $body,
         array $headers,
         string $audience = null,
-        string $service = self::BRIGHTE_API,
+        string $service = self::BRIGHTE_API
     ): ResponseInterface {
         $this->logger->debug(
             'BrighteApi->' . __FUNCTION__,
