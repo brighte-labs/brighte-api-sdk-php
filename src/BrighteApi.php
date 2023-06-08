@@ -125,7 +125,7 @@ class BrighteApi
                 'client_id' => $this->clientId,
                 'client_secret' => $this->clientSecret,
                 'grant_type' => 'client_credentials',
-                'audience' => $this->buildAudience($audience),
+                'audience' => $audience,
             ];
             $authBody = \json_encode($options);
             $response = $this->post($authPath, $authBody, '', [], null, self::AUTH0);
@@ -158,7 +158,7 @@ class BrighteApi
      * @param string $path
      * @param string $query
      * @param string[] $headers
-     * @param string|null $audience
+     * @param string|null $audiencePath
      * @param string $service
      * @return \Psr\Http\Message\ResponseInterface
      **/
@@ -166,9 +166,10 @@ class BrighteApi
         string $path,
         string $query = '',
         array $headers = [],
-        string $audience = null,
+        string $audiencePath = null,
         string $service = self::BRIGHTE_API
     ): ResponseInterface {
+        $audience = $this->buildAudience($audiencePath);
         return $this->getCached(
             $path . '?' . $query,
             [$this, 'doRequest'],
@@ -201,7 +202,7 @@ class BrighteApi
      * @param string $body
      * @param string $query
      * @param string[] $headers
-     * @param string|null $audience
+     * @param string|null $audiencePath
      * @param string $service
      * @return \Psr\Http\Message\ResponseInterface
      **/
@@ -210,9 +211,10 @@ class BrighteApi
         string $body,
         string $query = '',
         array $headers = [],
-        string $audience = null,
+        string $audiencePath = null,
         string $service = self::BRIGHTE_API
     ): ResponseInterface {
+        $audience = $this->buildAudience($audiencePath);
         return $this->doRequest('POST', $path, $query, $body, $headers, $audience, $service);
     }
 
@@ -223,7 +225,7 @@ class BrighteApi
         string $body,
         string $query = '',
         array $headers = [],
-        string $audience = null
+        string $audiencePath = null
     ) {
         $key = implode('_', [$functionName, implode('_', $parameters)]);
         if (array_key_exists($key, $this->cache)) {
@@ -233,6 +235,7 @@ class BrighteApi
             return $this->cacheItemPool->getItem($key)->get();
         }
 
+        $audience = $this->buildAudience($audiencePath);
         $response = $this->doRequest('POST', $path, $query, $body, $headers, $audience);
 
         $responseBody = $this->checkIfContainsError($functionName, $response);
@@ -359,11 +362,14 @@ class BrighteApi
     }
 
     /**
-     * @param string $audience
-     * @return string
+     * @param string|null $audience
+     * @return string|null
      */
-    private function buildAudience($audience): string
+    private function buildAudience($audience): string|null
     {
+        if ($audience === null) {
+            return null;
+        }
         $path = UriResolver::removeDotSegments($this->prefix[self::BRIGHTE_API] . $audience);
         return $this->scheme[self::BRIGHTE_API] . '://' . $this->host[self::BRIGHTE_API] . $path;
     }
