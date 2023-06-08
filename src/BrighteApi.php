@@ -123,6 +123,7 @@ class BrighteApi
             $this->accessTokens[$audience] = $accessToken->get();
             if ($this->accessTokens[$audience]) {
                 $this->logger->debug("Fetched Service JWT from cache");
+                $this->accessToken = $this->accessTokens[$audience];
                 return;
             }
         }
@@ -161,15 +162,16 @@ class BrighteApi
      * @param string $path
      * @param string $query
      * @param string[] $headers
-     * @param string|null $audience
+     * @param string|null $audiencePath
      * @return \Psr\Http\Message\ResponseInterface
      **/
     public function get(
         string $path,
         string $query = '',
         array $headers = [],
-        string $audience = null
+        string $audiencePath = null
     ): ResponseInterface {
+        $audience = $this->buildAudience($audiencePath);
         return $this->getCached(
             $path . '?' . $query,
             [$this, 'doRequest'],
@@ -202,7 +204,7 @@ class BrighteApi
      * @param string $body
      * @param string $query
      * @param string[] $headers
-     * @param string|null $audience
+     * @param string|null $audiencePath
      * @return \Psr\Http\Message\ResponseInterface
      **/
     public function post(
@@ -210,8 +212,9 @@ class BrighteApi
         string $body,
         string $query = '',
         array $headers = [],
-        string $audience = null
+        string $audiencePath = null
     ): ResponseInterface {
+        $audience = $this->buildAudience($audiencePath);
         return $this->doRequest('POST', $path, $query, $body, $headers, $audience);
     }
 
@@ -222,7 +225,7 @@ class BrighteApi
         string $body,
         string $query = '',
         array $headers = [],
-        string $audience = null
+        string $audiencePath = null
     ) {
         $key = implode('_', [$functionName, implode('_', $parameters)]);
         if (array_key_exists($key, $this->cache)) {
@@ -232,6 +235,7 @@ class BrighteApi
             return $this->cacheItemPool->getItem($key)->get();
         }
 
+        $audience = $this->buildAudience($audiencePath);
         $response = $this->doRequest('POST', $path, $query, $body, $headers, $audience);
 
         $responseBody = $this->checkIfContainsError($functionName, $response);
@@ -353,6 +357,19 @@ class BrighteApi
             $body->errors[0]->message ?? $response->getReasonPhrase()
         );
         $this->logger->warning($message);
+    }
+
+    /**
+     * @param string|null $audience
+     * @return string|null
+     */
+    private function buildAudience($audience): ?string
+    {
+        if ($audience === null) {
+            return null;
+        }
+        $path = UriResolver::removeDotSegments($this->prefix . $audience);
+        return $this->scheme . '://' . $this->host . $path;
     }
 
     /**

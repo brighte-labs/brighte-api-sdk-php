@@ -21,7 +21,7 @@ class VendorApi extends \BrighteCapital\Api\AbstractApi
      */
     public function getVendors(): array
     {
-        $response = $this->brighteApi->get(self::PATH);
+        $response = $this->brighteApi->get(self::PATH, '', [], self::PATH);
         
         if ($response->getStatusCode() !== StatusCodeInterface::STATUS_OK) {
             $this->logResponse(__FUNCTION__, $response);
@@ -48,7 +48,7 @@ class VendorApi extends \BrighteCapital\Api\AbstractApi
 
     public function getVendor(int $vendorId): ?Vendor
     {
-        $response = $this->brighteApi->get(self::PATH . '/' . $vendorId);
+        $response = $this->brighteApi->get(self::PATH . '/' . $vendorId, '', [], self::PATH);
         
         if ($response->getStatusCode() !== StatusCodeInterface::STATUS_OK) {
             $this->logResponse(__FUNCTION__, $response);
@@ -75,7 +75,7 @@ class VendorApi extends \BrighteCapital\Api\AbstractApi
     public function getVendorFlags(int $vendorId): array
     {
         $path = sprintf("%s/%d/flags", self::PATH, $vendorId);
-        $response = $this->brighteApi->get($path);
+        $response = $this->brighteApi->get($path, '', [], self::PATH);
         if ($response->getStatusCode() !== StatusCodeInterface::STATUS_OK) {
             $this->logResponse(__FUNCTION__, $response);
 
@@ -100,7 +100,7 @@ class VendorApi extends \BrighteCapital\Api\AbstractApi
      */
     public function getVendorAgentIDs(int $vendorId): array
     {
-        $response = $this->brighteApi->get(sprintf('%s/%d/agents', self::PATH, $vendorId));
+        $response = $this->brighteApi->get(sprintf('%s/%d/agents', self::PATH, $vendorId), '', [], self::PATH);
         
         if ($response->getStatusCode() !== StatusCodeInterface::STATUS_OK) {
             $this->logResponse(__FUNCTION__, $response);
@@ -119,7 +119,7 @@ class VendorApi extends \BrighteCapital\Api\AbstractApi
      */
     public function getCategories(): array
     {
-        $response = $this->brighteApi->get('/categories');
+        $response = $this->brighteApi->get('/categories', '', [], self::PATH);
         
         if ($response->getStatusCode() !== StatusCodeInterface::STATUS_OK) {
             $this->logResponse(__FUNCTION__, $response);
@@ -143,7 +143,7 @@ class VendorApi extends \BrighteCapital\Api\AbstractApi
 
     public function getCategory(int $categoryId): ?Category
     {
-        $response = $this->brighteApi->get('/categories/' . $categoryId);
+        $response = $this->brighteApi->get('/categories/' . $categoryId, '', [], self::PATH);
 
         if ($response->getStatusCode() !== StatusCodeInterface::STATUS_OK) {
             $this->logResponse(__FUNCTION__, $response);
@@ -168,7 +168,7 @@ class VendorApi extends \BrighteCapital\Api\AbstractApi
      */
     public function getManufacturerById(int $manufacturerId): ?Manufacturer
     {
-        $response = $this->brighteApi->get("/manufacturers/" . (string) $manufacturerId);
+        $response = $this->brighteApi->get("/manufacturers/" . (string) $manufacturerId, '', [], self::PATH);
 
         if ($response->getStatusCode() !== StatusCodeInterface::STATUS_OK) {
             $this->logResponse(__FUNCTION__, $response);
@@ -211,7 +211,7 @@ class VendorApi extends \BrighteCapital\Api\AbstractApi
      */
     private function retrieveManufacturers(string $queryPath): array
     {
-        $response = $this->brighteApi->get($queryPath);
+        $response = $this->brighteApi->get($queryPath, '', [], self::PATH);
 
         if ($response->getStatusCode() !== StatusCodeInterface::STATUS_OK) {
             $this->logResponse(debug_backtrace()[1]['function'], $response);
@@ -243,7 +243,7 @@ class VendorApi extends \BrighteCapital\Api\AbstractApi
      */
     public function getVendorPromos(int $vendorId, bool $active = false): array
     {
-        $response = $this->brighteApi->get(sprintf('%s/%d/promos?active=%s', self::PATH, $vendorId, $active));
+        $response = $this->brighteApi->get(sprintf('%s/%d/promos?active=%s', self::PATH, $vendorId, $active), '', [], self::PATH);
 
         if ($response->getStatusCode() !== StatusCodeInterface::STATUS_OK) {
             $this->logResponse(__FUNCTION__, $response);

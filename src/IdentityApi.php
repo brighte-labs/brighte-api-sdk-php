@@ -16,7 +16,7 @@ class IdentityApi extends \BrighteCapital\Api\AbstractApi
 
     public function getUser(int $userId): ?User
     {
-        $response = $this->brighteApi->get(sprintf('%s/users/%d', self::PATH, $userId));
+        $response = $this->brighteApi->get(sprintf('%s/users/%d', self::PATH, $userId), '', [], self::PATH);
         
         if ($response->getStatusCode() !== StatusCodeInterface::STATUS_OK) {
             $this->logResponse(__FUNCTION__, $response);
@@ -50,7 +50,7 @@ class IdentityApi extends \BrighteCapital\Api\AbstractApi
             'lastName' => $user->lastName ?? '',
         ]);
 
-        $response = $this->brighteApi->post(sprintf('%s/users', self::PATH), $body);
+        $response = $this->brighteApi->post(sprintf('%s/users', self::PATH), $body, '', [], self::PATH);
         
         if ($response->getStatusCode() !== StatusCodeInterface::STATUS_OK) {
             $this->logResponse(__FUNCTION__, $response);
@@ -70,10 +70,11 @@ class IdentityApi extends \BrighteCapital\Api\AbstractApi
         $body = \json_encode([
             'grant_type' => 'authorization_code',
             'code' => $code,
+            // need to revisit this as the clientId has changed to auth0
             'client_id' => $this->brighteApi->clientId
         ]);
 
-        $response = $this->brighteApi->post(sprintf('%s/token', self::PATH), $body);
+        $response = $this->brighteApi->post(sprintf('%s/token', self::PATH), $body, '', [], self::PATH);
         
         if ($response->getStatusCode() !== StatusCodeInterface::STATUS_OK) {
             $this->logResponse(__FUNCTION__, $response);
@@ -95,7 +96,7 @@ class IdentityApi extends \BrighteCapital\Api\AbstractApi
     {
         $body = \json_encode(['refreshToken' => $refreshToken]);
 
-        $response = $this->brighteApi->post(sprintf('%s/refresh', self::PATH), $body);
+        $response = $this->brighteApi->post(sprintf('%s/refresh', self::PATH), $body, '', [], self::PATH);
         
         if ($response->getStatusCode() !== StatusCodeInterface::STATUS_OK) {
             $this->logResponse(__FUNCTION__, $response);

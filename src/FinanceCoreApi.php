@@ -30,7 +30,7 @@ class FinanceCoreApi extends \BrighteCapital\Api\AbstractApi
             json_encode($requestBody),
             '',
             [],
-            true
+            self::PATH
         );
 
         if ($responseBody == null) {
@@ -56,7 +56,7 @@ class FinanceCoreApi extends \BrighteCapital\Api\AbstractApi
             json_encode($requestBody),
             '',
             [],
-            true
+            self::PATH
         );
 
         if ($responseBody == null) {
@@ -168,7 +168,7 @@ GQL;
             json_encode($requestBody),
             '',
             [],
-            true
+            self::PATH
         );
 
         if ($responseBody == null) {
@@ -232,7 +232,7 @@ GQL;
             json_encode($requestBody),
             '',
             [],
-            true
+            self::PATH
         );
 
         if ($responseBody == null) {
@@ -309,7 +309,7 @@ GQL;
             json_encode($requestBody),
             '',
             [],
-            true
+            self::PATH
         );
 
         if ($responseBody == null) {
@@ -372,7 +372,7 @@ GQL;
             json_encode($requestBody),
             '',
             [],
-            true
+            self::PATH
         );
 
         if ($responseBody == null) {
