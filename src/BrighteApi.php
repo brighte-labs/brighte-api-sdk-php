@@ -113,6 +113,7 @@ class BrighteApi
             $this->accessTokens[$audience] = $accessToken->get();
             if ($this->accessTokens[$audience]) {
                 $this->logger->debug("Fetched Service JWT from cache");
+                $this->accessToken = $this->accessTokens[$audience];
                 return;
             }
         }
