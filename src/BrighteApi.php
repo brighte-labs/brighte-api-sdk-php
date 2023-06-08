@@ -360,15 +360,15 @@ class BrighteApi
     }
 
     /**
-     * @param string|null $audience
+     * @param string|null $audiencePath
      * @return string|null
      */
-    private function buildAudience($audience): ?string
+    private function buildAudience($audiencePath): ?string
     {
-        if ($audience === null) {
+        if ($audiencePath === null) {
             return null;
         }
-        $path = UriResolver::removeDotSegments($this->prefix . $audience);
+        $path = UriResolver::removeDotSegments($this->prefix . $audiencePath);
         return $this->scheme . '://' . $this->host . $path;
     }
 
