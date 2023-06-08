@@ -365,7 +365,7 @@ class BrighteApi
      * @param string|null $audience
      * @return string|null
      */
-    private function buildAudience($audience): string|null
+    private function buildAudience($audience): ?string
     {
         if ($audience === null) {
             return null;
