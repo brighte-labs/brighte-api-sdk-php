@@ -10,13 +10,13 @@ use Fig\Http\Message\StatusCodeInterface;
 class PaymentApi extends \BrighteCapital\Api\AbstractApi
 {
 
+    // reminder: need to update the Payment API audience in Auth0 from /payments to /payment for consistency
     public const PATH = '/payment';
-    public const AUDIENCE = '/payments';
 
     public function getMethod(string $methodId, int $userId): ?PaymentMethod
     {
         $params = http_build_query(compact('userId'));
-        $response = $this->brighteApi->get(sprintf('%s-methods/%s', self::PATH, $methodId), $params, [], self::AUDIENCE);
+        $response = $this->brighteApi->get(sprintf('%s-methods/%s', self::PATH, $methodId), $params, [], self::PATH);
         
         if ($response->getStatusCode() !== StatusCodeInterface::STATUS_OK) {
             $this->logResponse(__FUNCTION__, $response);
