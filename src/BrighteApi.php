@@ -86,8 +86,8 @@ class BrighteApi
         $this->logger = $log;
         $this->cacheItemPool = $cache;
         $this->jwtCacheKey = $this->clientId . '_' . self::JWT_SERVICE_CACHE_KEY;
-        $this->setUri($config['uri'], self::BRIGHTE_API);
-        $this->setUri('https://' . $config['auth0_domain'], self::AUTH0);
+        $this->setUri(self::BRIGHTE_API, $config['uri']);
+        $this->setUri(self::AUTH0, 'https://' . $config['auth0_domain']);
     }
 
     public function getToken(string $audience): string
@@ -98,7 +98,7 @@ class BrighteApi
                 return $this->accessToken;
             }
 
-            $this->cacheItemPool->deleteItem($this->jwtCacheKey . '_' . self::cleanAudience($audience));
+            $this->cacheItemPool->deleteItem($this->getCacheKey($audience));
         }
 
         $this->authenticate($audience);
@@ -109,7 +109,7 @@ class BrighteApi
     protected function authenticate(string $audience): void
     {
 
-        if ($this->cacheItemPool && $accessToken = $this->cacheItemPool->getItem($this->jwtCacheKey . '_' . self::cleanAudience($audience))) {
+        if ($this->cacheItemPool && $accessToken = $this->cacheItemPool->getItem($this->getCacheKey($audience))) {
             $this->accessTokens[$audience] = $accessToken->get();
             if ($this->accessTokens[$audience]) {
                 $this->logger->debug("Fetched Service JWT from cache");
@@ -144,7 +144,7 @@ class BrighteApi
         $this->accessToken = $body->access_token ?? $body->accessToken;
 
         if ($this->cacheItemPool) {
-            $item = $this->cacheItemPool->getItem($this->jwtCacheKey . '_' . self::cleanAudience($audience));
+            $item = $this->cacheItemPool->getItem($this->getCacheKey($audience));
             $item->set($this->accessToken);
             $expires = $body->expires_in ?? null;
             $expires = (int) $expires ?: new \DateInterval('PT' . strtoupper($expires ?: "15m"));
@@ -159,21 +159,19 @@ class BrighteApi
      * @param string $query
      * @param string[] $headers
      * @param string|null $audiencePath
-     * @param string $service
      * @return \Psr\Http\Message\ResponseInterface
      **/
     public function get(
         string $path,
         string $query = '',
         array $headers = [],
-        string $audiencePath = null,
-        string $service = self::BRIGHTE_API
+        string $audiencePath = null
     ): ResponseInterface {
         $audience = $this->buildAudience($audiencePath);
         return $this->getCached(
             $path . '?' . $query,
             [$this, 'doRequest'],
-            ['GET', $path, $query, null, $headers, $audience, $service]
+            ['GET', $path, $query, null, $headers, $audience]
         );
     }
 
@@ -386,16 +384,26 @@ class BrighteApi
     }
 
     /**
-     * @param string $uri
      * @param string $service
+     * @param string $uri
      * @return void
      */
-    private function setUri(string $uri, string $service): void
+    private function setUri(string $service, string $uri): void
     {
         $uri = new Uri($uri);
         $this->scheme[$service] = $uri->getScheme();
         $this->host[$service] = $uri->getHost();
         $this->prefix[$service] = $uri->getPath();
         $this->port[$service] = $uri->getPort();
+    }
+    
+    /**
+     * Cache key
+     * @param string $audience
+     * @return string
+     */
+    private function getCacheKey(string $audience): string
+    {
+        return $this->jwtCacheKey . '_' . self::cleanAudience($audience);
     }
 }
