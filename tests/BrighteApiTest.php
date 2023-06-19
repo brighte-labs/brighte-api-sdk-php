@@ -51,6 +51,7 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
             'uri' => 'https://api.brighte.com.au/v1',
             'client_id' => 'test-client',
             'client_secret' => 'client-secret',
+            'auth0_domain' => 'fake-auth0-domain'
         ];
         $this->http = $this->createMock(ClientInterface::class);
         $this->logger = $this->createMock(LoggerInterface::class);
@@ -96,9 +97,9 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
     {
         return [
             [self::URL_CHIPMONKS, '200', 2],
-            [self::URL_DANGER_MOUSE, '200', 3],
-            [self::URL_MOLE, '401', 3],
-            [self::URL_MOLE, '200', 3],
+            [self::URL_DANGER_MOUSE, '200', 2],
+            [self::URL_MOLE, '401', 2],
+            [self::URL_MOLE, '200', 2],
         ];
     }
 
@@ -112,13 +113,16 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
      * @covers ::getToken
      * @covers ::isTokenExpired
      * @covers ::decodeToken
+     * @covers ::buildAudience
+     * @covers ::cleanAudience
+     * @covers ::setUri
      * @dataProvider getProvider
      */
     public function testGet($url, $statusCode, $sendRequestCalled): void
     {
         $expectApiRequest = new Request(
             'GET',
-            new Uri('https://api.brighte.com.au/v1/chipmonks?size=0.5'),
+            new Uri('https://api.brighte.com.au/v1' . $url . '?size=0.5'),
             [
                 'accept' => 'application/json',
                 'content-type' => 'application/json',
@@ -146,17 +150,13 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
 
         $this->http->expects(self::exactly($sendRequestCalled))->method('sendRequest')
             ->withConsecutive([self::isInstanceOf(Request::class)], [$expectApiRequest])
-            ->willReturnOnConsecutiveCalls($authResponse, $apiResponse, $secondCall);
+            ->willReturnOnConsecutiveCalls($authResponse, $secondCall);
 
+        
         // Authenticate, fill cache on first call
         $this->assertInstanceOf(
             ResponseInterface::class,
-            $result = $this->api->get(self::URL_CHIPMONKS, self::URL_PARAM_SIZE, ['extra-header' => 'extra-header'])
-        );
-
-        $this->assertInstanceOf(
-            ResponseInterface::class,
-            $result = $this->api->get($url, self::URL_PARAM_SIZE, ['extra-header' => 'extra-header'])
+            $result = $this->api->get($url, self::URL_PARAM_SIZE, ['extra-header' => 'extra-header'], $url)
         );
 
         $this->assertEquals($statusCode, $result->getStatusCode());
@@ -172,6 +172,9 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
      * @covers ::getToken
      * @covers ::isTokenExpired
      * @covers ::decodeToken
+     * @covers ::buildAudience
+     * @covers ::cleanAudience
+     * @covers ::setUri
      */
     public function testJWTExpired(): void
     {
@@ -216,7 +219,7 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
         // Authenticate, fill cache
         $this->assertInstanceOf(
             ResponseInterface::class,
-            $result = $this->api->get(self::URL_CHIPMONKS, self::URL_PARAM_SIZE, ['extra-header' => 'extra-header'])
+            $result = $this->api->get(self::URL_CHIPMONKS, self::URL_PARAM_SIZE, ['extra-header' => 'extra-header'], self::URL_CHIPMONKS)
         );
 
         $this->assertEquals('200', $result->getStatusCode());
@@ -224,7 +227,7 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
         // Use existing auth, get fresh
         $this->assertInstanceOf(
             ResponseInterface::class,
-            $result = $this->api->get(self::URL_DANGER_MOUSE, self::URL_PARAM_SIZE, ['extra-header' => 'extra-header'])
+            $result = $this->api->get(self::URL_DANGER_MOUSE, self::URL_PARAM_SIZE, ['extra-header' => 'extra-header'], self::URL_DANGER_MOUSE)
         );
 
         $this->assertEquals('200', $result->getStatusCode());
@@ -238,12 +241,16 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
      * @covers ::doRequest
      * @covers ::authenticate
      * @covers ::getToken
+     * @covers ::buildAudience
+     * @covers ::cleanAudience
+     * @covers ::setUri
      */
     public function testApiKeyAuthFail(): void
     {
         $config = [
             'uri' => 'https://api.brighte.com.au/v1',
             'key' => 'supersecretapikey',
+            'auth0_domain' => 'fake-auth0-domain',
         ];
         $this->api = new BrighteApi($this->http, $this->logger, $config, $this->cache);
         $authResponse = new Response(401, [], json_encode(['message' => 'API key mismatch']));
@@ -252,7 +259,7 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
             ->willReturn($authResponse);
         // Authenticate but fail
         $this->expectException(\InvalidArgumentException::class);
-        $this->api->get(self::URL_CHIPMONKS, self::URL_PARAM_SIZE, ['extra-header' => 'extra-header']);
+        $this->api->get(self::URL_CHIPMONKS, self::URL_PARAM_SIZE, ['extra-header' => 'extra-header'], self::URL_CHIPMONKS);
     }
 
     /**
@@ -263,6 +270,9 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
      * @covers ::doRequest
      * @covers ::authenticate
      * @covers ::getToken
+     * @covers ::buildAudience
+     * @covers ::cleanAudience
+     * @covers ::setUri
      */
     public function testAuthFail(): void
     {
@@ -272,7 +282,7 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
             ->willReturn($authResponse);
         // Authenticate but fail
         $this->expectException(\InvalidArgumentException::class);
-        $this->api->get(self::URL_CHIPMONKS, self::URL_PARAM_SIZE, ['extra-header' => 'extra-header']);
+        $this->api->get(self::URL_CHIPMONKS, self::URL_PARAM_SIZE, ['extra-header' => 'extra-header'], self::URL_CHIPMONKS);
     }
 
     /**
@@ -283,6 +293,9 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
      * @covers ::doRequest
      * @covers ::authenticate
      * @covers ::getToken
+     * @covers ::buildAudience
+     * @covers ::cleanAudience
+     * @covers ::setUri
      */
     public function testAuthCache(): void
     {
@@ -297,9 +310,9 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
         );
         $item = $this->createMock(CacheItemInterface::class);
         $item->expects(self::once())->method('get')->willReturn($this->accessToken);
-        $this->cache->expects(self::once())->method('getItem')->with('test-client_service_jwt')->willReturn($item);
+        $this->cache->expects(self::once())->method('getItem')->with('test-client_service_jwt_api.brighte.com.au_v1_chipmonks')->willReturn($item);
         $this->http->expects(self::exactly(1))->method('sendRequest')->with($expectApiRequest);
-        $this->api->get(self::URL_CHIPMONKS);
+        $this->api->get(self::URL_CHIPMONKS, '', [], self::URL_CHIPMONKS);
     }
 
     /**
@@ -308,6 +321,9 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
      * @covers ::doRequest
      * @covers ::authenticate
      * @covers ::getToken
+     * @covers ::buildAudience
+     * @covers ::cleanAudience
+     * @covers ::setUri
      */
     public function testPost(): void
     {
@@ -321,7 +337,7 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
             ->willReturnOnConsecutiveCalls($authResponse, $apiResponse);
         $this->assertInstanceOf(
             ResponseInterface::class,
-            $this->api->post(self::URL_CHIPMONKS, 'body', self::URL_PARAM_SIZE, ['extra-header' => 'extra-header'])
+            $this->api->post(self::URL_CHIPMONKS, 'body', self::URL_PARAM_SIZE, ['extra-header' => 'extra-header'], self::URL_CHIPMONKS)
         );
     }
 
@@ -333,6 +349,9 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
      * @covers ::doRequest
      * @covers ::authenticate
      * @covers ::getToken
+     * @covers ::buildAudience
+     * @covers ::cleanAudience
+     * @covers ::setUri
      */
     public function testCachedPostWhenLocalCacheHits(): void
     {
@@ -349,14 +368,14 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
             ->with(self::isInstanceOf(Request::class))->willReturn($apiResponse);
 
         $this->cache->expects(self::exactly(2))->method('getItem')->withConsecutive(
-            ['test-client_service_jwt'],
+            ['test-client_service_jwt_api.brighte.com.au_v1_chipmonks'],
             ['getFinancialProductConfig_p1_p2']
         )->willReturn($cachedToken);
         $this->cache->expects(self::once())->method('save'); // saves the value to the cache pool
 
-        $this->api->cachedPost($functionName, $parameters, self::URL_CHIPMONKS, 'body');
+        $this->api->cachedPost($functionName, $parameters, self::URL_CHIPMONKS, 'body', '', [], self::URL_CHIPMONKS);
         // Post a second time, local cache should respond.
-        $actual = $this->api->cachedPost($functionName, $parameters, self::URL_CHIPMONKS, 'body');
+        $actual = $this->api->cachedPost($functionName, $parameters, self::URL_CHIPMONKS, 'body', '', [], self::URL_CHIPMONKS);
         self::assertEquals((object) $expected, $actual);
     }
 
@@ -365,6 +384,7 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
      * @covers ::cachedPost
      * @covers ::checkIfContainsError
      * @covers ::logGraphqlResponse
+     * @covers ::setUri
      */
     public function testCachedPostWhenCacheHits(): void
     {
@@ -378,7 +398,7 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
         $this->cache->expects(self::once())->method('getItem')->willReturn($item);
         $this->cache->expects(self::once())->method('hasItem')->willReturn(true);
         $this->cache->expects(self::never())->method('save');
-        $actual = $this->api->cachedPost($functionName, $parameters, self::URL_CHIPMONKS, 'body');
+        $actual = $this->api->cachedPost($functionName, $parameters, self::URL_CHIPMONKS, 'body', '', [], self::URL_CHIPMONKS);
         self::assertEquals((array)$expected, $actual);
     }
 
@@ -391,6 +411,9 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
      * @covers ::authenticate
      * @covers ::getToken
      * @covers ::post
+     * @covers ::buildAudience
+     * @covers ::cleanAudience
+     * @covers ::setUri
      */
     public function testCachedPostWhenCacheMiss(): void
     {
@@ -408,7 +431,7 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
             ->willReturnOnConsecutiveCalls($authResponse, $apiResponse);
         $this->cache->expects(self::once())->method('hasItem')->willReturn(false);
         $this->cache->expects(self::exactly(2))->method('save');
-        $actual = $this->api->cachedPost($functionName, $parameters, self::URL_CHIPMONKS, 'body');
+        $actual = $this->api->cachedPost($functionName, $parameters, self::URL_CHIPMONKS, 'body', '', [], self::URL_CHIPMONKS);
         $this->assertIsObject($actual);
         self::assertEquals((array)$actual, $expected);
     }
@@ -423,6 +446,9 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
      * @covers ::authenticate
      * @covers ::getToken
      * @covers ::post
+     * @covers ::buildAudience
+     * @covers ::cleanAudience
+     * @covers ::setUri
      * @dataProvider cachedPostResponseProvider
      */
     public function testCachedPostWhenGraphqlError($authResponse, $apiResponse, $message): void
@@ -441,7 +467,7 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
         $this->cache->expects(self::once())->method('save');
         $functionName = 'getFinancialProductConfig';
         $parameters = ['p1', 'p2'];
-        $actual = $this->api->cachedPost($functionName, $parameters, self::URL_CHIPMONKS, 'body');
+        $actual = $this->api->cachedPost($functionName, $parameters, self::URL_CHIPMONKS, 'body', '', [], self::URL_CHIPMONKS);
         self::assertNull($actual);
     }
 

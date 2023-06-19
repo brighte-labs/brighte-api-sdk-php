@@ -16,14 +16,14 @@ class IdentityApi extends \BrighteCapital\Api\AbstractApi
 
     public function getUser(int $userId): ?User
     {
-        $response = $this->brighteApi->get(sprintf('%s/users/%d', self::PATH, $userId));
-        
+        $response = $this->brighteApi->get(sprintf('%s/users/%d', self::PATH, $userId), '', [], self::PATH);
+
         if ($response->getStatusCode() !== StatusCodeInterface::STATUS_OK) {
             $this->logResponse(__FUNCTION__, $response);
 
             return null;
         }
-        
+
         $result = json_decode((string) $response->getBody());
 
         $user = new User();
@@ -50,14 +50,14 @@ class IdentityApi extends \BrighteCapital\Api\AbstractApi
             'lastName' => $user->lastName ?? '',
         ]);
 
-        $response = $this->brighteApi->post(sprintf('%s/users', self::PATH), $body);
-        
+        $response = $this->brighteApi->post(sprintf('%s/users', self::PATH), $body, '', [], self::PATH);
+
         if ($response->getStatusCode() !== StatusCodeInterface::STATUS_OK) {
             $this->logResponse(__FUNCTION__, $response);
 
             return null;
         }
-        
+
         $result = json_decode((string) $response->getBody());
 
         $user->id = (int) $result->id ?? null;
@@ -73,14 +73,14 @@ class IdentityApi extends \BrighteCapital\Api\AbstractApi
             'client_id' => $this->brighteApi->clientId
         ]);
 
-        $response = $this->brighteApi->post(sprintf('%s/token', self::PATH), $body);
-        
+        $response = $this->brighteApi->post(sprintf('%s/token', self::PATH), $body, '', [], self::PATH);
+
         if ($response->getStatusCode() !== StatusCodeInterface::STATUS_OK) {
             $this->logResponse(__FUNCTION__, $response);
 
             throw new AuthenticationFailedException(\json_decode((string) $response->getBody())->error);
         }
-        
+
         $result = json_decode((string) $response->getBody());
 
         return new IdentityTokenResponse(
@@ -95,14 +95,14 @@ class IdentityApi extends \BrighteCapital\Api\AbstractApi
     {
         $body = \json_encode(['refreshToken' => $refreshToken]);
 
-        $response = $this->brighteApi->post(sprintf('%s/refresh', self::PATH), $body);
-        
+        $response = $this->brighteApi->post(sprintf('%s/refresh', self::PATH), $body, '', [], self::PATH);
+
         if ($response->getStatusCode() !== StatusCodeInterface::STATUS_OK) {
             $this->logResponse(__FUNCTION__, $response);
 
             throw new AuthenticationFailedException(\json_decode((string) $response->getBody())->code);
         }
-        
+
         $result = json_decode((string) $response->getBody());
 
         return new IdentityTokenResponse(

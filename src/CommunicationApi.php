@@ -20,7 +20,7 @@ class CommunicationApi extends \BrighteCapital\Api\AbstractApi
             'payload' => $notification->payload ?: null,
         ]);
 
-        $response = $this->brighteApi->post(sprintf('%s/notifications', self::PATH), $body);
+        $response = $this->brighteApi->post(sprintf('%s/notifications', self::PATH), $body, '', [], self::PATH);
 
         if ($response->getStatusCode() !== StatusCodeInterface::STATUS_CREATED) {
             $this->logResponse(__FUNCTION__, $response);
