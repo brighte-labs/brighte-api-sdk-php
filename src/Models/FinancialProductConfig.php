@@ -59,4 +59,10 @@ class FinancialProductConfig
 
     /** @var bool risk based pricing enabled */
     public $riskBasedPricing;
+
+    /** @var \DateTime|null end date of configuration */
+    public $activeTo;
+
+    /** @var bool prevent applications after end date */
+    public $preventApplicationsAfterEndDate;
 }

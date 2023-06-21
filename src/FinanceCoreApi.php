@@ -147,6 +147,8 @@ GQL;
             manualSettlementRequired
             riskBasedPricing
             version
+            activeTo
+            preventApplicationsAfterEndDate
             }
         }
 GQL;
@@ -210,6 +212,8 @@ GQL;
                       manualSettlementRequired
                       riskBasedPricing
                       version
+                      activeTo
+                      preventApplicationsAfterEndDate
                     }
                     categoryGroup
                     fpAccountType
@@ -275,6 +279,8 @@ GQL;
         $config->invoiceRequired = $configuration->invoiceRequired;
         $config->manualSettlementRequired = $configuration->manualSettlementRequired;
         $config->riskBasedPricing = $configuration->riskBasedPricing;
+        $config->activeTo = $configuration->activeTo ? new \DateTime($configuration->activeTo) : null;
+        $config->preventApplicationsAfterEndDate = (bool) $configuration->preventApplicationsAfterEndDate;
         return $config;
     }
 

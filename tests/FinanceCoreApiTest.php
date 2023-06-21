@@ -34,7 +34,9 @@ class FinanceCoreApiTest extends \PHPUnit\Framework\TestCase
 
     private $expectedConfig;
 
-    private $expectedConfigResponse;
+    private $configResponse;
+
+    private $configData;
 
     private $expectedFinanceAccount;
 
@@ -48,6 +50,28 @@ class FinanceCoreApiTest extends \PHPUnit\Framework\TestCase
     public function __construct($name = null, array $data = [], $dataName = '')
     {
         parent::__construct($name, $data, $dataName);
+        $this->configData = [
+            'establishmentFee' => 4.99,
+            'interestRate' => 5.99,
+            'applicationFee' => 6.99,
+            'annualFee' => 7.99,
+            'weeklyAccountFee' => 8.99,
+            'latePaymentFee' => 9.99,
+            'introducerFee' => 10.99,
+            'enableExpressSettlement' => true,
+            'minFinanceAmount' => 11.99,
+            'maxFinanceAmount' => 12.99,
+            'minRepaymentMonth' => 13,
+            'maxRepaymentMonth' => 30,
+            'forceCcaProcess' => true,
+            'defaultPaymentCycle' => 'weekly',
+            'invoiceRequired' => true,
+            'manualSettlementRequired' => true,
+            'riskBasedPricing' => true,
+            'version' => 1,
+            'activeTo' => '2022-10-04T23:22:34.000Z',
+            'preventApplicationsAfterEndDate' => true,
+        ];
         $this->expectedConfig = [
             'establishmentFee' => 4.99,
             'interestRate' => 5.99,
@@ -67,11 +91,13 @@ class FinanceCoreApiTest extends \PHPUnit\Framework\TestCase
             'manualSettlementRequired' => true,
             'riskBasedPricing' => true,
             'version' => 1,
+            'activeTo' => new \DateTime('2022-10-04T23:22:34.000Z'),
+            'preventApplicationsAfterEndDate' => true,
         ];
 
-        $this->expectedConfigResponse = [
+        $this->configResponse = [
             'data' => [
-                'financialProductConfiguration' => $this->expectedConfig,
+                'financialProductConfiguration' => $this->configData,
             ]
         ];
 
@@ -140,23 +166,23 @@ class FinanceCoreApiTest extends \PHPUnit\Framework\TestCase
         return [
             [
                 ['brighte-green-loan', null, null, null],
-                $this->expectedConfigResponse,
+                $this->configResponse,
             ],
             [
                 ['brighte-green-loan', 'test-vendor-id', null, null],
-                $this->expectedConfigResponse,
+                $this->configResponse,
             ],
             [
                 ['brighte-green-loan', null, 1, null],
-                $this->expectedConfigResponse,
+                $this->configResponse,
             ],
             [
                 ['brighte-green-loan', 'test-vendor-id', 1, null],
-                $this->expectedConfigResponse,
+                $this->configResponse,
             ],
             [
                 ['brighte-green-loan', null, null, 'test-promo-code'],
-                $this->expectedConfigResponse,
+                $this->configResponse,
             ]
         ];
     }
@@ -204,6 +230,8 @@ class FinanceCoreApiTest extends \PHPUnit\Framework\TestCase
             manualSettlementRequired
             riskBasedPricing
             version
+            activeTo
+            preventApplicationsAfterEndDate
             }
         }
 GQL;
@@ -272,6 +300,8 @@ GQL;
             manualSettlementRequired
             riskBasedPricing
             version
+            activeTo
+            preventApplicationsAfterEndDate
             }
         }
 GQL;
@@ -313,7 +343,7 @@ GQL;
                     'categoryGroup' => 'green',
                     'fpAccountType' => 'test-fp-account-type',
                     'fpBranch' => 'test-fp-branch',
-                    'configuration' => $this->expectedConfig,
+                    'configuration' => $this->configData,
                 ]
             ]
         ];
@@ -349,6 +379,8 @@ GQL;
                       manualSettlementRequired
                       riskBasedPricing
                       version
+                      activeTo
+                      preventApplicationsAfterEndDate
                     }
                     categoryGroup
                     fpAccountType
