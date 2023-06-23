@@ -148,7 +148,7 @@ class IdentityApiTest extends \PHPUnit\Framework\TestCase
             900,
             'bearer'
         );
-        $this->brighteApi->clientId = 'test-client';
+        $this->brighteApi->legacyClientId = 'test-client';
         $response = new Response(200, [], json_encode([
             'access_token' => 'access-token',
             'refresh_token' => 'refresh-token',
@@ -178,7 +178,7 @@ class IdentityApiTest extends \PHPUnit\Framework\TestCase
             'code' => $code,
             'client_id' => 'test-client',
         ];
-        $this->brighteApi->clientId = 'test-client';
+        $this->brighteApi->legacyClientId = 'test-client';
         $response = new Response(401, [], json_encode([
             'error' => 'invalid_grant',
             'error_description' => 'NO_USER_SESSION_FOUND',
