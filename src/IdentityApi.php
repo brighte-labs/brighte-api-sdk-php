@@ -70,7 +70,7 @@ class IdentityApi extends \BrighteCapital\Api\AbstractApi
         $body = \json_encode([
             'grant_type' => 'authorization_code',
             'code' => $code,
-            'client_id' => $this->brighteApi->clientId
+            'client_id' => $this->brighteApi->legacyClientId
         ]);
 
         $response = $this->brighteApi->post(sprintf('%s/token', self::PATH), $body, '', [], self::PATH);

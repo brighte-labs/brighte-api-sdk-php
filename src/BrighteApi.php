@@ -24,6 +24,12 @@ class BrighteApi
     /** @var string|null */
     public $clientId;
 
+    /** 
+     * @var string|null
+     * @deprecated for old identity service calls
+     **/
+    public $legacyClientId;
+
     /** @var string|null */
     public $clientSecret;
 
@@ -80,6 +86,7 @@ class BrighteApi
         ?CacheItemPoolInterface $cache
     ) {
         $this->clientId = $config['client_id'] ?? null;
+        $this->legacyClientId = $config['legacy_client_id'] ?? null;
         $this->clientSecret = $config['client_secret'] ?? null;
         $this->apiKey = $config['key'] ?? null;
         $this->http = $http;
