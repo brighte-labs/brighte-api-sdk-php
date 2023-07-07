@@ -413,6 +413,91 @@ GQL;
 
     /**
      * @covers ::__construct
+     * @covers ::getFinancialProduct
+     * @covers ::getFinancialProductConfigFromResponse
+     */
+    public function testGetFinancialProductOldData(): void
+    {
+        $config = $this->configData;
+
+        unset($config['preventApplicationsAfterEndDate'], $config['activeTo']);
+
+        $expectedConfig = $this->expectedConfig;
+        $expectedConfig['preventApplicationsAfterEndDate'] = false;
+        $expectedConfig['activeTo'] = null;
+
+        $response = [
+            'data' => [
+                'financialProduct' => [
+                    'id' => 'brighte-green-loan',
+                    'name' => 'test-product',
+                    'type' => 'loan',
+                    'customerType' => 'residential',
+                    'loanTypeId' => 1,
+                    'categoryGroup' => 'green',
+                    'fpAccountType' => 'test-fp-account-type',
+                    'fpBranch' => 'test-fp-branch',
+                    'configuration' => $config,
+                ]
+            ]
+        ];
+
+        $financialProductId = 'brighte-green-loan';
+
+        $query = <<<GQL
+            query FinancialProduct(\$id: String!) {
+                financialProduct(
+                id: \$id
+                ) {
+                    id
+                    name
+                    type
+                    customerType
+                    loanTypeId
+                    configuration {
+                      interestRate
+                      establishmentFee
+                      applicationFee
+                      annualFee
+                      weeklyAccountFee
+                      latePaymentFee
+                      introducerFee
+                      enableExpressSettlement
+                      minFinanceAmount
+                      maxFinanceAmount
+                      minRepaymentMonth
+                      maxRepaymentMonth
+                      forceCcaProcess
+                      defaultPaymentCycle
+                      invoiceRequired
+                      manualSettlementRequired
+                      riskBasedPricing
+                      version
+                      activeTo
+                      preventApplicationsAfterEndDate
+                    }
+                    categoryGroup
+                    fpAccountType
+                    fpBranch
+                }
+            }
+GQL;
+
+        $expectedBody = [
+            'query' => $query,
+            'variables' => ["id" => "brighte-green-loan"],
+        ];
+
+        $this->brighteApi->expects(self::once())->method('cachedPost')
+            ->with('getFinancialProduct', [$financialProductId], self::PATH, json_encode($expectedBody))
+            ->willReturn(json_decode(json_encode($response)));
+        $product = $this->financeCoreApi->getFinancialProduct($financialProductId);
+        $config = $product->configuration;
+        self::assertEquals($expectedConfig, (array)$config);
+    }
+
+    /**
+     * @covers ::__construct
      * @covers ::getFinancialProductConfig
      * @covers ::getFinancialProductConfigFromResponse
      */
