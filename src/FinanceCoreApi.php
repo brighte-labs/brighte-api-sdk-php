@@ -280,7 +280,7 @@ GQL;
         $config->manualSettlementRequired = $configuration->manualSettlementRequired;
         $config->riskBasedPricing = $configuration->riskBasedPricing;
         $config->activeTo = ($configuration->activeTo ?? null) ? new \DateTime($configuration->activeTo) : null;
-        $config->preventApplicationsAfterEndDate = (bool) $configuration->preventApplicationsAfterEndDate ?? false;
+        $config->preventApplicationsAfterEndDate = (bool) ($configuration->preventApplicationsAfterEndDate ?? false);
         return $config;
     }
 
