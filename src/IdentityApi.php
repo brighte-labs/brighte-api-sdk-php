@@ -112,4 +112,34 @@ class IdentityApi extends \BrighteCapital\Api\AbstractApi
             (string) $result->token_type
         );
     }
+
+    public function getUserByMobileAndOrEmail(string $mobile, string $email): ?User
+    {
+        $response = $this->brighteApi->get(
+            sprintf('%s/user', self::PATH),
+            sprintf('mobile=%s&email=%s', $mobile, $email),
+            [],
+            self::PATH
+        );
+
+        if ($response->getStatusCode() !== StatusCodeInterface::STATUS_OK) {
+            $this->logResponse(__FUNCTION__, $response);
+
+            return null;
+        }
+
+        $result = json_decode((string) $response->getBody());
+
+        $user = new User();
+        $user->id = $result->id ?? null;
+        $user->remoteId = $result->remoteId ?? null;
+        $user->uid = $result->uid ?? null;
+        $user->firstName = $result->firstName ?? null;
+        $user->lastName = $result->lastName ?? null;
+        $user->email = $result->email ?? null;
+        $user->phone = $result->mobile ?? null;
+        $user->role = $result->role ?? null;
+
+        return $user;
+    }
 }
