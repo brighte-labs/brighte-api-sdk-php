@@ -115,9 +115,15 @@ class IdentityApi extends \BrighteCapital\Api\AbstractApi
 
     public function getUserByMobileAndOrEmail(string $mobile, string $email): ?User
     {
-        $response = $this->brighteApi->get(
-            sprintf('%s/user', self::PATH),
-            sprintf('mobile=%s&email=%s', $mobile, $email),
+        $body = json_encode([
+            'mobile' => $mobile,
+            'email' => $email,
+        ]);
+
+        $response = $this->brighteApi->post(
+            sprintf('%s/users/get-user-by-mobile-and-or-email', self::PATH),
+            $body,
+            '',
             [],
             self::PATH
         );
