@@ -257,8 +257,11 @@ class IdentityApiTest extends \PHPUnit\Framework\TestCase
         ];
 
         $response = new Response(200, [], json_encode($user));
-        $this->brighteApi->expects(self::once())->method('get')
-            ->with('/identity/user', 'mobile=0412312412&email=joe@test.com')
+        $this->brighteApi->expects(self::once())->method('post')
+            ->with('/identity/users/get-user-by-mobile-and-or-email', json_encode([
+                'mobile' => '0412312412',
+                'email' => 'joe@test.com',
+            ]))
             ->willReturn($response);
         $user = $this->identityApi->getUserByMobileAndOrEmail('0412312412', 'joe@test.com');
 
@@ -280,8 +283,11 @@ class IdentityApiTest extends \PHPUnit\Framework\TestCase
     public function testGetUserByMobileAndOrEmailFail(): void
     {
         $response = new Response(404, [], json_encode(['message' => 'Not found']));
-        $this->brighteApi->expects(self::once())->method('get')
-            ->with('/identity/user', 'mobile=0412312412&email=joe@test.com')
+        $this->brighteApi->expects(self::once())->method('post')
+            ->with('/identity/users/get-user-by-mobile-and-or-email', json_encode([
+                'mobile' => '0412312412',
+                'email' => 'joe@test.com',
+            ]))
             ->willReturn($response);
 
         $this->logger->expects(self::once())->method('warning')->with(
