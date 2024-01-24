@@ -238,4 +238,63 @@ class IdentityApiTest extends \PHPUnit\Framework\TestCase
         $this->expectException(AuthenticationFailedException::class);
         $this->identityApi->refreshToken($refreshToken);
     }
+
+    /**
+     * @covers ::__construct
+     * @covers ::getUserByMobileAndOrEmail
+     */
+    public function testGetUserByMobileAndOrEmail(): void
+    {
+        $user = [
+            'id' => 1,
+            'remoteId' => '11',
+            'uid' => 'universal-id',
+            'firstName' => 'Joe',
+            'lastName' => 'Customer',
+            'email' => 'joe@test.com',
+            'mobile' => '0412312412',
+            'role' => 'CONSUMER',
+        ];
+
+        $response = new Response(200, [], json_encode($user));
+        $this->brighteApi->expects(self::once())->method('post')
+            ->with('/identity/users/get-user-by-mobile-and-or-email', json_encode([
+                'mobile' => '0412312412',
+                'email' => 'joe@test.com',
+            ]))
+            ->willReturn($response);
+        $user = $this->identityApi->getUserByMobileAndOrEmail('0412312412', 'joe@test.com');
+
+        self::assertInstanceOf(User::class, $user);
+        self::assertEquals(1, $user->id);
+        self::assertEquals('11', $user->remoteId);
+        self::assertEquals('universal-id', $user->uid);
+        self::assertEquals('Joe', $user->firstName);
+        self::assertEquals('Customer', $user->lastName);
+        self::assertEquals('joe@test.com', $user->email);
+        self::assertEquals('0412312412', $user->phone);
+        self::assertEquals('CONSUMER', $user->role);
+    }
+
+    /**
+     * @covers ::__construct
+     * @covers ::getUserByMobileAndOrEmail
+     */
+    public function testGetUserByMobileAndOrEmailFail(): void
+    {
+        $response = new Response(404, [], json_encode(['message' => 'Not found']));
+        $this->brighteApi->expects(self::once())->method('post')
+            ->with('/identity/users/get-user-by-mobile-and-or-email', json_encode([
+                'mobile' => '0412312412',
+                'email' => 'joe@test.com',
+            ]))
+            ->willReturn($response);
+
+        $this->logger->expects(self::once())->method('warning')->with(
+            'BrighteCapital\Api\AbstractApi->getUserByMobileAndOrEmail: 404: Not found'
+        );
+
+        $user = $this->identityApi->getUserByMobileAndOrEmail('0412312412', 'joe@test.com');
+        self::assertEquals(null, $user);
+    }
 }
