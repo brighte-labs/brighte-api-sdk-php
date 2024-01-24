@@ -114,20 +114,23 @@ GQL;
         string $slug,
         string $vendorId = null,
         int $version = null,
-        string $promoCode = null
+        string $promoCode = null,
+        string $category = null
     ): ?FinancialProductConfig {
-
+ 
         $query = <<<GQL
         query FinancialProductConfiguration(
             \$financialProductId: String, 
             \$version: Int, 
             \$vendorId: String, 
-            \$promoCode: String) {
+            \$promoCode: String,
+            \$category: String) {
             financialProductConfiguration(
             financialProductId: \$financialProductId,
             version: \$version,
             vendorId: \$vendorId,
-            promoCode: \$promoCode
+            promoCode: \$promoCode,
+            category: \$category
             ) {
             establishmentFee
             interestRate
@@ -159,10 +162,11 @@ GQL;
                 'financialProductId' => $slug,
                 'vendorId' => $vendorId,
                 'version' => $version,
-                'promoCode' => $promoCode
+                'promoCode' => $promoCode,
+                'category' => $category
             ]
         ];
-
+    
         $responseBody = $this->brighteApi->cachedPost(
             __FUNCTION__,
             func_get_args(),

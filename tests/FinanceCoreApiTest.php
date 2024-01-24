@@ -199,18 +199,21 @@ class FinanceCoreApiTest extends \PHPUnit\Framework\TestCase
         $vendorId = $input[1];
         $version = $input[2];
         $promoCode = $input[3];
+        $category = null;
 
         $query = <<<GQL
         query FinancialProductConfiguration(
             \$financialProductId: String, 
             \$version: Int, 
             \$vendorId: String, 
-            \$promoCode: String) {
+            \$promoCode: String,
+            \$category: String) {
             financialProductConfiguration(
             financialProductId: \$financialProductId,
             version: \$version,
             vendorId: \$vendorId,
-            promoCode: \$promoCode
+            promoCode: \$promoCode,
+            category: \$category
             ) {
             establishmentFee
             interestRate
@@ -243,6 +246,7 @@ GQL;
                 "vendorId" => $vendorId,
                 "version" => $version,
                 "promoCode" => $promoCode,
+                "category" => $category
             ],
         ];
 
@@ -265,6 +269,7 @@ GQL;
         $vendorId = null;
         $version = null;
         $promoCode = 'non-existent-promo-code';
+        $category = null;
 
         $input = [
             $slug = 'brighte-green-loan', $vendorId = null, $version = null, $promoCode = 'non-existent-promo-code'
@@ -275,12 +280,14 @@ GQL;
             \$financialProductId: String, 
             \$version: Int, 
             \$vendorId: String, 
-            \$promoCode: String) {
+            \$promoCode: String,
+            \$category: String) {
             financialProductConfiguration(
             financialProductId: \$financialProductId,
             version: \$version,
             vendorId: \$vendorId,
-            promoCode: \$promoCode
+            promoCode: \$promoCode,
+            category: \$category
             ) {
             establishmentFee
             interestRate
@@ -313,6 +320,7 @@ GQL;
                 "vendorId" => $vendorId,
                 "version" => $version,
                 "promoCode" => $promoCode,
+                "category" => $category
             ],
         ];
 
