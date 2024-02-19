@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace BrighteCapital\Tests\Api;
 
 use BrighteCapital\Api\BrighteApi;
+use BrighteCapital\Api\Models\FinanceCore\ApprovedFinancialProduct;
+use BrighteCapital\Api\Models\FinanceCore\VendorPromotion;
 use BrighteCapital\Api\Models\FinancialProductConfig;
 use BrighteCapital\Api\Models\FinancialProduct;
 use BrighteCapital\Api\FinanceCoreApi;
@@ -101,6 +103,11 @@ class FinanceCoreApiTest extends \PHPUnit\Framework\TestCase
             ]
         ];
 
+        $approvedFinancialProduct = new ApprovedFinancialProduct();
+        $approvedFinancialProduct->id = 'brighte-pay';
+        $vendorPromotion = new VendorPromotion();
+        $vendorPromotion->code = 'test-promo-code';
+        $approvedFinancialProduct->promotions = [$vendorPromotion];
         $this->expectedVendor = [
             'legacyId' => 1,
             'publicId' => 'E1',
@@ -112,7 +119,8 @@ class FinanceCoreApiTest extends \PHPUnit\Framework\TestCase
                 'finishDate' => '2025-10-04T23:22:34.000Z',
                 'dollar' => 500,
                 'percentage' => null,
-            ])
+            ]),
+            'approvedFinancialProducts' => [$approvedFinancialProduct]
         ];
 
         $this->expectedVendorResponse = [
@@ -255,7 +263,7 @@ GQL;
             ->willReturn(json_decode(json_encode($response)));
         $config = $this->financeCoreApi->getFinancialProductConfig($slug, $vendorId, $version, $promoCode);
         self::assertInstanceOf(FinancialProductConfig::class, $config);
-        self::assertEquals($this->expectedConfig, (array)$config);
+        self::assertEquals($this->expectedConfig, (array) $config);
     }
 
     /**
@@ -272,7 +280,10 @@ GQL;
         $category = null;
 
         $input = [
-            $slug = 'brighte-green-loan', $vendorId = null, $version = null, $promoCode = 'non-existent-promo-code'
+            $slug = 'brighte-green-loan',
+            $vendorId = null,
+            $version = null,
+            $promoCode = 'non-existent-promo-code'
         ];
 
         $query = <<<GQL
@@ -416,7 +427,7 @@ GQL;
         self::assertEquals('green', $product->categoryGroup);
         self::assertEquals('test-fp-account-type', $product->fpAccountType);
         self::assertEquals('test-fp-branch', $product->fpBranch);
-        self::assertEquals($this->expectedConfig, (array)$config);
+        self::assertEquals($this->expectedConfig, (array) $config);
     }
 
     /**
@@ -501,7 +512,7 @@ GQL;
             ->willReturn(json_decode(json_encode($response)));
         $product = $this->financeCoreApi->getFinancialProduct($financialProductId);
         $config = $product->configuration;
-        self::assertEquals($expectedConfig, (array)$config);
+        self::assertEquals($expectedConfig, (array) $config);
     }
 
     /**
@@ -554,7 +565,7 @@ GQL;
             ->willReturn(json_decode(json_encode($response)));
         $vendor = $this->financeCoreApi->getVendor($vendorId);
         self::assertInstanceOf(FinanceCoreVendor::class, $vendor);
-        self::assertEquals($this->expectedVendor, (array)$vendor);
+        self::assertEquals($this->expectedVendor, (array) $vendor);
     }
 
     /**
@@ -584,18 +595,17 @@ GQL;
         $vendorLegacyId = $this->expectedVendor['legacyId'];
         $response = $this->expectedVendorResponse;
         $queryParameter = "legacyId: {$vendorLegacyId}";
-        $query = $this->financeCoreApi->createGetVendorQuery($queryParameter);
+        $query = $this->financeCoreApi->createGetVendorQuery($queryParameter, true);
 
         $expectedBody = [
             'query' => $query
         ];
-
         $this->brighteApi->expects(self::once())->method('cachedPost')
-            ->with('getVendorByLegacyId', [$vendorLegacyId], self::PATH, json_encode($expectedBody))
+            ->with('getVendorByLegacyId', [$vendorLegacyId, true], self::PATH, json_encode($expectedBody))
             ->willReturn(json_decode(json_encode($response)));
-        $vendor = $this->financeCoreApi->getVendorByLegacyId($vendorLegacyId);
+        $vendor = $this->financeCoreApi->getVendorByLegacyId($vendorLegacyId, true);
         self::assertInstanceOf(FinanceCoreVendor::class, $vendor);
-        self::assertEquals($this->expectedVendor, (array)$vendor);
+        self::assertEquals($this->expectedVendor, (array) $vendor);
     }
 
     /**
@@ -668,7 +678,7 @@ GQL;
         $account = $this->financeCoreApi->getFinanceAccount($id);
         self::assertNull($account);
     }
-    
+
     /**
      * @covers ::__construct
      * @covers ::getCategoryById

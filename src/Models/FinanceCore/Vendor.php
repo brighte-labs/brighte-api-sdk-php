@@ -24,4 +24,7 @@ class Vendor
 
     /** @var VendorRebate Active Rebate */
     public $activeRebate = null;
+
+    /** @var ApprovedFinancialProduct[] Approved Financial Product */
+    public $approvedFinancialProducts = null;
 }

@@ -6,7 +6,9 @@ namespace BrighteCapital\Api;
 
 use BrighteCapital\Api\Models\Category;
 use BrighteCapital\Api\Models\FinanceCore\Account;
+use BrighteCapital\Api\Models\FinanceCore\ApprovedFinancialProduct;
 use BrighteCapital\Api\Models\FinanceCore\Vendor as FinanceCoreVendor;
+use BrighteCapital\Api\Models\FinanceCore\VendorPromotion;
 use BrighteCapital\Api\Models\FinanceCore\VendorRebate;
 use BrighteCapital\Api\Models\FinancialProductConfig;
 use BrighteCapital\Api\Models\FinancialProduct;
@@ -16,11 +18,12 @@ class FinanceCoreApi extends \BrighteCapital\Api\AbstractApi
     public const PATH = '/../v2/finance/graphql';
 
     public function getVendor(
-        string $vendorId
+        string $vendorId,
+        bool $includeFinancialProduct = false
     ): ?FinanceCoreVendor {
         $queryParameter = "publicId: \"{$vendorId}\"";
         $requestBody = [
-            'query' => $this->createGetVendorQuery($queryParameter),
+            'query' => $this->createGetVendorQuery($queryParameter, $includeFinancialProduct),
         ];
 
         $responseBody = $this->brighteApi->cachedPost(
@@ -42,13 +45,14 @@ class FinanceCoreApi extends \BrighteCapital\Api\AbstractApi
     }
 
     public function getVendorByLegacyId(
-        int $vendorLegacyId
+        int $vendorLegacyId,
+        bool $includeFinancialProduct = false
     ): ?FinanceCoreVendor {
         $queryParameter = "legacyId: {$vendorLegacyId}";
         $requestBody = [
-            'query' => $this->createGetVendorQuery($queryParameter),
+            'query' => $this->createGetVendorQuery($queryParameter, $includeFinancialProduct),
         ];
-        
+
         $responseBody = $this->brighteApi->cachedPost(
             __FUNCTION__,
             func_get_args(),
@@ -68,8 +72,17 @@ class FinanceCoreApi extends \BrighteCapital\Api\AbstractApi
     }
 
     public function createGetVendorQuery(
-        string $queryParameter
+        string $queryParameter,
+        bool $includeFinancialProduct = false
     ): string {
+        $approvedFinancialProducts = $includeFinancialProduct ? '
+        approvedFinancialProducts {
+            promotions {
+                code
+            }
+            id
+        }' : '';
+
         return <<<GQL
         query {
             vendor (filter: { $queryParameter }) {
@@ -78,6 +91,7 @@ class FinanceCoreApi extends \BrighteCapital\Api\AbstractApi
               tradingName
               sfAccountId
               slug
+              $approvedFinancialProducts
               activeRebate {
                 startDate
                 finishDate
@@ -106,7 +120,22 @@ GQL;
             $vendor->activeRebate->percentage = $data->activeRebate->percentage;
             $vendor->activeRebate->rebateType = $data->activeRebate->rebateType;
         }
-        
+
+        if (!empty($data->approvedFinancialProducts)) {
+            foreach ($data->approvedFinancialProducts as $approvedFinancialProduct) {
+                $approvedProduct = new ApprovedFinancialProduct();
+                $approvedProduct->id = $approvedFinancialProduct->id;
+                if (!empty($approvedFinancialProduct->promotions)) {
+                    foreach ($approvedFinancialProduct->promotions as $promotion) {
+                        $promo = new VendorPromotion();
+                        $promo->code = $promotion->code;
+                        $approvedProduct->promotions[] = $promo;
+                    }
+                }
+                $vendor->approvedFinancialProducts[] = $approvedProduct;
+            }
+        }
+
         return $vendor;
     }
 
@@ -117,7 +146,7 @@ GQL;
         string $promoCode = null,
         string $category = null
     ): ?FinancialProductConfig {
- 
+
         $query = <<<GQL
         query FinancialProductConfiguration(
             \$financialProductId: String, 
@@ -166,7 +195,7 @@ GQL;
                 'category' => $category
             ]
         ];
-    
+
         $responseBody = $this->brighteApi->cachedPost(
             __FUNCTION__,
             func_get_args(),
@@ -232,7 +261,7 @@ GQL;
                 'id' => $id
             ]
         ];
-    
+
         $responseBody = $this->brighteApi->cachedPost(
             __FUNCTION__,
             func_get_args(),
@@ -247,7 +276,7 @@ GQL;
             return null;
         }
         $data = $responseBody->data->financialProduct;
-        
+
         $product = new FinancialProduct();
         $product->id = $data->id;
         $product->name = $data->name;
@@ -311,7 +340,7 @@ GQL;
         $requestBody = [
             'query' => $query
         ];
-    
+
         $responseBody = $this->brighteApi->cachedPost(
             __FUNCTION__,
             func_get_args(),
@@ -326,7 +355,7 @@ GQL;
             return null;
         }
         $data = $responseBody->data->financeAccount;
-        
+
         return $this->getFinanceAccountFromResponse($data);
     }
 
@@ -346,7 +375,7 @@ GQL;
                 $account->rebates[] = $rebateData;
             }
         }
-        
+
         return $account;
     }
 
