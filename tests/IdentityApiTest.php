@@ -46,6 +46,7 @@ class IdentityApiTest extends \PHPUnit\Framework\TestCase
             'id' => 1,
             'remoteId' => '11',
             'firstName' => 'Joe',
+            'middleName' => 'Rogan',
             'lastName' => 'Customer',
             'email' => 'joe@test.com',
             'phone' => '0412312412',
@@ -61,6 +62,7 @@ class IdentityApiTest extends \PHPUnit\Framework\TestCase
         self::assertEquals(1, $user->id);
         self::assertEquals('11', $user->remoteId);
         self::assertEquals('Joe', $user->firstName);
+        self::assertEquals('Rogan', $user->middleName);
         self::assertEquals('Customer', $user->lastName);
         self::assertEquals('joe@test.com', $user->email);
         self::assertEquals('0412312412', $user->phone);
@@ -250,6 +252,7 @@ class IdentityApiTest extends \PHPUnit\Framework\TestCase
             'remoteId' => '11',
             'uid' => 'universal-id',
             'firstName' => 'Joe',
+            'middleName' => null,
             'lastName' => 'Customer',
             'email' => 'joe@test.com',
             'mobile' => '0412312412',
@@ -270,6 +273,7 @@ class IdentityApiTest extends \PHPUnit\Framework\TestCase
         self::assertEquals('11', $user->remoteId);
         self::assertEquals('universal-id', $user->uid);
         self::assertEquals('Joe', $user->firstName);
+        self::assertEquals(null, $user->middleName);
         self::assertEquals('Customer', $user->lastName);
         self::assertEquals('joe@test.com', $user->email);
         self::assertEquals('0412312412', $user->phone);
