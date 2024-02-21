@@ -31,6 +31,7 @@ class IdentityApi extends \BrighteCapital\Api\AbstractApi
         $user->remoteId = $result->remoteId ?? null;
         $user->role = $result->role ?? null;
         $user->firstName = $result->firstName ?? null;
+        $user->middleName = $result->middleName ?? null;
         $user->lastName = $result->lastName ?? null;
         $user->email = $result->email ?? null;
         $user->phone = $result->phone ?? null;
@@ -141,6 +142,7 @@ class IdentityApi extends \BrighteCapital\Api\AbstractApi
         $user->remoteId = $result->remoteId ?? null;
         $user->uid = $result->uid ?? null;
         $user->firstName = $result->firstName ?? null;
+        $user->middleName = $result->middleName ?? null;
         $user->lastName = $result->lastName ?? null;
         $user->email = $result->email ?? null;
         $user->phone = $result->mobile ?? null;
