@@ -152,7 +152,7 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
             ->withConsecutive([self::isInstanceOf(Request::class)], [$expectApiRequest])
             ->willReturnOnConsecutiveCalls($authResponse, $secondCall);
 
-        
+
         // Authenticate, fill cache on first call
         $this->assertInstanceOf(
             ResponseInterface::class,
@@ -373,7 +373,7 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
         )->willReturn($cachedToken);
         $this->cache->expects(self::once())->method('save'); // saves the value to the cache pool
 
-        $this->api->cachedPost($functionName, $parameters, self::URL_CHIPMONKS, 'body', '', [], self::URL_CHIPMONKS);
+        $this->api->cachedPost($functionName, $parameters, self::URL_CHIPMONKS, 'body', '', [], self::URL_CHIPMONKS, true);
         // Post a second time, local cache should respond.
         $actual = $this->api->cachedPost($functionName, $parameters, self::URL_CHIPMONKS, 'body', '', [], self::URL_CHIPMONKS);
         self::assertEquals((object) $expected, $actual);
@@ -399,7 +399,7 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
         $this->cache->expects(self::once())->method('hasItem')->willReturn(true);
         $this->cache->expects(self::never())->method('save');
         $actual = $this->api->cachedPost($functionName, $parameters, self::URL_CHIPMONKS, 'body', '', [], self::URL_CHIPMONKS);
-        self::assertEquals((array)$expected, $actual);
+        self::assertEquals((array) $expected, $actual);
     }
 
     /**
@@ -433,7 +433,7 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
         $this->cache->expects(self::exactly(2))->method('save');
         $actual = $this->api->cachedPost($functionName, $parameters, self::URL_CHIPMONKS, 'body', '', [], self::URL_CHIPMONKS);
         $this->assertIsObject($actual);
-        self::assertEquals((array)$actual, $expected);
+        self::assertEquals((array) $actual, $expected);
     }
 
 
