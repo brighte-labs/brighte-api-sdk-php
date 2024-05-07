@@ -33,7 +33,8 @@ class FinanceCoreApi extends \BrighteCapital\Api\AbstractApi
             json_encode($requestBody),
             '',
             [],
-            self::PATH
+            self::PATH,
+            true
         );
 
         if ($responseBody == null) {
@@ -60,7 +61,8 @@ class FinanceCoreApi extends \BrighteCapital\Api\AbstractApi
             json_encode($requestBody),
             '',
             [],
-            self::PATH
+            self::PATH,
+            true
         );
 
         if ($responseBody == null) {

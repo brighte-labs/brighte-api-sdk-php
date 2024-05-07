@@ -230,14 +230,22 @@ class BrighteApi
         string $body,
         string $query = '',
         array $headers = [],
-        string $audiencePath = null
+        string $audiencePath = null,
+        bool $debug = false
     ) {
         $key = implode('_', [$functionName, implode('_', $parameters)]);
         if (array_key_exists($key, $this->cache)) {
+            if ($debug) {
+                $this->logger->debug(print_r(__FUNCTION__ . ': cache key:' . $key . '| value:' . $this->cache[$key], true));
+            }
             return $this->cache[$key];
         }
         if ($this->cacheItemPool && $this->cacheItemPool->hasItem($key)) {
-            return $this->cacheItemPool->getItem($key)->get();
+            $value = $this->cacheItemPool->getItem($key)->get();
+            if ($debug) {
+                $this->logger->debug(print_r(__FUNCTION__ . ': cache-item-pool key:' . $key . '| value:' . $value, true));
+            }
+            return $value;
         }
 
         $audience = $this->buildAudience($audiencePath);
@@ -245,6 +253,9 @@ class BrighteApi
 
         $responseBody = $this->checkIfContainsError($functionName, $response);
         if ($responseBody === null) {
+            if ($debug) {
+                $this->logger->debug(print_r(__FUNCTION__ . ': response is null. request query: ' . $query . '| body:' . $body, true));
+            }
             return null;
         }
 
@@ -314,18 +325,20 @@ class BrighteApi
 
         $path = UriResolver::removeDotSegments($this->prefix[$service] . $path);
 
-        return  $this->http->sendRequest(new Request(
-            $method,
-            Uri::fromParts([
-                'scheme' => $this->scheme[$service],
-                'host' => $this->host[$service],
-                'port' => $this->port[$service],
-                'path' => $path,
-                'query' => $query,
-            ]),
-            $headers,
-            $body
-        ));
+        return $this->http->sendRequest(
+            new Request(
+                $method,
+                Uri::fromParts([
+                    'scheme' => $this->scheme[$service],
+                    'host' => $this->host[$service],
+                    'port' => $this->port[$service],
+                    'path' => $path,
+                    'query' => $query,
+                ]),
+                $headers,
+                $body
+            )
+        );
     }
 
     /**
@@ -403,7 +416,7 @@ class BrighteApi
         $this->prefix[$service] = $uri->getPath();
         $this->port[$service] = $uri->getPort();
     }
-    
+
     /**
      * Cache key
      * @param string $audience
