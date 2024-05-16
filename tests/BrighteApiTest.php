@@ -128,6 +128,7 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
                 'content-type' => 'application/json',
                 'extra-header' => 'extra-header',
                 'Authorization' => self::BEARER . $this->accessToken,
+                'User-Agent' => 'BrighteSDK/1',
             ]
         );
 
@@ -183,6 +184,7 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
             'content-type' => 'application/json',
             'extra-header' => 'extra-header',
             'Authorization' => self::BEARER . $this->accessTokenExpired,
+            'User-Agent' => 'BrighteSDK/1',
         ];
 
         $expectApiRequestExpired = new Request(
@@ -306,6 +308,7 @@ class BrighteApiTest extends \PHPUnit\Framework\TestCase
                 'accept' => 'application/json',
                 'content-type' => 'application/json',
                 'Authorization' => self::BEARER . $this->accessToken,
+                'User-Agent' => 'BrighteSDK/1',
             ]
         );
         $item = $this->createMock(CacheItemInterface::class);

@@ -94,7 +94,9 @@ class BrighteApi
         $this->cacheItemPool = $cache;
         $this->jwtCacheKey = $this->clientId . '_' . self::JWT_SERVICE_CACHE_KEY;
         $this->setUri(self::BRIGHTE_API, $config['uri']);
-        $this->setUri(self::AUTH0, 'https://' . $config['auth0_domain']);
+        if ($config['auth0_domain']) {
+            $this->setUri(self::AUTH0, 'https://' . $config['auth0_domain']);
+        }
     }
 
     public function getToken(string $audience): string
@@ -317,6 +319,7 @@ class BrighteApi
         $headers = array_merge([
             'content-type' => 'application/json',
             'accept' => 'application/json',
+            'User-Agent' => $_SERVER['HTTP_USER_AGENT'] ?? 'BrighteSDK/1',
         ], $headers);
 
         if ($audience) {
