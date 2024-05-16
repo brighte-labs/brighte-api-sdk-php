@@ -238,14 +238,14 @@ class BrighteApi
         $key = implode('_', [$functionName, implode('_', $parameters)]);
         if (array_key_exists($key, $this->cache)) {
             if ($debug) {
-                $this->logger->debug(json_encode(__FUNCTION__ . ': cache key:' . $key . '| value:' . $this->cache[$key], true));
+                $this->logger->debug(json_encode(__FUNCTION__ . ': cache key:' . $key . '| value:' . $this->cache[$key]));
             }
             return $this->cache[$key];
         }
         if ($this->cacheItemPool && $this->cacheItemPool->hasItem($key)) {
             $value = $this->cacheItemPool->getItem($key)->get();
-            if ($debug) {
-                $this->logger->debug(json_encode(__FUNCTION__ . ': cache-item-pool key:' . $key . '| value:' . $value, true));
+            if ($debug && $value) {
+                $this->logger->debug(json_encode(__FUNCTION__ . ': cache-item-pool key:' . $key));
             }
             return $value;
         }
@@ -256,7 +256,11 @@ class BrighteApi
         $responseBody = $this->checkIfContainsError($functionName, $response);
         if ($responseBody === null) {
             if ($debug) {
-                $this->logger->debug(json_encode(__FUNCTION__ . ': response is null. request query: ' . $query . '| body:' . $body, true));
+                $this->logger->debug(
+                    json_encode(
+                        __FUNCTION__ . ': response is null. request query: ' . $query . '| body:' . $body
+                    )
+                );
             }
             return null;
         }
