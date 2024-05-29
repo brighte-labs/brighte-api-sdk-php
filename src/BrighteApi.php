@@ -238,7 +238,7 @@ class BrighteApi
         $key = implode('_', [$functionName, implode('_', $parameters)]);
         if (array_key_exists($key, $this->cache)) {
             if ($debug) {
-                $this->logger->debug(json_encode(__FUNCTION__ . ': cache key:' . $key . '| value:' . $this->cache[$key]));
+                $this->logger->debug(json_encode(__FUNCTION__ . ': cache key:' . $key));
             }
             return $this->cache[$key];
         }
