@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BrighteCapital\Tests\Api;
 
 use BrighteCapital\Api\BrighteApi;
+use BrighteCapital\Api\Models\ClientDetail;
 use BrighteCapital\Api\Models\FinanceCore\ApprovedFinancialProduct;
 use BrighteCapital\Api\Models\FinanceCore\VendorPromotion;
 use BrighteCapital\Api\Models\FinancialProductConfig;
@@ -16,6 +17,8 @@ use BrighteCapital\Api\Models\FinanceCore\Vendor as FinanceCoreVendor;
 use BrighteCapital\Api\Models\FinanceCore\VendorRebate;
 use Psr\Log\LoggerInterface;
 use Psr\Cache\CacheItemPoolInterface;
+use GuzzleHttp\Psr7\Response;
+use BrighteCapital\Api\Models\User;
 
 /**
  * @coversDefaultClass \BrighteCapital\Api\FinanceCoreApi
@@ -733,5 +736,53 @@ GQL;
             ->willReturn(null);
         $category = $this->financeCoreApi->getCategoryById($categoryId);
         self::assertNull($category);
+    }
+
+    /**
+     * @covers ::__construct
+     * @covers ::getClientDetails
+     */
+    public function testGetClientDetails(): void
+    {
+        $remoteId = 'U00001';
+        $clientDetails = [
+            'userId' => $remoteId,
+            'dateOfBirth' => '1999-12-12',
+            'firstName' => 'Arthur',
+            'middleName' => 'Ponder',
+            'lastName' => 'Morgans',
+            'email' => '',
+            'mobile' => '',
+        ];
+
+        $expectedClientDetails = new ClientDetail();
+        $expectedClientDetails->firstName = 'Arthur';
+        $expectedClientDetails->lastName = 'Morgans';
+        $expectedClientDetails->middleName = 'Ponder';
+        $expectedClientDetails->dateOfBirth = '1999-12-12';
+
+        $response = new Response(200, [], json_encode($clientDetails));
+
+        $this->brighteApi->expects(self::once())->method('get')
+            ->with('/../v2/finance/lms/client/' . $remoteId)
+            ->willReturn($response);
+
+        $result = $this->financeCoreApi->getClientDetails($remoteId);
+
+        self::assertEquals($expectedClientDetails, $result);
+    }
+
+    /**
+     * @covers ::__construct
+     * @covers ::getClientDetails
+     */
+    public function testGetClientDetailsReturnsNotFound(): void
+    {
+        $remoteId = 'U00001';
+        $this->brighteApi
+            ->expects(self::once())->method('get')
+            ->willReturn(new Response(404, [], json_encode([])));
+        $clientDetails = $this->financeCoreApi->getClientDetails($remoteId);
+        self::assertNull($clientDetails);
     }
 }

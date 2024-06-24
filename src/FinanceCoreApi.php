@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BrighteCapital\Api;
 
 use BrighteCapital\Api\Models\Category;
+use BrighteCapital\Api\Models\ClientDetail;
 use BrighteCapital\Api\Models\FinanceCore\Account;
 use BrighteCapital\Api\Models\FinanceCore\ApprovedFinancialProduct;
 use BrighteCapital\Api\Models\FinanceCore\Vendor as FinanceCoreVendor;
@@ -12,6 +13,8 @@ use BrighteCapital\Api\Models\FinanceCore\VendorPromotion;
 use BrighteCapital\Api\Models\FinanceCore\VendorRebate;
 use BrighteCapital\Api\Models\FinancialProductConfig;
 use BrighteCapital\Api\Models\FinancialProduct;
+use BrighteCapital\Api\Models\User;
+use Fig\Http\Message\StatusCodeInterface;
 
 class FinanceCoreApi extends \BrighteCapital\Api\AbstractApi
 {
@@ -429,5 +432,26 @@ GQL;
         $category->group = $data->group;
 
         return $category;
+    }
+
+    public function getClientDetails(string $clientId): ?ClientDetail
+    {
+        $path = "/../v2/finance";
+        $url = sprintf('%s/lms/client/%s', $path, $clientId);
+        $response = $this->brighteApi->get($url, '', [], self::PATH);
+
+        if ($response->getStatusCode() !== StatusCodeInterface::STATUS_OK) {
+            return null;
+        }
+
+        $body = json_decode((string) $response->getBody());
+
+        $clientDetail = new ClientDetail();
+        $clientDetail->firstName = $body->firstName;
+        $clientDetail->lastName = $body->lastName;
+        $clientDetail->middleName = $body->middleName;
+        $clientDetail->dateOfBirth = $body->dateOfBirth;
+
+        return $clientDetail;
     }
 }
